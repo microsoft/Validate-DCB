@@ -110,11 +110,11 @@ Adapters entered in this section are in Native RDMA mode (not attached to a vSwi
 > :warning: Do not put RDMAEnabledAdapters in mode 2 (attached to a vSwitch) in this section.
 
 The following options are currently supported:
-- ****Name**** - The name of the adapter.  Use `Get-NetAdapter` to determine the adapter name
+- ****Name**** - (Required) The name of the adapter.  Use `Get-NetAdapter` to determine the adapter name
 
-- ****VLANID**** - The VLAN assigned to the adapter.  Use `Get-NetAdapterAdvancedProperty -RegistryKeyword VLANID` to determine the assigned VLAN
+- ****VLANID**** - (Required) The VLAN assigned to the adapter.  Use `Get-NetAdapterAdvancedProperty -RegistryKeyword VLANID` to determine the assigned VLAN
 
-- ****JumboPacket**** - The jumbo frame size expected on the adapter.  Use the following command to determine the assigned jumbo frame size `Get-NetAdapterAdvancedProperty -RegistryKeyword *JumboPacket`
+- ****JumboPacket**** - (Optional) The jumbo frame size expected on the adapter.  Use the following command to determine the assigned jumbo frame size `Get-NetAdapterAdvancedProperty -RegistryKeyword *JumboPacket`
 
 This configuration will check for a configuration on the node like this:
 
@@ -181,13 +181,13 @@ Adapters entered in this section are in Host Virtual NIC RDMA mode (attached to 
 > :warning: Do not put RDMAEnabledAdapters in mode 1 (native RDMA adapters) in this section.
 
 The following options are currently supported:
-- ****Name**** - The name of the adapter.  Use `Get-NetAdapter` to determine the adapter name
+- ****Name**** - (Required) The name of the adapter.  Use `Get-NetAdapter` to determine the adapter name
 
 - ****VMNetworkAdapter**** - The name of the virtual adapter.  Use `Get-VMNetworkAdapter -ManagementOS` to determine the adapter name
 
-- ****VLANID**** - The VLAN assigned to the adapter.  Use `Get-NetAdapterAdvancedProperty -RegistryKeyword VLANID` to determine the assigned VLAN
+- ****VLANID**** - (Required) The VLAN assigned to the adapter.  Use `Get-NetAdapterAdvancedProperty -RegistryKeyword VLANID` to determine the assigned VLAN
 
-- ****JumboPacket**** - The jumbo frame size expected on the adapter.  Use the following command to determine the assigned jumbo frame size `Get-NetAdapterAdvancedProperty -RegistryKeyword *JumboPacket`
+- ****JumboPacket**** - (Optional) The jumbo frame size expected on the adapter.  Use the following command to determine the assigned jumbo frame size `Get-NetAdapterAdvancedProperty -RegistryKeyword *JumboPacket`
 
 RDMA Adapters in this mode require a host vNIC.  To avoid ambiguity for the virtual NICs names, we chose to use the ****VMNetworkAdapter**** parameter.
 

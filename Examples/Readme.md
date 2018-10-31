@@ -170,10 +170,7 @@ The following options are currently supported:
 
 &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<img src="..\helpers\pics\Get-VMSwitchLoadBalancing.png" >
 
-> :information_source: ****Note:**** The Load Balancing Algorithm defaults:
->
-> - Windows Server 2016: `Dynamic`
-> - Windows Server 2019: `HyperVPort`
+> :information_source: ****Note:**** The Load Balancing Algorithm of ****Hyper-V**** is now the recommended for Windows Server 2016 and Windows Server 2019.
 
 #### AllNodes.VMSwitch.RDMAEnabledAdapters
 

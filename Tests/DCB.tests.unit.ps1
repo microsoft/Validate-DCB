@@ -439,7 +439,7 @@ Describe "[Modal Unit]" -Tag Modal {
 
                 ### Verify interface IS NOT attached to virtual switch
                 It "[SUT: $nodeName]-[RDMAEnabledAdapter: $($thisRDMAEnabledAdapter.Name)]-[Noun: NetAdapterBinding] Interface must not be attached to the virtual switch" {
-                    ($actNetAdapterState.NetAdapterBinding | Where-Object{ $_.Name -eq $thisRDMAEnabledAdapter.Name -and $_.ComponentID -eq 'vms_pp'}).Enabled | Should Be $false
+                    ($actNetAdapterState.NetAdapterBinding | Where-Object{ $_.Name -eq $thisRDMAEnabledAdapter.Name -and $_.ComponentID -eq 'vms_pp'}).Enabled | Should BeNullOrEmpty
                 }
 
                 ### Verify interface is NOT bound to LBFO

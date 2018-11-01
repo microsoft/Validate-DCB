@@ -2,7 +2,7 @@
 
 ##### Steps
 1) [Learn the Tool](#Description)
-2) [Customize your Config](\Examples\Readme.md)
+2) [Customize your Config](Examples)
 3) [Initiate Testing](#Initiate-Testing)
 
 # Description
@@ -199,7 +199,7 @@ Extract the files in this repo to a folder on a system (TestHost) with connectiv
 
 ## Configuration File
 
-Regardless of the scenario, you need a configuration file to define the expected configuration on your systems.  You can use one of the example configurations or create your own.  We recommend you create your own as your setup is likely different than one of our stock configurations.  For more information, please see: [Customize your Config](\Examples\Readme.md)
+Regardless of the scenario, you need a configuration file to define the expected configuration on your systems.  You can use one of the example configurations or create your own.  We recommend you create your own as your setup is likely different than one of our stock configurations.  For more information, please see: [Customize your Config](Examples)
 
 ## Initiate Testing
 

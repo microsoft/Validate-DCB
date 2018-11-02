@@ -213,7 +213,7 @@ Here are a few tips on the parameters of the initiate.
 | Parameter | Description |
 |-----------|-------------|
 | $TestScope  | Determines the describe block to be run. You can use this to only run certain describe blocks. For example: <br><br> Use ****Global**** if you just want to setup a test host or validate your systems are ready to be tested. <br><br> Use ****Modal**** if you have already know you have all the prerequisites met.|
-| $ExampleConfig | Use this to select one of the pre-defined configuration files that will test a system in Mode 1 or Mode 2. For more information on the example configuration guides, please see [Examples](\Examples\Readme.md).<br><br>For details about the configuration for these modes, please review the [Converged NIC Guide](https://aka.ms/ConvergedRDMA)|
+| $ExampleConfig | Use this to select one of the pre-defined configuration files that will test a system in Mode 1 or Mode 2. For more information on the example configuration guides, please see [Examples](Examples).<br><br>For details about the configuration for these modes, please review the [Converged NIC Guide](https://aka.ms/ConvergedRDMA)|
 | $ConfigFilePath | Use this parameter to specify the path to a custom configuration file.
 |$ContinueOnFailure| If a test fails in one of the Describe blocks, Validate-DCB exits prior to moving to the next Describe block allowing you to correct the issue. Use this to attempt all tests even if a test failure is detected. | 
 

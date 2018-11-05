@@ -971,8 +971,11 @@ Describe "[Modal Unit]" -Tag Modal {
                     }
 
                     ### Verify the VMNetwork adapter is mapped to the specified pNIC
-                    It "[SUT: $nodeName]-[VMSwitch: $($thisCfgVMSwitch.Name)]-[RDMAEnabledAdapter: $($thisRDMAEnabledAdapter.Name)]-[VMNetworkAdapterTeamMapping: $($thisRDMAEnabledAdapter.VMNetworkAdapter)]-[Noun: VMNetworkAdapterTeamMapping] VMNetworkAdapter should be mapped to the physical adapter" {
-                        ($actvmSwitch.VMNetworkAdapterTeamMapping | Where-Object NetAdapterName -eq $thisRDMAEnabledAdapter.Name).ParentAdapter.Name | Should be $thisRDMAEnabledAdapter.VMNetworkAdapter
+                    If ($thisCfgVMSwitch.EmbeddedTeamingEnabled -eq $true) {
+                        It "[SUT: $nodeName]-[VMSwitch: $($thisCfgVMSwitch.Name)]-[RDMAEnabledAdapter: $($thisRDMAEnabledAdapter.Name)]-[VMNetworkAdapterTeamMapping: $($thisRDMAEnabledAdapter.VMNetworkAdapter)]-[Noun: VMNetworkAdapterTeamMapping] VMNetworkAdapter should be mapped to the physical adapter" {
+                            ($actvmSwitch.VMNetworkAdapterTeamMapping | Where-Object NetAdapterName -eq $thisRDMAEnabledAdapter.Name).ParentAdapter.Name | Should be $thisRDMAEnabledAdapter.VMNetworkAdapter
+
+                        }
                     }
                 }
             }

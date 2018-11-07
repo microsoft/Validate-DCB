@@ -402,11 +402,15 @@ Describe "[Modal Unit]" -Tag Modal {
         $cfgRDMAEnabledAdapters  = $_.RDMAEnabledAdapters
         $cfgRDMADisabledAdapters = $_.RDMADisabledAdapters
 
+        $AllRDMAEnabledAdapters = @()
+        If ($cfgRDMAEnabledAdapters) { $AllRDMAEnabledAdapters = $cfgRDMAEnabledAdapters}
+        If ($cfgVMSwitch.RDMAEnabledAdapters) { $AllRDMAEnabledAdapters += $cfgVMSwitch.RDMAEnabledAdapters}
+
         $NetAdapter = @()
-        $NetAdapter += Get-NetAdapter -CimSession $nodeName -Name ($cfgRDMAEnabledAdapters + $cfgVMSwitch.RDMAEnabledAdapters).Name -ErrorAction SilentlyContinue
+        $NetAdapter += Get-NetAdapter -CimSession $nodeName -Name $AllRDMAEnabledAdapters.Name -ErrorAction SilentlyContinue
 
         $NetAdapterBinding = @()
-        $NetAdapterBinding += Get-NetAdapterBinding -CimSession $nodeName -Name ($cfgRDMAEnabledAdapters + $cfgVMSwitch.RDMAEnabledAdapters).Name -ErrorAction SilentlyContinue
+        $NetAdapterBinding += Get-NetAdapterBinding -CimSession $nodeName -Name $AllRDMAEnabledAdapters.Name -ErrorAction SilentlyContinue
 
         $actNetAdapterState = @{}
         $actNetAdapterState.NetAdapter        += $netAdapter
@@ -518,7 +522,7 @@ Describe "[Modal Unit]" -Tag Modal {
         }
 
         $netAdapterAdvancedProperty = @()
-        $netAdapterAdvancedProperty += Get-NetAdapterAdvancedProperty -CimSession $nodeName -Name ($cfgRDMAEnabledAdapters + $cfgVMSwitch.RDMAEnabledAdapters).Name -ErrorAction SilentlyContinue
+        $netAdapterAdvancedProperty += Get-NetAdapterAdvancedProperty -CimSession $nodeName -Name $AllRDMAEnabledAdapters.Name -ErrorAction SilentlyContinue
         
         $actNetAdapterState.netAdapterAdvancedProperty = $netAdapterAdvancedProperty
     
@@ -643,7 +647,7 @@ Describe "[Modal Unit]" -Tag Modal {
             $NetQosTrafficClass = Get-NetQosTrafficClass -CimSession $nodeName -ErrorAction SilentlyContinue
     
             $NetQosDcbxSettingInterfaces = @()
-            ($cfgRDMAEnabledAdapters + $cfgVMSwitch.RDMAEnabledAdapters).Name | ForEach-Object {
+            $AllRDMAEnabledAdapters.Name | ForEach-Object {
                 $NetQosDcbxSettingInterfaces  += Get-NetQosDcbxSetting -InterfaceAlias $_ -CimSession $nodeName -ErrorAction SilentlyContinue
             }
             
@@ -726,7 +730,7 @@ Describe "[Modal Unit]" -Tag Modal {
                 }
             }
 
-            foreach ($thisRDMAEnabledAdapter in ($cfgRDMAEnabledAdapters + $cfgVMSwitch.RDMAEnabledAdapters)) {
+            foreach ($thisRDMAEnabledAdapter in $AllRDMAEnabledAdapters) {
                 ### Verify this adapter has an enabled NetAdapterQos policy
                 It "[SUT: $nodeName]-[RDMAEnabledAdapters: $($thisRDMAEnabledAdapter.Name)]-[Noun: NetAdapterQos] should be enabled" {
                     ($actNetQoSState.NetAdapterQos | Where-Object Name -eq $thisRDMAEnabledAdapter.Name).Enabled | Should Be $true

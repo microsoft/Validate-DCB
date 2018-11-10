@@ -53,6 +53,8 @@
 .NOTES
     Author: Windows Core Networking team @ Microsoft
 
+    Please file issues on GitHub @ GitHub.com/Microsoft/Validate-DCB
+
 .LINK
     More projects               : https://github.com/microsoft/sdn
     Windows Networking Blog     : https://blogs.technet.microsoft.com/networking/

@@ -20,6 +20,30 @@ The system testing others must be running either Windows 10, Server 2016, or Ser
 
 We require certain PowerShell modules and cmdlets to run the tests
 
+##### Failed Test: Must have the module [ServerManager]
+
+This error indicates that the Server Manager module is not installed on the system.  This typically occurs on Windows 10 Test hosts.
+
+<img src="../helpers/pics/FailedServerManager.png">
+
+To resolve this error install the RSAT Server Manager feature:
+
+- Navigate to and select ****Settings**** > ****Manage Optional Features**** > ****Add a Feature**** > ****Install RSAT: Server Manager****
+
+&emsp; &emsp; &emsp; <img src="../helpers/pics/RSATServerManager.png">
+
+##### Failed Test: Must have the module [DcbQos]
+
+This error indicates that the DCB Qos PowerShell module is not installed on the system.
+
+<img src="../helpers/pics/FailedDcbQos.png">
+
+To resolve this error install the RSAT Server Manager feature:
+
+- Navigate to and select ****Settings**** > ****Apps**** > ****Programs and Features**** > ****Turn Windows Features On or Off**** > ****Data Center Bridging****
+
+&emsp; &emsp; &emsp; <img src="../helpers/pics/InstallDCB.png" width="500">
+
 #### Verify PowerShell cmdlets are available on the TestHost
 
 We require certain PowerShell modules and cmdlets to run the tests

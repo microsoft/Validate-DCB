@@ -17,13 +17,13 @@ To leverage these example configurations, specify the ****ExampleConfig**** para
 
 To specify the *NDKm1-examples.DCB.config* example file
 
-> ```
+> ``` PowerShell
 > .\initiate.ps1 -ExampleConfig NDKm1
 > ```
 
 To specify the *NDKm2-examples.DCB.config* example file
 
-> ```
+> ``` PowerShell
 > .\initiate.ps1 -ExampleConfig NDKm2
 > ```
 
@@ -34,11 +34,10 @@ The [Example Configurations](#Example-Configurations) may not meet your exact co
 |     FileName       | Description |
 | -----------------  | ----------- |
 | Cluster-Single.ps1 | Configuration with a single cluster  |
-| Cluster-Multi.ps1  | Configuration with multiple clusters | 
+| Cluster-Multi.ps1  | Configuration with multiple clusters |
 | UniqueConfigs.ps1  | Configuration with nodes containing unique configurations |
 | MultipleVMSwitch.ps1 | Configuration containing multiple VMSwitches       |
 | ComboModes.ps1 | Configuration with Native RDMA and Host Virtual NIC RDMA |
-
 
 ## Custom Configuration
 
@@ -64,7 +63,7 @@ During runtime, a global variable named $ConfigData carries the data from the co
 NetQos policies and traffic classes are defined under the NonNodeData section.  Each NetQos policy defined requires the following entries:
 
 - ****Name**** This is the name of the NetQosPolicy and Traffic class expected on systems
-- ****NetDirectPortMatchCondition**** or ****Template**** 
+- ****NetDirectPortMatchCondition**** or ****Template****
     - RDMA requires the use of the ****NetDirectPortMatchCondition**** entry.
     - ****Template**** can only be used to specify non-RDMA traffic.
 - ****PriorityValue8021Action**** The expected Priority of the NetQos and Traffic Class
@@ -110,6 +109,7 @@ Adapters entered in this section are in Native RDMA mode (not attached to a vSwi
 > :warning: Do not put RDMAEnabledAdapters in mode 2 (attached to a vSwitch) in this section.
 
 The following options are currently supported:
+
 - ****Name**** - (Required) The name of the adapter.  Use `Get-NetAdapter` to determine the adapter name
 
 - ****VLANID**** - (Required) The VLAN assigned to the adapter.  Use `Get-NetAdapterAdvancedProperty -RegistryKeyword VLANID` to determine the assigned VLAN
@@ -129,6 +129,7 @@ This configuration will check for a configuration on the node like this:
 This section is optional. The tool will verify that any adapter specified here has RDMA disabled. For example, using `Get-NetAdapterRDMA` to identify that RDMA is disabled.
 
 The following options are currently supported:
+
 - ****Name**** - The name of the adapter.  Use `Get-NetAdapter` to determine the adapter name
 
 > :warning: Do not put host virtual NICs that should be RDMA Disabled in this section.  These virtual NICs should be defined in ****AllNodes.VMSwitch.RDMADisabledAdapters**** defined later.
@@ -181,6 +182,7 @@ Adapters entered in this section are in Host Virtual NIC RDMA mode (attached to 
 > :warning: Do not put RDMAEnabledAdapters in mode 1 (native RDMA adapters) in this section.
 
 The following options are currently supported:
+
 - ****Name**** - (Required) The name of the adapter.  Use `Get-NetAdapter` to determine the adapter name
 
 - ****VMNetworkAdapter**** - The name of the virtual adapter.  Use `Get-VMNetworkAdapter -ManagementOS` to determine the adapter name
@@ -208,4 +210,3 @@ The following options are currently supported:
 For example, using `Get-NetAdapterRDMA` to identify that RDMA is disabled.
 
 &emsp;&emsp; <img src="..\helpers\pics\VMSwitch_RDMADisabledAdapters.png" >
-

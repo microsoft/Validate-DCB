@@ -111,20 +111,16 @@ $testFile = Join-Path -Path $here -ChildPath "tests\dcb.tests.$testType.ps1"
 
 Switch ($TestScope) {
     'Global' {
-        $PesterResults = Invoke-Pester -Script $testFile -Tag 'Global' -OutputFile "$here\Results\$startTime-global-$testType.xml" -OutputFormat NUnitXml -PassThru
+        Invoke-Pester -Script $testFile -Tag 'Global' -OutputFile "$here\Results\$startTime-global-$testType.xml" -OutputFormat NUnitXml -PassThru -EnableExit
     }
 
     'Modal' {
-        $PesterResults = Invoke-Pester -Script $testFile -Tag 'Modal' -OutputFile "$here\Results\$startTime-modal-$testType.xml" -OutputFormat NUnitXml -PassThru
+        Invoke-Pester -Script $testFile -Tag 'Modal' -OutputFile "$here\Results\$startTime-modal-$testType.xml" -OutputFormat NUnitXml -PassThru -EnableExit
     }
 
     Default {
-        $PesterResults = Invoke-Pester -Script $testFile -Tag 'Global' -OutputFile "$here\Results\$startTime-Global-$testType.xml" -OutputFormat NUnitXml -PassThru
+        Invoke-Pester -Script $testFile -Tag 'Global' -OutputFile "$here\Results\$startTime-Global-$testType.xml" -OutputFormat NUnitXml -PassThru -EnableExit
 
-        If (( -not( $ContinueOnFailure )) -and $PesterResults.FailedCount) {
-            Invoke-TestFailure -TestType $TestType -PesterResults $PesterResults
-        }
-
-        $PesterResults = Invoke-Pester -Script $testFile -Tag 'Modal' -OutputFile "$here\Results\$startTime-Modal-$testType.xml" -OutputFormat NUnitXml -PassThru
+        Invoke-Pester -Script $testFile -Tag 'Modal' -OutputFile "$here\Results\$startTime-Modal-$testType.xml" -OutputFormat NUnitXml -PassThru -EnableExit
     }
 }

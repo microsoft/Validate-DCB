@@ -1,27 +1,4 @@
-﻿Function Invoke-TestFailure {
-    param(
-        [parameter(Mandatory=$true)]
-        [validateSet('Unit','Integration','Acceptance')]
-        [string]$TestType,
-
-        [parameter(Mandatory=$true)]
-        $PesterResults
-    )
-
-    $errorID = if($TestType -eq 'Unit'){'UnitTestFailure'}elseif($TestType -eq 'Integration'){'IntegrationTestFailure'}else{'AcceptanceTestFailure'}
-
-    $errorCategory = [System.Management.Automation.ErrorCategory]::LimitsExceeded
-    $errorMessage  = "$TestType Test Failed: $($PesterResults.FailedCount) tests failed out of $($PesterResults.TotalCount) total test."
-
-    $exception   = New-Object -TypeName System.SystemException -ArgumentList $errorMessage
-    $errorRecord = New-Object -TypeName System.Management.Automation.ErrorRecord -ArgumentList $exception,$errorID, $errorCategory, $null
-
-    Write-Output "##vso[task.logissue type=error]$errorMessage"
-    Throw $errorRecord
-}
-
-#TODO: Cavium entries look wrong...
-$Global:Drivers = (
+﻿$Global:Drivers = (
     @{ IHV = 'Broadcom' ; DriverFileName = 'bnxtnd.sys'    ; MinimumDriverVersion = '212.0.88.0'    }, # NetXtreme
     @{ IHV = 'Broadcom' ; DriverFileName = 'ocndnd.sys'    ; MinimumDriverVersion = '11.0.273.8008' }, # OneConnect
 

@@ -111,16 +111,20 @@ $testFile = Join-Path -Path $here -ChildPath "tests\dcb.tests.$testType.ps1"
 
 Switch ($TestScope) {
     'Global' {
-        Invoke-Pester -Script $testFile -Tag 'Global' -OutputFile "$here\Results\$startTime-global-$testType.xml" -OutputFormat NUnitXml -PassThru -EnableExit
+        $GlobalResults = Invoke-Pester -Script $testFile -Tag 'Global' -OutputFile "$here\Results\$startTime-Global-$testType.xml" -OutputFormat NUnitXml -PassThru -EnableExit
+        $GlobalResults | Select-Object -Property TagFilter, Time, TotalCount, PassedCount, FailedCount, SkippedCount, PendingCount | Format-Table -AutoSize
     }
 
     'Modal' {
-        Invoke-Pester -Script $testFile -Tag 'Modal' -OutputFile "$here\Results\$startTime-modal-$testType.xml" -OutputFormat NUnitXml -PassThru -EnableExit
+        $ModalResults = Invoke-Pester -Script $testFile -Tag 'Modal' -OutputFile "$here\Results\$startTime-Modal-$testType.xml" -OutputFormat NUnitXml -PassThru -EnableExit
+        $ModalResults | Select-Object -Property TagFilter, Time, TotalCount, PassedCount, FailedCount, SkippedCount, PendingCount | Format-Table -AutoSize
     }
 
     Default {
-        Invoke-Pester -Script $testFile -Tag 'Global' -OutputFile "$here\Results\$startTime-Global-$testType.xml" -OutputFormat NUnitXml -PassThru -EnableExit
-
-        Invoke-Pester -Script $testFile -Tag 'Modal' -OutputFile "$here\Results\$startTime-Modal-$testType.xml" -OutputFormat NUnitXml -PassThru -EnableExit
+        $GlobalResults = Invoke-Pester -Script $testFile -Tag 'Global' -OutputFile "$here\Results\$startTime-Global-$testType.xml" -OutputFormat NUnitXml -PassThru -EnableExit
+        $GlobalResults | Select-Object -Property TagFilter, Time, TotalCount, PassedCount, FailedCount, SkippedCount, PendingCount | Format-Table -AutoSize
+        
+        $ModalResults = Invoke-Pester -Script $testFile -Tag 'Modal' -OutputFile "$here\Results\$startTime-Modal-$testType.xml" -OutputFormat NUnitXml -PassThru -EnableExit
+        $ModalResults | Select-Object -Property TagFilter, Time, TotalCount, PassedCount, FailedCount, SkippedCount, PendingCount | Format-Table -AutoSize
     }
 }

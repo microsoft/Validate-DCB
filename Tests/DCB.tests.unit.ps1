@@ -389,7 +389,7 @@
             ### Verify that each required module existed on the SUT
             $reqModules | ForEach-Object {
                 It "[Global Unit]-[SUT: $nodeName] should have the module [$_] installed" {
-                    ($actModules | Where-Object Name -eq $_) | Should be $true
+                    ($actModules | Where-Object Name -eq $_) | Sort Version -Descending | Select-Object -First 1 | Should be $true
                 }
             }
 
@@ -570,7 +570,7 @@ Describe "[Modal Unit]" -Tag Modal {
             
                 ### Verify if JumboPackets are specified in the config file that they are set properly on the interfaces
                 If ($thisRDMAEnabledAdapter.JumboPacket) {
-                    It "[SUT: $nodeName]-[RDMAEnabledAdapter: $($thisRDMAEnabledAdapter.Name)]-[Noun: NetAdapterAdvancedProperty] should have Jumbo Frames set to [$($thisRDMAEnabledAdapter.JumboPacket)]" {
+                    It "[SUT: $nodeName]-[RDMAEnabledAdapter: $($thisRDMAEnabledAdapter.Name)]-[Noun: NetAdapterAdvancedProperty] should have Jumbo Packet set to [$($thisRDMAEnabledAdapter.JumboPacket)]" {
                         ($actNetAdapterState.netAdapterAdvancedProperty | Where-Object{$_.Name -eq $thisRDMAEnabledAdapter.Name -and $_.RegistryKeyword -eq '*JumboPacket'}).RegistryValue | Should Be $thisRDMAEnabledAdapter.JumboPacket
                     }
                 }
@@ -623,7 +623,7 @@ Describe "[Modal Unit]" -Tag Modal {
                 
                     ### Verify if JumboPackets are specified in the config file that they are set properly on the interfaces
                     If ($thisRDMAEnabledAdapter.JumboPacket) {
-                        It "[SUT: $nodeName]-[VMSwitch: $($thisCfgVMSwitch.Name)]-[RDMAEnabledAdapter: $($thisRDMAEnabledAdapter.Name)]-[Noun: NetAdapterAdvancedProperty] should have Jumbo Frames set to [$($thisRDMAEnabledAdapter.JumboPacket)]" {
+                        It "[SUT: $nodeName]-[VMSwitch: $($thisCfgVMSwitch.Name)]-[RDMAEnabledAdapter: $($thisRDMAEnabledAdapter.Name)]-[Noun: NetAdapterAdvancedProperty] should have Jumbo Packet set to [$($thisRDMAEnabledAdapter.JumboPacket)]" {
                             ($actNetAdapterState.netAdapterAdvancedProperty | Where-Object{$_.Name -eq $thisRDMAEnabledAdapter.Name -and $_.RegistryKeyword -eq '*JumboPacket'}).RegistryValue | Should Be $thisRDMAEnabledAdapter.JumboPacket
                         }
                     }
@@ -964,8 +964,8 @@ Describe "[Modal Unit]" -Tag Modal {
                     }
 
                     If ($thisRDMAEnabledAdapter.JumboPacket) {
-                        ### Verify if the JumboPacket param is specified in the cfg file, that the vNIC also has the jumbo frame setting
-                        It "[SUT: $nodeName]-[VMSwitch: $($thisCfgVMSwitch.Name)]-[RDMAEnabledAdapter: $($thisRDMAEnabledAdapter.Name)]-[VMNetworkAdapter: $($thisRDMAEnabledAdapter.VMNetworkAdapter)]-[Noun: NetAdapterAdvancedProperty] should have Jumbo Frames set to [$($thisRDMAEnabledAdapter.JumboPacket)]" {
+                        ### Verify if the JumboPacket param is specified in the cfg file, that the vNIC also has the jumbo packet setting
+                        It "[SUT: $nodeName]-[VMSwitch: $($thisCfgVMSwitch.Name)]-[RDMAEnabledAdapter: $($thisRDMAEnabledAdapter.Name)]-[VMNetworkAdapter: $($thisRDMAEnabledAdapter.VMNetworkAdapter)]-[Noun: NetAdapterAdvancedProperty] should have Jumbo Packet set to [$($thisRDMAEnabledAdapter.JumboPacket)]" {
                             ($actvmSwitch.NetAdapterAdvancedProperty | Where-Object{$_.Name -eq $thisRDMAEnabledAdapter.VMNetworkAdapter -and $_.RegistryKeyword -eq '*JumboPacket'}).RegistryValue | Should Be $thisRDMAEnabledAdapter.JumboPacket
                         }
                     }

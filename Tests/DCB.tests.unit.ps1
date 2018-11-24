@@ -370,6 +370,7 @@
             # Add Hyper-V to the list if there's at least one vmSwitch defined in the config
             If ($ConfigData.AllNodes.VMSwitch.Count -ge 1) {
                 $reqFeatures += 'Hyper-V'
+                $reqModules  += 'Hyper-V'
             }
 
             $actModules, $actFeatureState = Invoke-Command -ComputerName $nodeName -ScriptBlock {

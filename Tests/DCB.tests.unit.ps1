@@ -389,7 +389,7 @@
             ### Verify that each required module existed on the SUT
             $reqModules | ForEach-Object {
                 It "[Global Unit]-[SUT: $nodeName] should have the module [$_] installed" {
-                    ($actModules | Where-Object Name -eq $_) | Sort Version -Descending | Select-Object -First 1 | Should be $true
+                    ($actModules | Where-Object Name -eq $_) | Sort-Object Version -Descending | Select-Object -First 1 | Should be $true
                 }
             }
 

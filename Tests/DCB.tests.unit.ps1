@@ -24,7 +24,14 @@
         }
 
         ### Verify PowerShell Modules are available on the TestHost
-        'DcbQos', 'NetQos', 'NetAdapter','ServerManager' | ForEach-Object {
+        $reqModules  = @('ServerManager','DcbQos', 'NetQos', 'NetAdapter')
+
+        # Add Hyper-V cmdlets to the list if there's at least one vmSwitch defined in the config
+        If ($ConfigData.AllNodes.VMSwitch.Count -ge 1) {
+            $reqModules += 'Hyper-V'
+        }
+
+        $reqModules | ForEach-Object {
             It "[Global Unit]-[TestHost: ${env:ComputerName}] must have the module [$_] available" {
                 $module = Get-Module $_ -ListAvailable -ErrorAction SilentlyContinue
                 $module | Should not BeNullOrEmpty
@@ -32,8 +39,15 @@
         }
 
         ### Verify PowerShell cmdlets are available on the TestHost
-        'Get-WindowsFeature', 'Get-NetQosPolicy', 'Get-NetQosFlowControl', 
-        'Get-NetQosTrafficClass', 'Get-NetAdapterQos', 'Get-NetQosDcbxSetting' | ForEach-Object {
+        $reqCmdlets  = @('Get-WindowsFeature','Get-NetQosPolicy', 'Get-NetQosFlowControl',
+                         'Get-NetQosTrafficClass', 'Get-NetAdapterQos', 'Get-NetQosDcbxSetting')
+
+        # Add Hyper-V cmdlets to the list if there's at least one vmSwitch defined in the config
+        If ($ConfigData.AllNodes.VMSwitch.Count -ge 1) {
+            $reqCmdlets += 'Get-VMSwitch'
+        }
+
+        $reqCmdlets | ForEach-Object {
             It "[Global Unit]-[TestHost: ${env:ComputerName}] must have the cmdlet [$_] available" {
                 $cmd = Get-Command $_ -ErrorAction SilentlyContinue
                 $cmd | Should not BeNullOrEmpty
@@ -353,6 +367,7 @@
             $reqModules  = @('DcbQos', 'NetQos', 'NetAdapter','ServerManager')
             $reqFeatures = @('Data-Center-Bridging')
 
+            # Add Hyper-V to the list if there's at least one vmSwitch defined in the config
             If ($ConfigData.AllNodes.VMSwitch.Count -ge 1) {
                 $reqFeatures += 'Hyper-V'
             }
@@ -378,8 +393,15 @@
             }
 
             ### Verify the following cmdlets are available on each SUT
-            'Get-WindowsFeature', 'Get-NetQosPolicy', 'Get-NetQosFlowControl', 
-            'Get-NetQosTrafficClass', 'Get-NetAdapterQos', 'Get-NetQosDcbxSetting' | ForEach-Object {
+            $reqCmdlets  = @('Get-WindowsFeature','Get-NetQosPolicy', 'Get-NetQosFlowControl',
+                            'Get-NetQosTrafficClass', 'Get-NetAdapterQos', 'Get-NetQosDcbxSetting')
+
+            # Add Hyper-V cmdlets to the list if there's at least one vmSwitch defined in the config
+            If ($ConfigData.AllNodes.VMSwitch.Count -ge 1) {
+                $reqCmdlets += 'Get-VMSwitch'
+            }
+
+            $reqCmdlets | ForEach-Object {
                 It "[Global Unit]-[SUT: $nodeName] should have the cmdlet [$_] available" {
                     $actModules.ExportedCommands.Values -contains $_ | Should be $true
                 }

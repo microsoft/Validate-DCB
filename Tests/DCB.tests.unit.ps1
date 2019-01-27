@@ -1,44 +1,48 @@
 ﻿Describe "[Global Unit]" -Tag Global {
-    Context "[Global Unit]-[Test Host: $($env:COMPUTERNAME)]-System Requirements" {
-        ### Verify TestHost has Pester Module
-        It "[Global Unit]-[TestHost: ${env:ComputerName}] must have Pester module" {
-            (Get-Module -Name Pester -ListAvailable -ErrorAction SilentlyContinue) | Should Not BeNullOrEmpty
+    BeforeAll {
+        if (-not ((Get-Module -Name Pester -ListAvailable -ErrorAction SilentlyContinue)))
+        {
+            throw "[Global Unit]-[TestHost: ${env:ComputerName}] must have Pester module"
         }
 
-        ### Verify TestHost has the 3x Version of Pester
-        If (Get-Module -Name Pester -ListAvailable -ErrorAction SilentlyContinue) {
-            It "[Global Unit]-[TestHost: ${env:ComputerName}] must have Pester 3x module" {
-                (Get-Module -Name Pester -ListAvailable -ErrorAction SilentlyContinue).Version.Major | Should Be 3
-            }
+        if ((Get-Module -Name Pester -ListAvailable -ErrorAction SilentlyContinue).Version.Major -ne 3)
+        {
+            throw "[Global Unit]-[TestHost: ${env:ComputerName}] must have Pester 3x module"
         }
 
         $NodeOS = Get-CimInstance -ClassName 'Win32_OperatingSystem'
+
+        $caption = ($NodeOS.Caption -like '*Windows 10*') -or 
+                    ($NodeOS.Caption -like '*Windows Server 2016*') -or
+                    ($NodeOS.Caption -like '*Windows Server 2019*') 
+
+        if (!$caption)
+        {
+            throw "[Global Unit]-[TestHost: ${env:ComputerName}] must be Windows 10, Server 2016, or Server 2019"
+        }
+
+        foreach ($module in @('DcbQos', 'NetQos', 'NetAdapter','ServerManager'))
+        {
+            if (-not (Get-Module $ -ListAvailable -ErrorAction SilentlyContinue))
+            {
+                throw "[Global Unit]-[TestHost: ${env:ComputerName}] must have the module [$module] available"
+            }            
+        }
+
+        #Check cmdlets - This seems redundant since we already checked DcbQoS and NetQoS
+        $cmdletsToCheck = 'Get-WindowsFeature', 'Get-NetQosPolicy', 'Get-NetQosFlowControl', `
+        'Get-NetQosTrafficClass', 'Get-NetAdapterQos', 'Get-NetQosDcbxSetting'
+
+        foreach ($cmd in $cmdletsToCheck)
+        {
+            if (-not (Get-Command $_ -ErrorAction SilentlyContinue))
+            {
+                throw "[Global Unit]-[TestHost: ${env:ComputerName}] must have the cmdlet [$cmd] available"
+            }
+        }
+
+        #Config file integrity
         
-        ### Verify the TestHost is sufficient version
-        It "[Global Unit]-[TestHost: ${env:ComputerName}] must be Windows 10, Server 2016, or Server 2019" {
-            $caption =  ($NodeOS.Caption -like '*Windows 10*') -or 
-                        ($NodeOS.Caption -like '*Windows Server 2016*') -or
-                        ($NodeOS.Caption -like '*Windows Server 2019*') 
-            
-            $caption | Should be $true
-        }
-
-        ### Verify PowerShell Modules are available on the TestHost
-        'DcbQos', 'NetQos', 'NetAdapter','ServerManager' | ForEach-Object {
-            It "[Global Unit]-[TestHost: ${env:ComputerName}] must have the module [$_] available" {
-                $module = Get-Module $_ -ListAvailable -ErrorAction SilentlyContinue
-                $module | Should not BeNullOrEmpty
-            }
-        }
-
-        ### Verify PowerShell cmdlets are available on the TestHost
-        'Get-WindowsFeature', 'Get-NetQosPolicy', 'Get-NetQosFlowControl', 
-        'Get-NetQosTrafficClass', 'Get-NetAdapterQos', 'Get-NetQosDcbxSetting' | ForEach-Object {
-            It "[Global Unit]-[TestHost: ${env:ComputerName}] must have the cmdlet [$_] available" {
-                $cmd = Get-Command $_ -ErrorAction SilentlyContinue
-                $cmd | Should not BeNullOrEmpty
-            }
-        }
     }
 
     Context "[Global Unit]-Config File Integrity" {

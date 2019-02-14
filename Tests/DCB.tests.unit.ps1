@@ -41,69 +41,75 @@
             }
         }
 
-        #Config file integrity
-        
-    }
-
-    Context "[Global Unit]-Config File Integrity" {
         ### Verify the config file exists
         $configFileExists = Get-ChildItem -Path $configFile -ErrorAction SilentlyContinue        
-        It "[Config File] $($configFileExists.Name) must exist" {
-            $configFileExists.Exists | Should Be $true
+        if (-not $configFileExists)
+        {
+            throw "[Config File] $configFile must exist"
         }
 
         ### Verify configData contains the AllNodes HashTable
-        It "[Config File]-[AllNodes] Config File must contain the AllNodes Hashtable" {
-            $configData.AllNodes | Should BeOfType System.Collections.Hashtable
+        if ($configData.AllNodes -isnot [System.Collections.Hashtable])
+        {
+            throw "[Config File]-[AllNodes] Config File must contain the AllNodes Hashtable"
         }
 
         ### Verify configData contains the NonNodeData HashTable
-        It "[Config File]-[NonNodeData] Config File must contain the NonNodeData Hashtable" {
-            $configData.NonNodeData | Should BeOfType System.Collections.Hashtable
+        if ($configData.NonNodeData -isnot [System.Collections.Hashtable])
+        {
+            throw "[Config File]-[NonNodeData] Config File must contain the NonNodeData Hashtable"
         }
 
         $legend = @('AllNodes','NonNodeData')
         $configData.Keys.GetEnumerator() | ForEach-Object {
             ### Verify that the entries under $configData are in $legend
-            It "[Config File]-[Tested key: $_] Should contain only recognized keys" {
-                $_ -in $legend | Should be $true
+            if ($_ -notin $legend)
+            {
+                throw "[Config File]-[Tested key: $_] Should contain only recognized keys"            
             }
         }
 
         ### Verify at least one node is specified [NodeName]
-        It "[Config File]-[AllNodes.NodeName] Config File must contain at least 1 Node" {
-            $configData.AllNodes.NodeName.Count | Should BeGreaterThan 0
+        if ($configData.AllNodes.NodeName.Count -le 0)
+        {
+            throw "[Config File]-[AllNodes.NodeName] Config File must contain at least 1 Node"
         }
 
         ### Verify nodes are only listed once in the config file [NodeName]
         $reference = $configData.AllNodes.NodeName | Select-Object -Unique -ErrorAction SilentlyContinue
-
-        It "[Config File]-[AllNodes.NodeName] Nodes cannot be specified more than once in the config file" {
-            Compare-Object -ReferenceObject $reference -DifferenceObject $ConfigData.AllNodes.NodeName | Should BeNullOrEmpty
+        $difference = Compare-Object -ReferenceObject $reference -DifferenceObject $ConfigData.AllNodes.NodeName
+        if ($null -ne $difference)
+        {
+            throw "[Config File]-[AllNodes.NodeName] Nodes cannot be specified more than once in the config file"
         }
 
         ### Verify Config File includes at least one RDMAEnabledAdapters entry
-        It "[Config File]-[AllNodes] Must include at least one RDMAEnabledAdapters or vmswitch.RDMAEnabledAdapters entry" {
-            ($configData.AllNodes.RDMAEnabledAdapters + $configData.AllNodes.vmswitch.RDMAEnabledAdapters).Count | Should BeGreaterThan 0
+        if (($configData.AllNodes.RDMAEnabledAdapters + $configData.AllNodes.vmswitch.RDMAEnabledAdapters).Count -lt 1)
+        {
+            throw "[Config File]-[AllNodes] Must include at least one RDMAEnabledAdapters or vmswitch.RDMAEnabledAdapters entry"
         }
 
-        foreach ($thisNode in $configData.AllNodes) {
+        foreach ($thisNode in $configData.AllNodes)
+        {
             $AdapterEntry = 1
 
             $legend = @('NodeName','RDMAEnabledAdapters','RDMADisabledAdapters','VMSwitch')
             ($configData.AllNodes.Keys.GetEnumerator() | Select-Object -Unique) | ForEach-Object {
                 ### Verify that the entries under $configData.AllNodes are in $legend
-                It "[Config File]-[AllNodes]-[$($thisNode.NodeName)]-[Tested key: $_] Should contain only recognized keys" {
-                    $_ -in $legend | Should be $true
+                if ($_ -notin $legend)
+                {
+                    throw "[Config File]-[AllNodes]-[$($thisNode.NodeName)]-[Tested key: $_] Should contain only recognized keys"                    
                 }
             }
 
-            foreach ($thisRDMADisabledAdapter in $thisNode.RDMADisabledAdapters) {
+            foreach ($thisRDMADisabledAdapter in $thisNode.RDMADisabledAdapters)
+            {
                 $legend = @('Name')
                 ($thisRDMADisabledAdapter.Keys.GetEnumerator() | Select-Object -Unique) | ForEach-Object {
                     ### Verify that the only entries under $configData.AllNodes.RDMADisabledAdapters are in $legend
-                    It "[Config File]-[AllNodes.RDMADisabledAdapters]-[RDMADisabledAdapter: $($thisRDMADisabledAdapter.Name)]-[Tested key: $_]-Should contain only recognized keys" {
-                        $_ -in $legend | Should be $true
+                    if ($_ -notin $legend)
+                    {                    
+                        throw "[Config File]-[AllNodes.RDMADisabledAdapters]-[RDMADisabledAdapter: $($thisRDMADisabledAdapter.Name)]-[Tested key: $_]-Should contain only recognized keys"
                     }
                 }
             }
@@ -112,34 +118,40 @@
                 $legend = @('Name','VLANID','JumboPacket')
                 ($thisRDMAEnabledAdapter.Keys.GetEnumerator() | Select-Object -Unique) | ForEach-Object {
                     ### Verify that the entries under $configData.AllNodes.RDMAEnabledAdapters are in $legend
-                    It "[Config File]-[AllNodes.RDMAEnabledAdapters]-[RDMAEnabledAdapter: $($thisRDMAEnabledAdapter.Name)]-[Tested key: $_]-Should contain only recognized keys" {
-                        $_ -in $legend | Should be $true
+                    if ($_ -notin $legend)
+                    {
+                        throw "[Config File]-[AllNodes.RDMAEnabledAdapters]-[RDMAEnabledAdapter: $($thisRDMAEnabledAdapter.Name)]-[Tested key: $_]-Should contain only recognized keys"                        
                     }
                 }
 
                 ### Verify each RDMAEnabledAdapter includes the Name property from Get-NetAdapter
-                It "[Config File]-[AllNodes.RDMAEnabledAdapters]-[Node: $($thisNode.NodeName)]-[Entry: $AdapterEntry]-[Noun: NetAdapter] Must include the Name property for each entry" {
-                    $thisRDMAEnabledAdapter.Name | Should not BeNullOrEmpty 
+                if ($null -eq $thisRDMAEnabledAdapter.Name)
+                {
+                    throw "[Config File]-[AllNodes.RDMAEnabledAdapters]-[Node: $($thisNode.NodeName)]-[Entry: $AdapterEntry]-[Noun: NetAdapter] Must include the Name property for each entry"
                 }
     
                 ### Verify each RDMAEnabledAdapter includes the VLANID property from Get-NetAdapterAdvancedProperty
-                It "[Config File]-[AllNodes.RDMAEnabledAdapters]-[Node: $($thisNode.NodeName)]-[Entry: $($thisRDMAEnabledAdapter.Name)]-[Noun: NetAdapterAdvancedProperty] Must include the VLANID property for each entry" {
-                    $thisRDMAEnabledAdapter.VLANID | Should not BeNullOrEmpty 
+                if ($null -eq $thisRDMAEnabledAdapter.VLANID)
+                {
+                    throw "[Config File]-[AllNodes.RDMAEnabledAdapters]-[Node: $($thisNode.NodeName)]-[Entry: $($thisRDMAEnabledAdapter.Name)]-[Noun: NetAdapterAdvancedProperty] Must include the VLANID property for each entry"
                 }
     
                 ### Verify each RDMAEnabledAdapter's VLANID property is not '0'
-                It "[Config File]-[AllNodes.RDMAEnabledAdapters]-[Node: $($thisNode.NodeName)]-[Entry: $($thisRDMAEnabledAdapter.Name)]-[Noun: NetAdapterAdvancedProperty] VLANID property should not be non-zero" {
-                    $thisRDMAEnabledAdapter.VLANID | Should Not Be '0'
+                if ($thisRDMAEnabledAdapter.VLANID -eq 0)
+                {
+                    throw "[Config File]-[AllNodes.RDMAEnabledAdapters]-[Node: $($thisNode.NodeName)]-[Entry: $($thisRDMAEnabledAdapter.Name)]-[Noun: NetAdapterAdvancedProperty] VLANID property should not be non-zero"
                 }
                 
                 ### Verify RDMAEnabledAdapter Entry is not included in RDMADisabledAdapter
-                It "[Config File]-[AllNodes.RDMAEnabledAdapters]-[Node: $($thisNode.NodeName)]-[Entry: $($thisRDMAEnabledAdapter.Name)]-[Noun: NetAdapterRDMA] Should not be in both RDMAEnabledAdapters and RDMADisabledAdapters" {
-                    $thisRDMAEnabledAdapter.Name -in $thisNode.RDMADisabledAdapters.Name | Should Be $false
+                if ($thisRDMAEnabledAdapter.Name -in $thisNode.RDMADisabledAdapters.Name)
+                {
+                    throw "[Config File]-[AllNodes.RDMAEnabledAdapters]-[Node: $($thisNode.NodeName)]-[Entry: $($thisRDMAEnabledAdapter.Name)]-[Noun: NetAdapterRDMA] Should not be in both RDMAEnabledAdapters and RDMADisabledAdapters"
                 }
 
                 ### Verify RDMAEnabledAdapter Entry is not included in vmswitch.RDMADisabledAdapter
-                It "[Config File]-[AllNodes.RDMAEnabledAdapters]-[Node: $($thisNode.NodeName)]-[Entry: $($thisRDMAEnabledAdapter.Name)]-[Noun: NetAdapterRDMA] Should not be in both RDMAEnabledAdapters and vmswitch.RDMADisabledAdapters" {
-                    $thisRDMAEnabledAdapter.Name -in $thisNode.vmswitch.RDMADisabledAdapters.Name | Should Be $false
+                if ($thisRDMAEnabledAdapter.Name -in $thisNode.vmswitch.RDMADisabledAdapters.Name)
+                {
+                    throw "[Config File]-[AllNodes.RDMAEnabledAdapters]-[Node: $($thisNode.NodeName)]-[Entry: $($thisRDMAEnabledAdapter.Name)]-[Noun: NetAdapterRDMA] Should not be in both RDMAEnabledAdapters and vmswitch.RDMADisabledAdapters"
                 }
 
                 $AdapterEntry ++
@@ -155,8 +167,9 @@
                 foreach ($thisRDMADisabledAdapter in $RDMADisabledAdapters) {
                     $thisRDMADisabledAdapter.Keys.GetEnumerator() | ForEach-Object {
                         ### Verify entries under $configData.AllNodes.VMSwitch.RDMADisabledAdapters are in $legend
-                        It "[Config File]-[AllNodes.VMSwitch.RDMADisabledAdapters]-[VMSwitch: $($thisVMSwitch.Name))]-[RDMADisabledAdapter: $($thisRDMADisabledAdapter.($_))]-[Tested key: $_]-Should contain only recognized keys" {
-                            $_ -in $legend | Should be $true
+                        if ($_ -notin $legend)
+                        {
+                            throw "[Config File]-[AllNodes.VMSwitch.RDMADisabledAdapters]-[VMSwitch: $($thisVMSwitch.Name))]-[RDMADisabledAdapter: $($thisRDMADisabledAdapter.($_))]-[Tested key: $_]-Should contain only recognized keys"                        
                         }
                     }
                 }
@@ -166,84 +179,98 @@
                 $legend = @('Name','EmbeddedTeamingEnabled','IovEnabled','LoadBalancingAlgorithm','RDMAEnabledAdapters','RDMADisabledAdapters')
                 $thisVMSwitch.Keys.GetEnumerator() | ForEach-Object {
                     ### Verify that the entries under $configData.AllNodes.VMSwitch are in $legend
-                    It "[Config File]-[AllNodes.VMSwitch.RDMAEnabledAdapters]-[Node: $($thisNode.NodeName)]-[Entry: $($thisVMSwitch.Name))]-[Tested key: $_]-Should contain only recognized keys" {
-                        $_ -in $legend | Should be $true
+                    if ($_ -notin $legend)
+                    {
+                        throw "[Config File]-[AllNodes.VMSwitch.RDMAEnabledAdapters]-[Node: $($thisNode.NodeName)]-[Entry: $($thisVMSwitch.Name))]-[Tested key: $_]-Should contain only recognized keys"
                     }
                 }
 
                 ### Verify VMSwitch entry contains the Name property
-                It "[Config File]-[AllNodes.VMSwitch]-[Node: $($thisNode.NodeName)]-[Entry: $VMSwitchEntry)]-[Noun: VMSwitch] Must include the Name Property" {
-                    $thisVMSwitch.Name | Should not BeNullOrEmpty
+                if ($null -eq $thisVMSwitch.Name)
+                {
+                    throw "[Config File]-[AllNodes.VMSwitch]-[Node: $($thisNode.NodeName)]-[Entry: $VMSwitchEntry)]-[Noun: VMSwitch] Must include the Name Property"
                 }
 
                 ### Verify VMSwitch entry contains the EmbeddedTeamingEnabled property
-                It "[Config File]-[AllNodes.VMSwitch]-[Node: $($thisNode.NodeName)]-[Entry: $($thisVMSwitch.Name))]-[Noun: VMSwitch] Must include the EmbeddedTeamingEnabled Property" {
-                    $thisVMSwitch.EmbeddedTeamingEnabled | Should not BeNullOrEmpty
+                if ($null -eq $thisVMSwitch.EmbeddedTeamingEnabled)
+                {
+                    throw "[Config File]-[AllNodes.VMSwitch]-[Node: $($thisNode.NodeName)]-[Entry: $($thisVMSwitch.Name))]-[Noun: VMSwitch] Must include the EmbeddedTeamingEnabled Property" 
                 }
 
                 ### Verify VMSwitch EmbeddedTeamingEnabled property is a boolean
-                It "[Config File]-[AllNodes.VMSwitch]-[Node: $($thisNode.NodeName)]-[Entry: $($thisVMSwitch.Name))]-[Noun: VMSwitch] EmbeddedTeamingEnabled Property must be a boolean" {
-                    $thisVMSwitch.EmbeddedTeamingEnabled | Should BeOfType System.Boolean
+                if ($thisVMSwitch.EmbeddedTeamingEnabled -isnot [System.Boolean])
+                {
+                    throw "[Config File]-[AllNodes.VMSwitch]-[Node: $($thisNode.NodeName)]-[Entry: $($thisVMSwitch.Name))]-[Noun: VMSwitch] EmbeddedTeamingEnabled Property must be a boolean"
                 }
 
                 If ($thisVMSwitch.ContainsKey('IovEnabled')) {
                     ### Verify VMSwitch IovEnabled property is a boolean
-                    It "[Config File]-[AllNodes.VMSwitch]-[Node: $($thisNode.NodeName)]-[Entry: $($thisVMSwitch.Name))]-[Noun: VMSwitch] The IovEnabled property must be boolean" {
-                        $thisVMSwitch.IovEnabled | Should BeOfType System.Boolean
+                    if ($thisVMSwitch.IovEnabled -isnot [System.Boolean])
+                    {
+                        throw "[Config File]-[AllNodes.VMSwitch]-[Node: $($thisNode.NodeName)]-[Entry: $($thisVMSwitch.Name))]-[Noun: VMSwitch] The IovEnabled property must be boolean"                    
                     }
                 }
 
                 If ($thisVMSwitch.ContainsKey('LoadBalancingAlgorithm')) {
                     ### Verify VMSwitch Load Balancing Algorithm is either Dynamic (2016 Default) or HyperVPort (2019 Default)
-                    It "[Config File]-[AllNodes.VMSwitch]-[Node: $($thisNode.NodeName)]-[Entry: $($thisVMSwitch.Name))]-[Noun: VMSwitch] The LoadBalancingAlgorithm property must be either HyperVPort or Dynamic " {
-                        ($thisVMSwitch.LoadBalancingAlgorithm -eq 'Dynamic' -or $thisVMSwitch.LoadBalancingAlgorithm -eq 'HyperVPort') | Should $true
+                    if (($thisVMSwitch.LoadBalancingAlgorithm -ne 'Dynamic') -or ($thisVMSwitch.LoadBalancingAlgorithm -ne 'HyperVPort'))
+                    {
+                        throw "[Config File]-[AllNodes.VMSwitch]-[Node: $($thisNode.NodeName)]-[Entry: $($thisVMSwitch.Name))]-[Noun: VMSwitch] The LoadBalancingAlgorithm property must be either HyperVPort or Dynamic "                        
                     }
                 }
 
                 $reference = $thisNode.VMSwitch.Name | Select-Object -Unique -ErrorAction SilentlyContinue
 
                 ### Verify VMSwitch.Name entries are unique
-                It "[Config File]-[AllNodes.VMSwitch] VMSwitch.Name cannot be specified more than once in the config file" {
-                    Compare-Object -ReferenceObject $reference -DifferenceObject $thisNode.VMSwitch.Name | Should BeNullOrEmpty
+                if ($null -ne (Compare-Object -ReferenceObject $reference -DifferenceObject $thisNode.VMSwitch.Name))
+                {
+                    throw "[Config File]-[AllNodes.VMSwitch] VMSwitch.Name cannot be specified more than once in the config file"
                 }
 
                 foreach ($thisRDMAEnabledAdapter in $thisVMSwitch.RDMAEnabledAdapters) {
                     $legend = @('Name','VMNetworkAdapter','VLANID','JumboPacket')
                     $thisRDMAEnabledAdapter.Keys.GetEnumerator() | ForEach-Object {
                         ### Verify that the only entries under $configData.AllNodes.VMSwitch.RDMAEnabledAdapters are in $legend
-                        It "[Config File]-[AllNodes.VMSwitch.RDMAEnabledAdapters]-[Node: $($thisNode.NodeName)]-[Entry: $($thisVMSwitch.Name))]-[RDMAEnabledAdapter: $($thisRDMAEnabledAdapter.Name)]-[Tested Key: $_]-Should contain only recognized keys" {
-                            $_ -in $legend | Should be $true
+                        if ($_ -notin $legend)
+                        {
+                            throw "[Config File]-[AllNodes.VMSwitch.RDMAEnabledAdapters]-[Node: $($thisNode.NodeName)]-[Entry: $($thisVMSwitch.Name))]-[RDMAEnabledAdapter: $($thisRDMAEnabledAdapter.Name)]-[Tested Key: $_]-Should contain only recognized keys"
                         }
                     }
 
                     ### Verify each VMSwitch.RDMAEnabledAdapter includes the Name property from Get-NetAdapter
-                    It "[Config File]-[AllNodes.VMSwitch.RDMAEnabledAdapters]-[Node: $($thisNode.NodeName)]-[Entry: $AdapterEntry]-[Noun: NetAdapter] Must include the Name property for each entry" {
-                        $thisRDMAEnabledAdapter.Name | Should not BeNullOrEmpty 
+                    if ($null -eq $thisRDMAEnabledAdapter.Name)
+                    {
+                        throw "[Config File]-[AllNodes.VMSwitch.RDMAEnabledAdapters]-[Node: $($thisNode.NodeName)]-[Entry: $AdapterEntry]-[Noun: NetAdapter] Must include the Name property for each entry"
                     }
 
                     ### Verify each VMSwitch.RDMAEnabledAdapter includes the Name property from Get-VMNetworkAdapter -ManagementOS
-                    It "[Config File]-[AllNodes.VMSwitch.RDMAEnabledAdapters]-[Node: $($thisNode.NodeName)]-[Entry: $($thisRDMAEnabledAdapter.Name)]-[Noun: VMNetworkAdapter] Must include the VMNetworkAdapter property for each entry" {
-                        $thisRDMAEnabledAdapter.VMNetworkAdapter | Should not BeNullOrEmpty 
+                    if ($null -eq $thisRDMAEnabledAdapter.VMNetworkAdapter)
+                    {
+                        throw "[Config File]-[AllNodes.VMSwitch.RDMAEnabledAdapters]-[Node: $($thisNode.NodeName)]-[Entry: $($thisRDMAEnabledAdapter.Name)]-[Noun: VMNetworkAdapter] Must include the VMNetworkAdapter property for each entry"
                     }
 
                     ### Verify each VMSwitch.RDMAEnabledAdapter includes the VLANID property from Get-NetAdapterAdvancedProperty
-                    It "[Config File]-[AllNodes.VMSwitch.RDMAEnabledAdapters]-[Node: $($thisNode.NodeName)]-[Entry: $($thisRDMAEnabledAdapter.Name)]-[Noun: NetAdapterAdvancedProperty] Must include the VLANID property for each entry" {
-                        $thisRDMAEnabledAdapter.VLANID | Should not BeNullOrEmpty 
+                    if ($null -eq $thisRDMAEnabledAdapter.VLANID)
+                    {
+                        throw "[Config File]-[AllNodes.VMSwitch.RDMAEnabledAdapters]-[Node: $($thisNode.NodeName)]-[Entry: $($thisRDMAEnabledAdapter.Name)]-[Noun: NetAdapterAdvancedProperty] Must include the VLANID property for each entry"
                     }
 
                     ### Verify each VMSwitch.RDMAEnabledAdapter's VLANID property is not 0
-                    It "[Config File]-[AllNodes.VMSwitch.RDMAEnabledAdapters]-[Node: $($thisNode.NodeName)]-[Entry: $($thisRDMAEnabledAdapter.Name)]-[Noun: NetAdapterAdvancedProperty] VLANID property should not be non-zero" {
-                        $thisRDMAEnabledAdapter.VLANID | Should Not Be '0'
+                    if ($thisRDMAEnabledAdapter.VLANID -eq 0)
+                    {
+                        throw "[Config File]-[AllNodes.VMSwitch.RDMAEnabledAdapters]-[Node: $($thisNode.NodeName)]-[Entry: $($thisRDMAEnabledAdapter.Name)]-[Noun: NetAdapterAdvancedProperty] VLANID property should not be non-zero"
                     }
 
                     ### Verify each VMSwitch.RDMAEnabledAdapter entry is not included in RDMADisabledAdapter
-                    It "[Config File]-[AllNodes.VMSwitch.RDMAEnabledAdapters]-[Node: $($thisNode.NodeName)]-[Entry: $($thisRDMAEnabledAdapter.Name)]-[Noun: NetAdapterRDMA] Should not be in both VMSwitch.RDMAEnabledAdapters and RDMADisabledAdapters" {
-                        $thisRDMAEnabledAdapter.Name -in $thisNode.RDMADisabledAdapters.Name | Should Be $false
+                    if ($thisRDMAEnabledAdapter.Name -in $thisNode.RDMADisabledAdapters.Name)
+                    {
+                        throw "[Config File]-[AllNodes.VMSwitch.RDMAEnabledAdapters]-[Node: $($thisNode.NodeName)]-[Entry: $($thisRDMAEnabledAdapter.Name)]-[Noun: NetAdapterRDMA] Should not be in both VMSwitch.RDMAEnabledAdapters and RDMADisabledAdapters"
                     }
 
                     ### Verify VMSwitch.RDMAEnabledAdapter Entry is not included in VMSwitch.RDMADisabledAdapter
-                    It "[Config File]-[AllNodes.VMSwitch.RDMAEnabledAdapters]-[Node: $($thisNode.NodeName)]-[Entry: $($thisRDMAEnabledAdapter.Name)]-[Noun: NetAdapterRDMA] Should not be in both VMSwitch.RDMAEnabledAdapters and VMSwitch.RDMADisabledAdapters" {
-                        $thisRDMAEnabledAdapter.Name -in $thisNode.VMSwitch.RDMADisabledAdapters.Name | Should Be $false
+                    if ($thisRDMAEnabledAdapter.Name -in $thisNode.VMSwitch.RDMADisabledAdapters.Name)
+                    {
+                        throw "[Config File]-[AllNodes.VMSwitch.RDMAEnabledAdapters]-[Node: $($thisNode.NodeName)]-[Entry: $($thisRDMAEnabledAdapter.Name)]-[Noun: NetAdapterRDMA] Should not be in both VMSwitch.RDMAEnabledAdapters and VMSwitch.RDMADisabledAdapters"
                     }
 
                     $AdapterEntry ++
@@ -256,72 +283,85 @@
         $legend = @('NetQos')
         $configData.NonNodeData.Keys.GetEnumerator() | ForEach-Object {
             ### Verify that the only entries under $configData.NonNodeData are in $legend
-            It "[Config File]-[NonNodeData]-[Tested key: $_] Should contain only recognized keys" {
-                $_ -in $legend | Should be $true
+            if ($_ -notin $legend)
+            {
+                throw "[Config File]-[NonNodeData]-[Tested key: $_] Should contain only recognized keys"
             }
         }
 
         ### Verify NetQos is included in the config file
-        It "[Config File]-[NonNodeData.NetQos] Config File must contain the NetQos section" {
-            $ConfigData.NonNodeData.NetQos | Should not BeNullOrEmpty
+        if ($null -eq $ConfigData.NonNodeData.NetQos)
+        {
+            throw "[Config File]-[NonNodeData.NetQos] Config File must contain the NetQos section"
         }
 
         ### Verify at least 2 policies exist in the Qos Policies (Default and one for SMB)
-        It "[Config File]-[NonNodeData.NetQos]-[Noun: NetQosPolicy] NetQos must contain at least 2 policies" {
-            $ConfigData.NonNodeData.NetQos.Count | Should BeGreaterThan 1
+        if ($ConfigData.NonNodeData.NetQos.Count -lt 1)
+        {
+            throw "[Config File]-[NonNodeData.NetQos]-[Noun: NetQosPolicy] NetQos must contain at least 2 policies"
         }
 
         ### Verify the default policy is specified in the config file
-        It "[Config File]-[NonNodeData.NetQos]-[Noun: NetQosPolicy] NetQos must specify a 'Default' policy" {
-            $ConfigData.NonNodeData.NetQos.Name -contains 'Default' | Should be $true
+        if ($ConfigData.NonNodeData.NetQos.Name -notcontains 'Default')
+        {
+            throw "[Config File]-[NonNodeData.NetQos]-[Noun: NetQosPolicy] NetQos must specify a 'Default' policy"
         }
 
         # Note: Templates only specify TCP settings and do not apply to RDMA
         #       For RDMA, please use NetDirectPortMatchCondition 
 
         ### Verify At least one policy must specify the NetDirectPortMatchCondition
-        It "[Config File]-[NonNodeData.NetQos]-[Noun: NetQosPolicy] must specify the 'NetDirectPortMatchCondition' property for 1 policy" {
-            $ConfigData.NonNodeData.NetQos.Keys -contains 'NetDirectPortMatchCondition' | Should be $true
+        if ($ConfigData.NonNodeData.NetQos.Keys -notcontains 'NetDirectPortMatchCondition')
+        {
+            throw "[Config File]-[NonNodeData.NetQos]-[Noun: NetQosPolicy] must specify the 'NetDirectPortMatchCondition' property for 1 policy"
         }
 
         ### Verify BandwidthPercentage totals 100
-        It "[Config File]-[NonNodeData.NetQos]-[Noun: NetQosTrafficClass] BandwidthPercentage must total 100%" {
-            ($ConfigData.NonNodeData.NetQos.BandwidthPercentage | Measure-Object -Sum).Sum | Should Be 100
+        if (($ConfigData.NonNodeData.NetQos.BandwidthPercentage | Measure-Object -Sum).Sum -ne 100)
+        {
+            throw "[Config File]-[NonNodeData.NetQos]-[Noun: NetQosTrafficClass] BandwidthPercentage must total 100%"
         }
 
         $policyEntry = 1
 
-        foreach ($thisPolicy in $ConfigData.NonNodeData.NetQos) {
+        foreach ($thisPolicy in $ConfigData.NonNodeData.NetQos)
+        {
             $legend = @('Name', 'NetDirectPortMatchCondition', 'Template', 'PriorityValue8021Action', 'BandwidthPercentage', 'Algorithm')
             $thisPolicy.Keys.GetEnumerator() | ForEach-Object {
                 ### Verify that the only entries under $configData.NonNodeData.NetQos are in $legend
-                It "[Config File]-[NonNodeData]-[Tested key: $_] Should contain only recognized keys" {
-                    $_ -in $legend | Should be $true
+                if ($_ -notin $legend)
+                {
+                    throw "[Config File]-[NonNodeData]-[Tested key: $_] Should contain only recognized keys"
                 }
             }
             ### Verify Name property is specified for each policy
-            It "[Config File]-[NonNodeData.NetQos]-[Policy Entry: $policyEntry]-[Noun: NetQosPolicy] Must specify the 'Name' property" {
-                $thisPolicy.Name | Should not BeNullOrEmpty
+            if ($null -eq $thisPolicy.Name)
+            {
+                throw "[Config File]-[NonNodeData.NetQos]-[Policy Entry: $policyEntry]-[Noun: NetQosPolicy] Must specify the 'Name' property"            
             }
 
             ### Verify either NetDirectPortMatchCondition or Template are specified
-            It "[Config File]-[NonNodeData.NetQos]-[Policy: $($thisPolicy.Name)]-[Noun: NetQosPolicy] Must specify either 'Template' or 'NetDirectPortMatchCondition' property" {
-                ($thisPolicy.NetDirectPortMatchCondition -or $thisPolicy.Template) | Should Be $true
+            if (!($thisPolicy.NetDirectPortMatchCondition -or $thisPolicy.Template))
+            {
+                throw "[Config File]-[NonNodeData.NetQos]-[Policy: $($thisPolicy.Name)]-[Noun: NetQosPolicy] Must specify either 'Template' or 'NetDirectPortMatchCondition' property"
             }
 
             ### Verify PriorityValue8021Action is specified
-            It "[Config File]-[NonNodeData.NetQos]-[Policy: $($thisPolicy.Name)]-[Noun: NetQosPolicy] Must specify the 'PriorityValue8021Action' property" {
-                $thisPolicy.PriorityValue8021Action | Should not BeNullOrEmpty
+            if ($null -eq $thisPolicy.PriorityValue8021Action)
+            {
+                throw "[Config File]-[NonNodeData.NetQos]-[Policy: $($thisPolicy.Name)]-[Noun: NetQosPolicy] Must specify the 'PriorityValue8021Action' property"
             }
 
             ### Verify BandwidthPercentage is specified
-            It "[Config File]-[NonNodeData.NetQos]-[Policy: $($thisPolicy.Name)]-[Noun: NetQosTrafficClass] Must specify the 'BandwidthPercentage' property" {
-                $thisPolicy.BandwidthPercentage | Should not BeNullOrEmpty
+            if ($null -eq $thisPolicy.BandwidthPercentage)
+            {
+                throw "[Config File]-[NonNodeData.NetQos]-[Policy: $($thisPolicy.Name)]-[Noun: NetQosTrafficClass] Must specify the 'BandwidthPercentage' property"
             }
 
             ### Verify Algorithm is specified
-            It "[Config File]-[NonNodeData.NetQos]-[Policy: $($thisPolicy.Name)]-[Noun: NetQosTrafficClass] Must specify the 'Algorithm' property" {
-                $thisPolicy.Algorithm | Should not BeNullOrEmpty
+            if ($null -eq $thisPolicy.Algorithm)
+            {
+                throw "[Config File]-[NonNodeData.NetQos]-[Policy: $($thisPolicy.Name)]-[Noun: NetQosTrafficClass] Must specify the 'Algorithm' property"
             }
 
             $policyEntry ++
@@ -331,68 +371,72 @@
     $ConfigData.AllNodes | ForEach-Object {
         $nodeName = $_.NodeName
         
-        Context "[Global Unit]-[SUT: $nodeName]-Connectivity Tests" {
-            ### Verify Basic Network Connectivity to each Node
-            It "[Global Unit]-[SUT: $nodeName] must respond to available over the network" {
-                Test-NetConnection -ComputerName $nodeName -InformationLevel Quiet | Should Be $true
-            }
+        ### Verify Basic Network Connectivity to each Node
+        if (-not (Test-NetConnection -ComputerName $nodeName -InformationLevel Quiet))
+        {
+            throw "[Global Unit]-[SUT: $nodeName] must respond to available over the network"
+        }
 
-            ### Verify each node responds to WinRM
-            It "[Global Unit]-[SUT: $nodeName] must respond to WinRM requests" {
-                Test-NetConnection -ComputerName $nodeName -CommonTCPPort WINRM -InformationLevel Quiet | Should Be $true
+        ### Verify each node responds to WinRM
+        if (-not (Test-NetConnection -ComputerName $nodeName -CommonTCPPort WINRM -InformationLevel Quiet))
+        {
+            throw "[Global Unit]-[SUT: $nodeName] must respond to WinRM requests"
+        }
+
+        $NodeOS = Get-CimInstance -CimSession $nodeName -ClassName 'Win32_OperatingSystem'
+
+        ### Verify the SUTs are Server SKU, 2016 or Higher
+        $caption =  ($NodeOS.Caption -like '*Windows Server 2016*') -or
+                    ($NodeOS.Caption -like '*Windows Server 2019*')
+
+        if (!$caption)
+        {
+            throw "[Global Unit]-[SUT: $nodeName] must be Server 2016, or Server 2019"
+        }
+
+        $reqModules  = @('DcbQos', 'NetQos', 'NetAdapter','ServerManager')
+        $reqFeatures = @('Data-Center-Bridging')
+
+        if ($ConfigData.AllNodes.VMSwitch.Count -ge 1)
+        {
+            $reqFeatures += 'Hyper-V'
+        }
+
+        $actModules, $actFeatureState = Invoke-Command -ComputerName $nodeName -ScriptBlock {
+            $modules      = Get-Module         -Name $using:reqModules -ListAvailable
+            $featureState = Get-WindowsFeature -Name $using:reqFeatures
+            return $Modules, $featureState
+        }
+
+        ### Verify that the required features exist on the SUT
+        $reqFeatures | ForEach-Object {
+            if (($actFeatureState | Where-Object Name -eq $_).InstallState -ne 'Installed')
+            {
+                throw "[Global Unit]-[SUT: $nodeName] should have the Windows Feature [$_] installed"
+            } 
+        }
+
+        ### Verify that each required module existed on the SUT
+        $reqModules | ForEach-Object {
+            if (($actModules | Where-Object Name -eq $_) -ne $true)
+            {
+                throw "[Global Unit]-[SUT: $nodeName] should have the module [$_] installed"
             }
         }
 
-        Context "[Global Unit]-[SUT: $nodeName]-System Requirements" {
-            $NodeOS = Get-CimInstance -CimSession $nodeName -ClassName 'Win32_OperatingSystem'
-
-            ### Verify the SUTs are Server SKU, 2016 or Higher
-            It "[Global Unit]-[SUT: $nodeName] must be Server 2016, or Server 2019" {
-                $caption =  ($NodeOS.Caption -like '*Windows Server 2016*') -or
-                            ($NodeOS.Caption -like '*Windows Server 2019*') 
-                
-                $caption | Should be $true
+        ### Verify the following cmdlets are available on each SUT
+        'Get-WindowsFeature', 'Get-NetQosPolicy', 'Get-NetQosFlowControl', 
+        'Get-NetQosTrafficClass', 'Get-NetAdapterQos', 'Get-NetQosDcbxSetting' | ForEach-Object {
+            if ($actModules.ExportedCommands.Values -notcontains $_)
+            {
+                throw "[Global Unit]-[SUT: $nodeName] should have the cmdlet [$_] available"
             }
+        }
 
-            $reqModules  = @('DcbQos', 'NetQos', 'NetAdapter','ServerManager')
-            $reqFeatures = @('Data-Center-Bridging')
-
-            If ($ConfigData.AllNodes.VMSwitch.Count -ge 1) {
-                $reqFeatures += 'Hyper-V'
-            }
-
-            $actModules, $actFeatureState = Invoke-Command -ComputerName $nodeName -ScriptBlock {
-                $modules      = Get-Module         -Name $using:reqModules -ListAvailable
-                $featureState = Get-WindowsFeature -Name $using:reqFeatures
-                return $Modules, $featureState
-            }
-
-            ### Verify that the required features exist on the SUT
-            $reqFeatures | ForEach-Object {
-                It "[Global Unit]-[SUT: $nodeName] should have the Windows Feature [$_] installed" {
-                    ($actFeatureState | Where-Object Name -eq $_).InstallState | Should be 'Installed'
-                } 
-            }
-
-            ### Verify that each required module existed on the SUT
-            $reqModules | ForEach-Object {
-                It "[Global Unit]-[SUT: $nodeName] should have the module [$_] installed" {
-                    ($actModules | Where-Object Name -eq $_) | Should be $true
-                }
-            }
-
-            ### Verify the following cmdlets are available on each SUT
-            'Get-WindowsFeature', 'Get-NetQosPolicy', 'Get-NetQosFlowControl', 
-            'Get-NetQosTrafficClass', 'Get-NetAdapterQos', 'Get-NetQosDcbxSetting' | ForEach-Object {
-                It "[Global Unit]-[SUT: $nodeName] should have the cmdlet [$_] available" {
-                    $actModules.ExportedCommands.Values -contains $_ | Should be $true
-                }
-            }
-
-            ### Verify none of the nodes are actually virtual machines
-            It "[Global Unit]-[SUT: $nodeName] should not be a virtual machine" {
-                (Get-CimInstance -ComputerName $nodeName -ClassName Win32_ComputerSystem) | Should Not Be 'Virtual Machine'
-            }
+        ### Verify none of the nodes are actually virtual machines
+        if ((Get-CimInstance -ComputerName $nodeName -ClassName Win32_ComputerSystem) -eq 'Virtual Machine')
+        {
+            throw "[Global Unit]-[SUT: $nodeName] should not be a virtual machine"
         }
     }
 }

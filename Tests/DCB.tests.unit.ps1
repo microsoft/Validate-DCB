@@ -23,7 +23,7 @@
 
         foreach ($module in @('DcbQos', 'NetQos', 'NetAdapter','ServerManager'))
         {
-            if (-not (Get-Module $ -ListAvailable -ErrorAction SilentlyContinue))
+            if (-not (Get-Module $module -ListAvailable -ErrorAction SilentlyContinue))
             {
                 throw "[Global Unit]-[TestHost: ${env:ComputerName}] must have the module [$module] available"
             }            
@@ -35,7 +35,7 @@
 
         foreach ($cmd in $cmdletsToCheck)
         {
-            if (-not (Get-Command $_ -ErrorAction SilentlyContinue))
+            if (-not (Get-Command $cmd -ErrorAction SilentlyContinue))
             {
                 throw "[Global Unit]-[TestHost: ${env:ComputerName}] must have the cmdlet [$cmd] available"
             }
@@ -49,15 +49,21 @@
         }
 
         ### Verify configData contains the AllNodes HashTable
-        if ($configData.AllNodes -isnot [System.Collections.Hashtable])
+        foreach ($node in $configData.AllNodes)
         {
-            throw "[Config File]-[AllNodes] Config File must contain the AllNodes Hashtable"
+            if ($node -isnot [System.Collections.Hashtable])
+            {
+                throw "[Config File]-[AllNodes] Config File must contain the AllNodes Hashtable"
+            }
         }
 
         ### Verify configData contains the NonNodeData HashTable
-        if ($configData.NonNodeData -isnot [System.Collections.Hashtable])
+        foreach ($nonNodeData in $configData.NonNodeData)
         {
-            throw "[Config File]-[NonNodeData] Config File must contain the NonNodeData Hashtable"
+            if ($nonNodeData -isnot [System.Collections.Hashtable])
+            {
+                throw "[Config File]-[NonNodeData] Config File must contain the NonNodeData Hashtable"
+            }
         }
 
         $legend = @('AllNodes','NonNodeData')
@@ -366,9 +372,8 @@
 
             $policyEntry ++
         }
-    }
 
-    $ConfigData.AllNodes | ForEach-Object {
+        $ConfigData.AllNodes | ForEach-Object {
         $nodeName = $_.NodeName
         
         ### Verify Basic Network Connectivity to each Node
@@ -418,7 +423,7 @@
 
         ### Verify that each required module existed on the SUT
         $reqModules | ForEach-Object {
-            if (($actModules | Where-Object Name -eq $_) -ne $true)
+            if ($actModules.Name -notcontains $_)
             {
                 throw "[Global Unit]-[SUT: $nodeName] should have the module [$_] installed"
             }
@@ -438,6 +443,7 @@
         {
             throw "[Global Unit]-[SUT: $nodeName] should not be a virtual machine"
         }
+    }
     }
 }
 

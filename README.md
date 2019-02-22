@@ -1,6 +1,11 @@
 ##### :star: More by the Microsoft Core Networking team can be found using the [MSFTNet](https://github.com/topics/msftnet) topic
 
-##### Steps
+##### What's New in v2
+
+For more information, please see [What's New](WhatsNew.md)
+
+##### Getting Started
+
 1) [Learn the Tool](#Description)
 2) [Customize your Config](Examples)
 3) [Initiate Testing](#Initiate-Testing)
@@ -207,7 +212,7 @@ Extract the files in this repo to a folder on a system (TestHost) with connectiv
 
 Regardless of the scenario, you need a configuration file to define the expected configuration on your systems.  You can use one of the example configurations or create your own.  We recommend you create your own as your setup is likely different than one of our stock configurations.  For more information, please see: [Customize your Config](Examples)
 
-## Initiate Testing
+## Running the Initiate
 
 Once you have chosen a configuration file, you're ready to begin testing.  To begin testing, run the initiate.ps1 PowerShell script.  We recommend using Visual Studio Code as their is a rich debugging experience available.
 
@@ -218,10 +223,8 @@ Here are a few tips on the parameters of the initiate.
 
 | Parameter | Description |
 |-----------|-------------|
-| $TestScope  | Determines the describe block to be run. You can use this to only run certain describe blocks. For example: <br><br> Use ****Global**** if you just want to setup a test host or validate your systems are ready to be tested. <br><br> Use ****Modal**** if you have already know you have all the prerequisites met.|
-| $ExampleConfig | Use this to select one of the pre-defined configuration files that will test a system in Mode 1 or Mode 2. For more information on the example configuration guides, please see [Examples](Examples).<br><br>For details about the configuration for these modes, please review the [Converged NIC Guide](https://aka.ms/ConvergedRDMA)|
-| $ConfigFilePath | Use this parameter to specify the path to a custom configuration file.
-|$ContinueOnFailure| If a test fails in one of the Describe blocks, Validate-DCB exits prior to moving to the next Describe block allowing you to correct the issue. Use this to attempt all tests even if a test failure is detected. | 
-
-- ConfigFilePath - (Optional) - Specify a config file to use
-    - If this parameter is not specified, the default file for that mode is selected (.\Examples\Mode-examples.RoCE.config.ps1)
+| TestScope  | Determines the describe block to be run. You can use this to only run certain describe blocks. For example: <br><br> Use ****Global**** if you just want to setup a test host or validate your systems are ready to be tested. <br><br> Use ****Modal**** if you have already know you have all the prerequisites met.|
+| ExampleConfig | Use this to select one of the pre-defined configuration files that will test a system in Mode 1 or Mode 2. For more information on the example configuration guides, please see [Examples](Examples).<br><br>For details about the configuration for these modes, please review the [Converged NIC Guide](https://aka.ms/ConvergedRDMA)|
+| ConfigFilePath    | Use this parameter to specify the path to a custom configuration file.
+| ContinueOnFailure | If a test fails in one of the Describe blocks, Validate-DCB exits prior to moving to the next Describe block allowing you to correct the issue. Use this to attempt all tests even if a test failure is detected. |
+| Deploy | Use this parameter to deploy the configuration to all specified nodes prior to validating the configuration |

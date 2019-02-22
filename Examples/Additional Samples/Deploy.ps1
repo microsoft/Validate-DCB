@@ -7,29 +7,22 @@ $Nodes | ForEach-Object {
 	$AllNodes   += @{
         NodeName = $_
 
+        Role = 'S2DClusterNode'
+
         VMSwitch = @(
             @{
                 Name = 'VMSTest'
                 EmbeddedTeamingEnabled = $true
 
                 RDMAEnabledAdapters = @(
-                    @{ Name = 'RoCE-01'  ; VMNetworkAdapter = 'SMB01' ; VLANID = '101' ; JumboPacket = 9000 }
-                    @{ Name = 'RoCE-02'  ; VMNetworkAdapter = 'SMB02' ; VLANID = '101' ; JumboPacket = 9000 }
+                    @{ Name = 'RoCE-01'  ; VMNetworkAdapter = 'SMB01' ; VLANID = '101' ; JumboPacket = 9014 }
+                    @{ Name = 'RoCE-02'  ; VMNetworkAdapter = 'SMB02' ; VLANID = '101' ; JumboPacket = 9014 }
                 )
 
                 RDMADisabledAdapters = @(
-                    @{ VMNetworkAdapter = 'Cluster' }
+                    @{ VMNetworkAdapter = 'Mgmt' }
                 )
             }
-        )
-        
-        RDMAEnabledAdapters = @(
-            @{ Name = 'RoCE-03' ; VLANID = '101' ; JumboPacket = 9000 }
-            @{ Name = 'RoCE-04' ; VLANID = '101' ; JumboPacket = 9000 }
-        )
-
-        RDMADisabledAdapters = @(
-            @{ Name = 'Mgmt' }
         )
     }
 }
@@ -40,6 +33,11 @@ $NonNodeData = @{
         @{ Name = 'SMB'     ; NetDirectPortMatchCondition = 445 ; PriorityValue8021Action = 3 ; BandwidthPercentage = 60 ; Algorithm = 'ETS' }
         @{ Name = 'DEFAULT' ; Template = 'Default'              ; PriorityValue8021Action = 0 ; BandwidthPercentage = 39 ; Algorithm = 'ETS' }
     )
+
+    AzureAutomation = @{
+        ResourceGroupName = 'RG-Automation'
+        AutomationAccountName = 'Automation'
+    }
 }
 
 $Global:configData = @{

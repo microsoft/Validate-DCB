@@ -34,6 +34,15 @@
     
     Use this to attempt all tests even if a test failure is detected.
 
+.PARAMETER Deploy
+    Deploy the configuration specified in the config file to the nodes.
+    By default, Validate-DCB validates the configuration.  With this option, it will modify your system.
+
+    Please note: Due to the nature of declarative PowerShell (DSC) this could be destructive.  For example,
+    if your config file specify's that a vSwitch's IovEnabled property is $true and it is not actually 
+    configured properly on the system DSC will attempt to destroy the vSwitch and recreate it with
+    the correct settings.  Since this option can only be configured at vSwitch creation time, there is only one option. 
+
 .PARAMETER TestScope
     Determines the describe block to be run. You can use this to only run certain describe blocks.
     By default, Global and Modal (currently all) describe blocks are run.
@@ -73,11 +82,31 @@ param (
     [switch] $ContinueOnFailure = $false,
 
     [Parameter(Mandatory=$false)]
+    [Switch] $Deploy = $false,
+
+    [Parameter(Mandatory=$false)]
     [ValidateSet('All','Global', 'Modal')]
     [string] $TestScope = 'All'
 )
 
 Clear-Host
+
+#TODO: Update test helpers to check for VLAN Isolation and not VMnetworkAdapterVLAn
+
+#TODO: Add verification for 
+<#
+Port: Only TCP 443 is required for outbound internet access.
+Global URL: *.azure-automation.net
+Global URL of US Gov Virginia: *.azure-automation.us
+Agent service: https://<workspaceId>.agentsvc.azure-automation.net
+#>
+
+<# TODO: Add global check for DSC Modules ($ifDeploy)
+ModuleName='xHyper-V'; ModuleVersion='3.15.0.0'
+ModuleName='NetworkingDSC'; ModuleVersion='6.3.0.0'
+ModuleName='DataCenterBridging'; ModuleVersion='0.3'
+ModuleName='VMNetworkAdapter'; ModuleVersion='0.3'
+#>
 
 If (-not (Get-Module -Name Pester -ListAvailable)) { 
     Write-Output 'Pester is an inbox PowerShell Module included in Windows 10, Windows Server 2016, and later'
@@ -86,18 +115,20 @@ If (-not (Get-Module -Name Pester -ListAvailable)) {
 
 $here      = Split-Path -Parent $MyInvocation.MyCommand.Path
 $startTime = Get-Date -format:'yyyyMMdd-HHmmss'
-
-Remove-Variable configData -ErrorAction SilentlyContinue
-Import-Module "$here\helpers\helpers.psm1"
+Remove-Variable -Name configData -ErrorAction SilentlyContinue
 New-Item -Name 'Results' -Path $here -ItemType Directory -Force
 
+#region Getting helpers & data...
 If ($PSBoundParameters.ContainsKey('ExampleConfig')) {
-    Write-Output "Example Configuration Mode ($ExampleConfig) was specified"
-    Write-Output "The default configuration located $(Join-Path $Here -ChildPath "Examples\$ExampleConfig-examples.DCB.config.ps1") will be used"
     $ConfigFile = $(Join-Path $Here -ChildPath "Examples\$ExampleConfig-examples.DCB.config.ps1")
+    $fullPath   = (Get-ChildItem -Path $configFile).FullName
+
+    Write-Output "Example Configuration Mode ($ExampleConfig) was specified"
+    Write-Output "The default configuration located at $fullPath will be used"
 } 
 ElseIf ($PSBoundParameters.ContainsKey('ConfigFilePath')) {
-    Write-Output "The Config File at $ConfigFilePath will be used"
+    $fullPath   = (Get-ChildItem -Path $ConfigFilePath).FullName
+    Write-Output "The Config File at $fullPath will be used"
     $ConfigFile = $ConfigFilePath
 }
 
@@ -106,25 +137,43 @@ Else {
     Throw "Catastrophic Failure :: Configuration File was not found at $ConfigFile"
 }
 
-$testType = 'unit'
-$testFile = Join-Path -Path $here -ChildPath "tests\dcb.tests.$testType.ps1"
+Import-Module "$here\helpers\helpers.psd1" -Force
+$configData += Import-PowerShellDataFile -Path .\helpers\drivers\drivers.psd1
+If ($Deploy) { 
+    Import-Module "$here\helpers\NetworkConfig\NetworkConfig.psd1" -Force
+    $CheckModule = Get-Module -Name NetworkConfig
+    If (-not($CheckModule)) { break; 'NetworkConfig Module was not available for import' }
+}
+#endregion
 
 Switch ($TestScope) {
     'Global' {
-        $GlobalResults = Invoke-Pester -Script $testFile -Tag 'Global' -OutputFile "$here\Results\$startTime-Global-$testType.xml" -OutputFormat NUnitXml -PassThru -EnableExit
+        $testFile = Join-Path -Path $here -ChildPath "tests\unit\global.unit.tests.ps1"
+        $GlobalResults = Invoke-Pester -Script $testFile -Tag 'Global' -OutputFile "$here\Results\$startTime-Global-unit.xml" -OutputFormat NUnitXml -PassThru -EnableExit
         $GlobalResults | Select-Object -Property TagFilter, Time, TotalCount, PassedCount, FailedCount, SkippedCount, PendingCount | Format-Table -AutoSize
     }
 
     'Modal' {
-        $ModalResults = Invoke-Pester -Script $testFile -Tag 'Modal' -OutputFile "$here\Results\$startTime-Modal-$testType.xml" -OutputFormat NUnitXml -PassThru -EnableExit
+        If ($deploy) { Publish-Automation }
+
+        $testFile = Join-Path -Path $here -ChildPath "tests\unit\modal.unit.tests.ps1"
+        $ModalResults = Invoke-Pester -Script $testFile -Tag 'Modal' -OutputFile "$here\Results\$startTime-Modal-unit.xml" -OutputFormat NUnitXml -PassThru -EnableExit
         $ModalResults | Select-Object -Property TagFilter, Time, TotalCount, PassedCount, FailedCount, SkippedCount, PendingCount | Format-Table -AutoSize
     }
 
     Default {
-        $GlobalResults = Invoke-Pester -Script $testFile -Tag 'Global' -OutputFile "$here\Results\$startTime-Global-$testType.xml" -OutputFormat NUnitXml -PassThru -EnableExit
+        $testFile = Join-Path -Path $here -ChildPath "tests\unit\global.unit.tests.ps1"
+        $GlobalResults = Invoke-Pester -Script $testFile -Tag 'Global' -OutputFile "$here\Results\$startTime-Global-unit.xml" -OutputFormat NUnitXml -PassThru -EnableExit
         $GlobalResults | Select-Object -Property TagFilter, Time, TotalCount, PassedCount, FailedCount, SkippedCount, PendingCount | Format-Table -AutoSize
         
-        $ModalResults = Invoke-Pester -Script $testFile -Tag 'Modal' -OutputFile "$here\Results\$startTime-Modal-$testType.xml" -OutputFormat NUnitXml -PassThru -EnableExit
+        If ($GlobalResults.FailedCount -ne 0) {
+            Write-Host 'Failures in Global exist.  Please resolve failures prior to moving on'
+            Break
+        }
+        ElseIf ($deploy) { Publish-Automation }
+
+        $testFile = Join-Path -Path $here -ChildPath "tests\unit\modal.unit.tests.ps1"
+        $ModalResults = Invoke-Pester -Script $testFile -Tag 'Modal' -OutputFile "$here\Results\$startTime-Modal-unit.xml" -OutputFormat NUnitXml -PassThru -EnableExit
         $ModalResults | Select-Object -Property TagFilter, Time, TotalCount, PassedCount, FailedCount, SkippedCount, PendingCount | Format-Table -AutoSize
     }
 }

@@ -183,7 +183,7 @@ The following options are currently supported:
     - ****Type:**** [System.String]
     - ****Possible Entries:**** 'HyperVPort' or 'Dynamic'
     - ****Description:**** Defines the load balancing algorithm for the VMSwitch
-    - ****Note:**** Use `Get-VMSwitch | Select *LoadBalancing*` to determine the algorithm
+    - ****Note:**** Use `Get-VMSwitchTeam | Select *LoadBalancing*` to determine the algorithm
 
 &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<img src="..\helpers\pics\Get-VMSwitchLoadBalancing.png" >
 

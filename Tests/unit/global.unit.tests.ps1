@@ -132,7 +132,7 @@
             }
 
             foreach ($thisRDMAEnabledAdapter in $thisNode.RDMAEnabledAdapters) {
-                $legend = @('Name','VLANID','JumboPacket')
+                $legend = @('Name','VLANID','JumboPacket','EncapOverhead')
                 ($thisRDMAEnabledAdapter.Keys.GetEnumerator() | Select-Object -Unique) | ForEach-Object {
                     ### Verify that the entries under $configData.AllNodes.RDMAEnabledAdapters are in $legend
                     It "[Config File]-[AllNodes.RDMAEnabledAdapters]-[RDMAEnabledAdapter: $($thisRDMAEnabledAdapter.Name)]-[Tested key: $_]-Should contain only recognized keys" {
@@ -231,7 +231,7 @@
                 }
 
                 foreach ($thisRDMAEnabledAdapter in $thisVMSwitch.RDMAEnabledAdapters) {
-                    $legend = @('Name','VMNetworkAdapter','VLANID','JumboPacket')
+                    $legend = @('Name','VMNetworkAdapter','VLANID','JumboPacket','EncapOverhead')
                     $thisRDMAEnabledAdapter.Keys.GetEnumerator() | ForEach-Object {
                         ### Verify that the only entries under $configData.AllNodes.VMSwitch.RDMAEnabledAdapters are in $legend
                         It "[Config File]-[AllNodes.VMSwitch.RDMAEnabledAdapters]-[Node: $($thisNode.NodeName)]-[Entry: $($thisVMSwitch.Name))]-[RDMAEnabledAdapter: $($thisRDMAEnabledAdapter.Name)]-[Tested Key: $_]-Should contain only recognized keys" {

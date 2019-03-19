@@ -291,8 +291,9 @@ Describe "[Modal Unit]" -Tag Modal {
                     ($actNetQoSState.NetQoSPolicy | Where-Object Name -eq $thisPolicy.Name).PriorityValue8021Action | Should Be $thisPolicy.PriorityValue8021Action
                 }
 
-                If ( -not( $($thisPolicy.Name) -like '*default*' )) {
-                    ### Verify the NetQos Priority is Enabled
+                #TODO: Check that Default and Cluster FlowControl is disabled
+                If ( $($thisPolicy.template) -notlike 'Default' -and $($thisPolicy.template) -notlike 'Cluster' ) {
+                    ### Verify the NetQos Priority is Enabled for lossless TCs
                     It "[SUT: $nodeName]-[NetQos: $($thisPolicy.Name)]-[Noun: NetQoSFlowControl] The NetQoS priority ($($thisPolicy.PriorityValue8021Action)) for policy ($($thisPolicy.Name)) should be enabled" {
                         ($actNetQoSState.NetQoSFlowControl | Where-Object Priority -eq $thisPolicy.PriorityValue8021Action).Enabled | Should Be $true
                     }
@@ -648,7 +649,7 @@ Describe "[Modal Unit]" -Tag Modal {
                 $NetAdapter = Get-NetAdapter -Name $thisRDMAEnabledAdapter.Name -CimSession $nodeName -ErrorAction SilentlyContinue
 
                 It "[SUT: $nodeName]-[SMB Adapter: $($thisRDMAEnabledAdapter.Name)]-[Noun: SMBServerNetworkInterface] SMB Client must report RDMA Capable" {
-                    (($SMBServerNetworkInterface | Where-Object InterfaceIndex -eq $NetAdapter.IfIndex) | Select -first 1).RdmaCapable | Should be $true
+                    (($SMBServerNetworkInterface | Where-Object InterfaceIndex -eq $NetAdapter.IfIndex) | Select-Object -first 1).RdmaCapable | Should be $true
                 }
             }
 
@@ -657,7 +658,7 @@ Describe "[Modal Unit]" -Tag Modal {
                 $NetAdapter = Get-NetAdapter -Name $thisRDMAEnabledAdapter.VMNetworkAdapter -CimSession $nodeName -ErrorAction SilentlyContinue
 
                 It "[SUT: $nodeName]-[SMB Adapter: $($thisRDMAEnabledAdapter.VMNetworkAdapter)]-[Noun: SMBServerNetworkInterface] SMB Client must report RDMA Capable" {
-                    (($SMBServerNetworkInterface | Where-Object InterfaceIndex -eq $NetAdapter.IfIndex) | Select -first 1).RdmaCapable | Should be $true
+                    (($SMBServerNetworkInterface | Where-Object InterfaceIndex -eq $NetAdapter.IfIndex) | Select-Object -first 1).RdmaCapable | Should be $true
                 }
             }
         }

@@ -219,7 +219,7 @@
                 If ($thisVMSwitch.ContainsKey('LoadBalancingAlgorithm')) {
                     ### Verify VMSwitch Load Balancing Algorithm is either Dynamic (2016 Default) or HyperVPort (2019 Default)
                     It "[Config File]-[AllNodes.VMSwitch]-[Node: $($thisNode.NodeName)]-[Entry: $($thisVMSwitch.Name))]-[Noun: VMSwitch] The LoadBalancingAlgorithm property must be either HyperVPort or Dynamic " {
-                        ($thisVMSwitch.LoadBalancingAlgorithm -eq 'Dynamic' -or $thisVMSwitch.LoadBalancingAlgorithm -eq 'HyperVPort') | Should $true
+                        ($thisVMSwitch.LoadBalancingAlgorithm -eq 'Dynamic' -or $thisVMSwitch.LoadBalancingAlgorithm -eq 'HyperVPort') | Should be $true
                     }
                 }
 

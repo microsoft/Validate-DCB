@@ -18,7 +18,9 @@ Configuration NetworkConfig {
             0..7 | Foreach-Object {
                 $thisPriority = $_
     
-                If ($thisPriority -in $configData.NonNodeData.NetQos.PriorityValue8021Action -and $thisPriority -ne 0) {
+                If ($thisPriority -in $configData.NonNodeData.NetQos.PriorityValue8021Action -and 
+                    $thisPriority -ne $configData.NonNodeData.NetQoS.Where({$_.Template -eq 'Cluster'}).PriorityValue8021Action -and
+                    $thisPriority -ne 0 ) {
                     DCBNetQosFlowControl "Priority$thisPriority" {
                         Ensure = 'Present'
                         Priority = $thisPriority

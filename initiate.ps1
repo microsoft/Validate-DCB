@@ -78,15 +78,19 @@ param (
     [Parameter(ParameterSetName='CustomConfig')]
     [string] $ConfigFilePath,
 
+    [Parameter(ParameterSetName='Create Config')]
+    [switch] $LaunchUI = $false, 
+
     [Parameter(Mandatory=$false)]
     [switch] $ContinueOnFailure = $false,
 
     [Parameter(Mandatory=$false)]
-    [Switch] $Deploy = $false,
-
-    [Parameter(Mandatory=$false)]
     [ValidateSet('All','Global', 'Modal')]
-    [string] $TestScope = 'All'
+    [string] $TestScope = 'All' ,
+
+    [Parameter(ParameterSetName='DefaultConfig')]
+    [Parameter(ParameterSetName='CustomConfig')]
+    [switch] $Deploy = $false
 )
 
 Clear-Host
@@ -119,7 +123,23 @@ Remove-Variable -Name configData -ErrorAction SilentlyContinue
 New-Item -Name 'Results' -Path $here -ItemType Directory -Force
 
 #region Getting helpers & data...
-If ($PSBoundParameters.ContainsKey('ExampleConfig')) {
+If ($LaunchUI) {
+    Import-Module "$here\helpers\NetworkConfig\NetworkConfig.psd1" -Force
+    Import-Module "$here\helpers\UI\vDCBUI.psm1" -Force
+
+    $CheckModule = Get-Module -Name NetworkConfig, vDCBUI
+    
+    If ($CheckModule.Count -ne 2) { break; 'NetworkConfig or vDCBUI Module was not available for import' }
+
+    Write-Output 'Launching Configuration and Deployment UI'
+    vDCBUI
+
+    $ConfigFile = $global:ConfigPath
+
+    Write-Output "Configuration from the UI will be used"
+    Write-Output "The configuration is located at $ConfigFile"
+}
+ElseIf ($PSBoundParameters.ContainsKey('ExampleConfig')) {
     $ConfigFile = $(Join-Path $Here -ChildPath "Examples\$ExampleConfig-examples.DCB.config.ps1")
     $fullPath   = (Get-ChildItem -Path $configFile).FullName
 
@@ -139,41 +159,37 @@ Else {
 
 Import-Module "$here\helpers\helpers.psd1" -Force
 $configData += Import-PowerShellDataFile -Path .\helpers\drivers\drivers.psd1
-If ($Deploy) { 
-    Import-Module "$here\helpers\NetworkConfig\NetworkConfig.psd1" -Force
-    $CheckModule = Get-Module -Name NetworkConfig
-    If (-not($CheckModule)) { break; 'NetworkConfig Module was not available for import' }
-}
 #endregion
 
 Switch ($TestScope) {
     'Global' {
         $testFile = Join-Path -Path $here -ChildPath "tests\unit\global.unit.tests.ps1"
-        $GlobalResults = Invoke-Pester -Script $testFile -Tag 'Global' -OutputFile "$here\Results\$startTime-Global-unit.xml" -OutputFormat NUnitXml -PassThru
+        $GlobalResults = Invoke-Pester -Script $testFile -Tag 'Global' -OutputFile "$here\Results\$startTime-Global-unit.xml" -OutputFormat NUnitXml -PassThru -EnableExit
         $GlobalResults | Select-Object -Property TagFilter, Time, TotalCount, PassedCount, FailedCount, SkippedCount, PendingCount | Format-Table -AutoSize
     }
 
     'Modal' {
-        If ($deploy) { Publish-Automation }
+        If ($global:deploy) { Publish-Automation }
 
         $testFile = Join-Path -Path $here -ChildPath "tests\unit\modal.unit.tests.ps1"
-        $ModalResults = Invoke-Pester -Script $testFile -Tag 'Modal' -OutputFile "$here\Results\$startTime-Modal-unit.xml" -OutputFormat NUnitXml -PassThru
+        $ModalResults = Invoke-Pester -Script $testFile -Tag 'Modal' -OutputFile "$here\Results\$startTime-Modal-unit.xml" -OutputFormat NUnitXml -PassThru -EnableExit
         $ModalResults | Select-Object -Property TagFilter, Time, TotalCount, PassedCount, FailedCount, SkippedCount, PendingCount | Format-Table -AutoSize
     }
 
     Default {
+        If ($global:deploy) { Publish-Automation }
+
         $testFile = Join-Path -Path $here -ChildPath "tests\unit\global.unit.tests.ps1"
-        $GlobalResults = Invoke-Pester -Script $testFile -Tag 'Global' -OutputFile "$here\Results\$startTime-Global-unit.xml" -OutputFormat NUnitXml -PassThru
+        $GlobalResults = Invoke-Pester -Script $testFile -Tag 'Global' -OutputFile "$here\Results\$startTime-Global-unit.xml" -OutputFormat NUnitXml -PassThru -EnableExit
         $GlobalResults | Select-Object -Property TagFilter, Time, TotalCount, PassedCount, FailedCount, SkippedCount, PendingCount | Format-Table -AutoSize
         
         If ($GlobalResults.FailedCount -ne 0) {
             Write-Host 'Failures in Global exist.  Please resolve failures prior to moving on'
             Break
         }
-        ElseIf ($deploy) { Publish-Automation }
 
         $testFile = Join-Path -Path $here -ChildPath "tests\unit\modal.unit.tests.ps1"
-        $ModalResults = Invoke-Pester -Script $testFile -Tag 'Modal' -OutputFile "$here\Results\$startTime-Modal-unit.xml" -OutputFormat NUnitXml -PassThru
+        $ModalResults = Invoke-Pester -Script $testFile -Tag 'Modal' -OutputFile "$here\Results\$startTime-Modal-unit.xml" -OutputFormat NUnitXml -PassThru -EnableExit
         $ModalResults | Select-Object -Property TagFilter, Time, TotalCount, PassedCount, FailedCount, SkippedCount, PendingCount | Format-Table -AutoSize
     }
 }

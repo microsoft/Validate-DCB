@@ -2,8 +2,10 @@
 
 ## New Features
 
+- GUI for creating the configuration!
+  - Requires new param (LaunchUI) in the config file
 - Added Deployment Option
-  - Requires new params (deploy) in the config file
+  - Requires new params (deploy) in the config file (or selection in the UI)
   - Added new example file .\Examples\Deploy.ps1
 
 ## Testing Changes

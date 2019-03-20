@@ -446,6 +446,11 @@ Describe "[Modal Unit]" -Tag Modal {
                                 ($actvmSwitch.vmSwitchTeam | Where-Object Name -eq $thisCfgVMSwitch.Name).LoadBalancingAlgorithm | Should Be $thisCfgVMSwitch.LoadBalancingAlgorithm
                             }
                         }
+                        Else {
+                            It "[SUT: $nodeName]-[VMSwitch: $($thisCfgVMSwitch.Name)]-[Noun: VMSwitchTeam] LoadBalancingAlgorithm should be 'Hyper-V Port' if not specified in the config file" {
+                                ($actvmSwitch.vmSwitchTeam | Where-Object Name -eq $thisCfgVMSwitch.Name).LoadBalancingAlgorithm | Should Be 'HyperVPort'
+                            }
+                        }
 
                         ### Verify PacketDirect is disabled (not required for RDMA; best practice for VMSwitch)
                         It "[SUT: $nodeName]-[VMSwitch: $($thisCfgVMSwitch.Name)]-[Noun: VMSwitch] PacketDirect must be Disabled" {

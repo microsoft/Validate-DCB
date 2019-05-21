@@ -85,6 +85,13 @@ Configuration NetworkConfig {
                     RegistryValue = $thisRDMAEnabledAdapter.JumboPacket
                 }
 
+                ###Configure - EncapOverhead
+                NetAdapterAdvancedProperty "$($thisRDMAEnabledAdapter.Name)-EncapOverhead" {
+                    NetworkAdapterName = $thisRDMAEnabledAdapter.Name
+                    RegistryKeyword = '*EncapOverhead'
+                    RegistryValue = $thisRDMAEnabledAdapter.EncapOverhead
+                }
+
                 ###Configure - Disable PacketDirect
                 NetAdapterAdvancedProperty "$($thisRDMAEnabledAdapter.Name)-PacketDirect" {
                     NetworkAdapterName = $thisRDMAEnabledAdapter.Name
@@ -210,6 +217,13 @@ Configuration NetworkConfig {
                         NetworkAdapterName = $thisRDMAEnabledAdapter.Name
                         RegistryKeyword = '*JumboPacket'
                         RegistryValue = $thisRDMAEnabledAdapter.JumboPacket
+                    }
+
+                    ###Configure - EncapOverhead
+                    NetAdapterAdvancedProperty "$($thisRDMAEnabledAdapter.Name)-EncapOverhead" {
+                        NetworkAdapterName = $thisRDMAEnabledAdapter.Name
+                        RegistryKeyword = '*EncapOverhead'
+                        RegistryValue = $thisRDMAEnabledAdapter.EncapOverhead
                     }
 
                     ###Configure - JumboPacket Size for vNIC

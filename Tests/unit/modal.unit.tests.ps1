@@ -156,6 +156,12 @@ Describe "[Modal Unit]" -Tag Modal {
                         ($actNetAdapterState.netAdapterAdvancedProperty | Where-Object{$_.Name -eq $thisRDMAEnabledAdapter.Name -and $_.RegistryKeyword -eq '*JumboPacket'}).RegistryValue | Should Be $thisRDMAEnabledAdapter.JumboPacket
                     }
                 }
+                ### Verify if EncapOverhead is specified in the config file that they are set properly on the interfaces
+                If ($thisRDMAEnabledAdapter.EncapOverhead) {
+                    It "[SUT: $nodeName]-[RDMAEnabledAdapter: $($thisRDMAEnabledAdapter.Name)]-[Noun: NetAdapterAdvancedProperty] should have EncapOverhead set to [$($thisRDMAEnabledAdapter.EncapOverhead)]" {
+                        ($actNetAdapterState.netAdapterAdvancedProperty | Where-Object{$_.Name -eq $thisRDMAEnabledAdapter.Name -and $_.RegistryKeyword -eq '*EncapOverhead'}).RegistryValue | Should Be $thisRDMAEnabledAdapter.EncapOverhead
+                    }
+                }
 
                 #Note: $thisDriver will be empty if using a driver that is not recognized
                 $driverName = ($actNetAdapterState.NetAdapter | Where-Object Name -eq $thisRDMAEnabledAdapter.Name).DriverName.Split('\')
@@ -209,6 +215,13 @@ Describe "[Modal Unit]" -Tag Modal {
                             ($actNetAdapterState.netAdapterAdvancedProperty | Where-Object{$_.Name -eq $thisRDMAEnabledAdapter.Name -and $_.RegistryKeyword -eq '*JumboPacket'}).RegistryValue | Should Be $thisRDMAEnabledAdapter.JumboPacket
                         }
                     }
+                    ### Verify if EncapOverhead is specified in the config file that they are set properly on the interfaces
+                    If ($thisRDMAEnabledAdapter.EncapOverhead) {
+                        It "[SUT: $nodeName]-[VMSwitch: $($thisCfgVMSwitch.Name)]-[RDMAEnabledAdapter: $($thisRDMAEnabledAdapter.Name)]-[Noun: NetAdapterAdvancedProperty] should have EncapOverhead set to [$($thisRDMAEnabledAdapter.EncapOverhead)]" {
+                            ($actNetAdapterState.netAdapterAdvancedProperty | Where-Object{$_.Name -eq $thisRDMAEnabledAdapter.Name -and $_.RegistryKeyword -eq '*EncapOverhead'}).RegistryValue | Should Be $thisRDMAEnabledAdapter.EncapOverhead
+                        }
+                    }
+
                 }
             }
         }

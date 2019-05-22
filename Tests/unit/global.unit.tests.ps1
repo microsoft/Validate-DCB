@@ -40,6 +40,7 @@
             }
         }
 
+        #Import-Module "$here\helpers\NetworkConfig\NetworkConfig.psd1"
         If ($Deploy) {
             $fnNetworkConfig = Get-ChildItem 'Function:\NetworkConfig'
             It "[Global Unit]-[TestHost: ${env:ComputerName}] must have the NetworkConfig command" {
@@ -48,6 +49,22 @@
 
             It "[Global Unit]-[TestHost: ${env:ComputerName}] NetworkConfig command must be a Configuration" {
                 $fnNetworkConfig.CommandType | Should be 'Configuration'
+            }
+
+            $deployReqModules = Import-PowerShellDataFile -Path "$here\helpers\NetworkConfig\NetworkConfig.psd1"
+
+            ($deployReqModules).RequiredModules.GetEnumerator() | ForEach-Object {
+                $module = Get-Module $_.ModuleName -ListAvailable -ErrorAction SilentlyContinue
+        
+                It "[Global Unit]-[TestHost: ${env:ComputerName}] Must have the module [$($_.ModuleName)] available" {
+                    $module | Should not BeNullOrEmpty
+                }
+        
+                if ($_.ContainsKey('ModuleVersion')) {
+                    It "[Global Unit]-[TestHost: ${env:ComputerName}] Module [$($_.ModuleName)] must be at least version [$($_.ModuleVersion)]" {
+                        $module.version -ge $_.ModuleVersion | Should be $true
+                    }
+                }
             }
         }
 

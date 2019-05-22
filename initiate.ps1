@@ -3,7 +3,6 @@
     Validate-DCB validates RDMA and DCB best practice configuration to assist in troubleshooting or verifying configuration
 
 .DESCRIPTION
-
     Validate-DCB allows you to:
     - Validate the expected configuration on one to N number of systems or clusters
     - Validate the configuration meets best practices
@@ -70,6 +69,8 @@
     RDMA Configuration Guidance : https://aka.ms/ConvergedNIC
 #> 
 
+[CmdletBinding(DefaultParameterSetName = 'Create Config')]
+
 param (
     [Parameter(ParameterSetName='DefaultConfig')]
     [ValidateSet('NDKm1', 'NDKm2')]
@@ -79,7 +80,7 @@ param (
     [string] $ConfigFilePath,
 
     [Parameter(ParameterSetName='Create Config')]
-    [switch] $LaunchUI = $false, 
+    [switch] $LaunchUI = $true, 
 
     [Parameter(Mandatory=$false)]
     [switch] $ContinueOnFailure = $false,
@@ -95,6 +96,8 @@ param (
 
 Clear-Host
 
+If ($PSCmdlet.ParameterSetName -ne 'Create Config') { $LaunchUI = $false }
+
 #TODO: Update test helpers to check for VLAN Isolation and not VMnetworkAdapterVLAn
 
 #TODO: Add verification for 
@@ -103,13 +106,6 @@ Port: Only TCP 443 is required for outbound internet access.
 Global URL: *.azure-automation.net
 Global URL of US Gov Virginia: *.azure-automation.us
 Agent service: https://<workspaceId>.agentsvc.azure-automation.net
-#>
-
-<# TODO: Add global check for DSC Modules ($ifDeploy)
-ModuleName='xHyper-V'; ModuleVersion='3.15.0.0'
-ModuleName='NetworkingDSC'; ModuleVersion='6.3.0.0'
-ModuleName='DataCenterBridging'; ModuleVersion='0.3'
-ModuleName='VMNetworkAdapter'; ModuleVersion='0.3'
 #>
 
 If (-not (Get-Module -Name Pester -ListAvailable)) { 
@@ -122,11 +118,13 @@ $startTime = Get-Date -format:'yyyyMMdd-HHmmss'
 Remove-Variable -Name configData -ErrorAction SilentlyContinue
 New-Item -Name 'Results' -Path $here -ItemType Directory -Force
 
-#region Getting helpers & data...
-If ($LaunchUI) {
+If ($global:deploy -eq $true -or $LaunchUI -eq $true) {
     Import-Module "$here\helpers\NetworkConfig\NetworkConfig.psd1" -Force
     Import-Module "$here\helpers\UI\vDCBUI.psm1" -Force
+}
 
+#region Getting helpers & data...
+If ($LaunchUI) {
     $CheckModule = Get-Module -Name NetworkConfig, vDCBUI
     
     If ($CheckModule.Count -ne 2) { break; 'NetworkConfig or vDCBUI Module was not available for import' }
@@ -177,12 +175,12 @@ Switch ($TestScope) {
     }
 
     Default {
-        If ($global:deploy) { Publish-Automation }
-
         $testFile = Join-Path -Path $here -ChildPath "tests\unit\global.unit.tests.ps1"
         $GlobalResults = Invoke-Pester -Script $testFile -Tag 'Global' -OutputFile "$here\Results\$startTime-Global-unit.xml" -OutputFormat NUnitXml -PassThru -EnableExit
         $GlobalResults | Select-Object -Property TagFilter, Time, TotalCount, PassedCount, FailedCount, SkippedCount, PendingCount | Format-Table -AutoSize
         
+        If ($global:deploy) { Publish-Automation }
+
         If ($GlobalResults.FailedCount -ne 0) {
             Write-Host 'Failures in Global exist.  Please resolve failures prior to moving on'
             Break

@@ -108,6 +108,21 @@ Describe "[Modal Unit]" -Tag Modal {
                         ($actNetAdapterState.netAdapterBinding | Where-Object{$_.Name -eq $thisRDMAEnabledAdapter.Name -and $_.ComponentID -eq 'ms_implat'}).Enabled | Should be $false
                     }
 
+                    ### Verify interface is NOT bound to TCP/IP v4
+                    It "[SUT: $nodeName]-[VMSwitch: $($thisCfgVMSwitch.Name)]-[RDMAEnabledAdapter: $($thisRDMAEnabledAdapter.Name)]-[Noun: NetAdapterBinding] Interface must NOT be bound to TCP/IP v4" {
+                        ($actNetAdapterState.netAdapterBinding | Where-Object{$_.Name -eq $thisRDMAEnabledAdapter.Name -and $_.ComponentID -eq 'ms_tcpip'}).Enabled | Should be $false
+                    }
+
+                    ### Verify interface is NOT bound to TCP/IP v6
+                    It "[SUT: $nodeName]-[VMSwitch: $($thisCfgVMSwitch.Name)]-[RDMAEnabledAdapter: $($thisRDMAEnabledAdapter.Name)]-[Noun: NetAdapterBinding] Interface must NOT be bound to TCP/IP v6" {
+                        ($actNetAdapterState.netAdapterBinding | Where-Object{$_.Name -eq $thisRDMAEnabledAdapter.Name -and $_.ComponentID -eq 'ms_tcpip6'}).Enabled | Should be $false
+                    }
+
+                    ### Verify interface is NOT bound to Client for Microsoft Networks
+                    It "[SUT: $nodeName]-[VMSwitch: $($thisCfgVMSwitch.Name)]-[RDMAEnabledAdapter: $($thisRDMAEnabledAdapter.Name)]-[Noun: NetAdapterBinding] Interface must NOT be bound to Client for MS Networks" {
+                        ($actNetAdapterState.netAdapterBinding | Where-Object{$_.Name -eq $thisRDMAEnabledAdapter.Name -and $_.ComponentID -eq 'ms_msclient'}).Enabled | Should be $false
+                    }
+
                     #Note: $thisDriver will be empty if using a driver that is not recognized
                     $driverName = ($actNetAdapterState.NetAdapter | Where-Object Name -eq $thisRDMAEnabledAdapter.Name).DriverName.Split('\')
                     $thisDriver = $configData.drivers.Where{$_.DriverFileName -eq $driverName[$driverName.Count - 1]}
@@ -132,6 +147,10 @@ Describe "[Modal Unit]" -Tag Modal {
         $actNetAdapterState.netAdapterAdvancedProperty = $netAdapterAdvancedProperty
     
         Remove-Variable -Name netAdapterAdvancedProperty
+
+        #Note: $thisDriver will be empty if using a driver that is not recognized
+        $driverName = ($actNetAdapterState.NetAdapter | Where-Object Name -eq $thisRDMAEnabledAdapter.Name).DriverName.Split('\')
+        $thisIHV = $configData.drivers.Where{$_.DriverFileName -eq $driverName[$driverName.Count - 1]}.IHV
 
         foreach ($thisRDMAEnabledAdapter in $cfgRDMAEnabledAdapters) {
             Context "[Modal Unit]-[RDMAEnabledAdapters]-[SUT: $nodeName]-Physical NetAdapter Advanced Property Settings" {
@@ -163,28 +182,59 @@ Describe "[Modal Unit]" -Tag Modal {
                     }
                 }
 
-                #Note: $thisDriver will be empty if using a driver that is not recognized
-                $driverName = ($actNetAdapterState.NetAdapter | Where-Object Name -eq $thisRDMAEnabledAdapter.Name).DriverName.Split('\')
-                $thisIHV = $configData.drivers.Where{$_.DriverFileName -eq $driverName[$driverName.Count - 1]}.IHV
-
-                Switch ($thisIHV) {
-                    'Chelsio ' { }
-                    'Cavium'   { }
-                    'Intel'    { }
-
-                    'Mellanox' { 
-                        It "[SUT: $nodeName]-[Adapter: $($thisRDMAEnabledAdapter.Name)]-(Noun: NetAdapterAdvancedProperty) Miniport IPv4 RSC should be disabled" {
-                            (($actNetAdapterState.netAdapterAdvancedProperty | Where-Object Name -eq $thisRDMAEnabledAdapter.Name) | Where-Object RegistryKeyword -eq '*RscIPv4').RegistryValue | Should Be 0
-                        }
-
-                        It "[SUT: $nodeName]-[Adapter: $($thisRDMAEnabledAdapter.Name)]-(Noun: NetAdapterAdvancedProperty) Miniport IPv6 RSC should be disabled" {
-                            (($actNetAdapterState.netAdapterAdvancedProperty | Where-Object Name -eq $thisRDMAEnabledAdapter.Name) | Where-Object RegistryKeyword -eq '*RscIPv6').RegistryValue | Should Be 0
+                Switch -wildCard ($thisIHV) {
+                    'Chelsio ' {
+                        #Test for NetworkDirectTechnology - Adapter must specify iWARP
+                        It "[SUT: $nodeName]-[Adapter: $($thisRDMAEnabledAdapter.Name)]-(Noun: NetAdapterAdvancedProperty) Network Direct Technology must be '1' (iWARP) on Chelsio adapters" {
+                            (($actNetAdapterState.netAdapterAdvancedProperty | Where-Object Name -eq $thisRDMAEnabledAdapter.Name) | Where-Object RegistryKeyword -eq '*NetworkDirectTechnology').RegistryValue | Should Be 1
                         }
                     }
 
-                    'Broadcom' { }
+                    'Cavium'   { 
+                        #Test for NetworkDirectTechnology - As they support multiple options, we test that the system specifies iWARP or RoCEv2
+                        It "[SUT: $nodeName]-[Adapter: $($thisRDMAEnabledAdapter.Name)]-(Noun: NetAdapterAdvancedProperty) Network Direct Technology must be '1'(iWARP) or '4' (RoCEv2) on Marvell/Cavium adapters" {
+                            $NetworkDirectTechnologyValue = (($actNetAdapterState.netAdapterAdvancedProperty | Where-Object Name -eq $thisRDMAEnabledAdapter.Name) | Where-Object RegistryKeyword -eq '*NetworkDirectTechnology').RegistryValue
+                            $NetworkDirectTechnologyValue -eq 1 -or $NetworkDirectTechnologyValue -eq 4 | Should be $true
+                        }
+                    }
 
-                    'Default'  {
+                    'Intel'    {
+                        #Test for NetworkDirectTechnology - Adapter must specify iWARP
+                        It "[SUT: $nodeName]-[Adapter: $($thisRDMAEnabledAdapter.Name)]-(Noun: NetAdapterAdvancedProperty) Network Direct Technology must be '1' (iWARP) on Intel adapters" {
+                            (($actNetAdapterState.netAdapterAdvancedProperty | Where-Object Name -eq $thisRDMAEnabledAdapter.Name) | Where-Object RegistryKeyword -eq '*NetworkDirectTechnology').RegistryValue | Should Be 1
+                        }
+                    }
+
+                    'Mellanox' {
+                        if ($driverName[$driverName.Count - 1] -like 'mlx4*') {
+                            It "[SUT: $nodeName]-[Adapter: $($thisRDMAEnabledAdapter.Name)]-(Noun: NetAdapterAdvancedProperty) Miniport IPv4 RSC should be disabled" {
+                                (($actNetAdapterState.netAdapterAdvancedProperty | Where-Object Name -eq $thisRDMAEnabledAdapter.Name) | Where-Object RegistryKeyword -eq '*RscIPv4').RegistryValue | Should Be 0
+                            }
+    
+                            It "[SUT: $nodeName]-[Adapter: $($thisRDMAEnabledAdapter.Name)]-(Noun: NetAdapterAdvancedProperty) Miniport IPv6 RSC should be disabled" {
+                                (($actNetAdapterState.netAdapterAdvancedProperty | Where-Object Name -eq $thisRDMAEnabledAdapter.Name) | Where-Object RegistryKeyword -eq '*RscIPv6').RegistryValue | Should Be 0
+                            }
+                        }
+                        Else {
+                            #Test for NetworkDirectTechnology - Adapter must specify RoCEv2
+                            It "[SUT: $nodeName]-[Adapter: $($thisRDMAEnabledAdapter.Name)]-(Noun: NetAdapterAdvancedProperty) Network Direct Technology must be '4' (RoCEv2) on Mellanox adapters" {
+                                (($actNetAdapterState.netAdapterAdvancedProperty | Where-Object Name -eq $thisRDMAEnabledAdapter.Name) | Where-Object RegistryKeyword -eq '*NetworkDirectTechnology').RegistryValue | Should Be 4
+                            }
+                        }
+                    }
+
+                    'Broadcom' {
+                        #Test for NetworkDirectTechnology - Adapter must specify RoCEv2
+                        It "[SUT: $nodeName]-[Adapter: $($thisRDMAEnabledAdapter.Name)]-(Noun: NetAdapterAdvancedProperty) Network Direct Technology must be '4' (RoCEv2) on Broadcom adapters" {
+                            (($actNetAdapterState.netAdapterAdvancedProperty | Where-Object Name -eq $thisRDMAEnabledAdapter.Name) | Where-Object RegistryKeyword -eq '*NetworkDirectTechnology').RegistryValue | Should Be 4
+                        }
+                    }
+
+                    '*' {
+                        # Tests for all IHVs
+                    }
+
+                    'Default' {
                         It 'Hardware Vendor for Adapter not Identified' { $false | Should be $true }
                     }
                 }
@@ -222,6 +272,62 @@ Describe "[Modal Unit]" -Tag Modal {
                         }
                     }
 
+                    Switch -wildCard ($thisIHV) {
+                        'Chelsio ' {
+                            #Test for NetworkDirectTechnology - Adapter must specify iWARP
+                            It "[SUT: $nodeName]-[Adapter: $($thisRDMAEnabledAdapter.Name)]-(Noun: NetAdapterAdvancedProperty) Network Direct Technology must be '1' (iWARP) on Chelsio adapters" {
+                                (($actNetAdapterState.netAdapterAdvancedProperty | Where-Object Name -eq $thisRDMAEnabledAdapter.Name) | Where-Object RegistryKeyword -eq '*NetworkDirectTechnology').RegistryValue | Should Be 1
+                            }
+                        }
+    
+                        'Cavium'   { 
+                            #Test for NetworkDirectTechnology - As they support multiple options, we test that the system specifies iWARP or RoCEv2
+                            It "[SUT: $nodeName]-[Adapter: $($thisRDMAEnabledAdapter.Name)]-(Noun: NetAdapterAdvancedProperty) Network Direct Technology must be '1'(iWARP) or '4' (RoCEv2) on Marvell/Cavium adapters" {
+                                $NetworkDirectTechnologyValue = (($actNetAdapterState.netAdapterAdvancedProperty | Where-Object Name -eq $thisRDMAEnabledAdapter.Name) | Where-Object RegistryKeyword -eq '*NetworkDirectTechnology').RegistryValue
+                                $NetworkDirectTechnologyValue -eq 1 -or $NetworkDirectTechnologyValue -eq 4 | Should be $true
+                            }
+                        }
+    
+                        'Intel'    {
+                            #Test for NetworkDirectTechnology - Adapter must specify iWARP
+                            It "[SUT: $nodeName]-[Adapter: $($thisRDMAEnabledAdapter.Name)]-(Noun: NetAdapterAdvancedProperty) Network Direct Technology must be '1' (iWARP) on Intel adapters" {
+                                (($actNetAdapterState.netAdapterAdvancedProperty | Where-Object Name -eq $thisRDMAEnabledAdapter.Name) | Where-Object RegistryKeyword -eq '*NetworkDirectTechnology').RegistryValue | Should Be 1
+                            }
+                        }
+    
+                        'Mellanox' {
+                            if ($driverName[$driverName.Count - 1] -like 'mlx4*') {
+                                It "[SUT: $nodeName]-[Adapter: $($thisRDMAEnabledAdapter.Name)]-(Noun: NetAdapterAdvancedProperty) Miniport IPv4 RSC should be disabled" {
+                                    (($actNetAdapterState.netAdapterAdvancedProperty | Where-Object Name -eq $thisRDMAEnabledAdapter.Name) | Where-Object RegistryKeyword -eq '*RscIPv4').RegistryValue | Should Be 0
+                                }
+        
+                                It "[SUT: $nodeName]-[Adapter: $($thisRDMAEnabledAdapter.Name)]-(Noun: NetAdapterAdvancedProperty) Miniport IPv6 RSC should be disabled" {
+                                    (($actNetAdapterState.netAdapterAdvancedProperty | Where-Object Name -eq $thisRDMAEnabledAdapter.Name) | Where-Object RegistryKeyword -eq '*RscIPv6').RegistryValue | Should Be 0
+                                }
+                            }
+                            Else {
+                                #Test for NetworkDirectTechnology - Adapter must specify RoCEv2
+                                It "[SUT: $nodeName]-[Adapter: $($thisRDMAEnabledAdapter.Name)]-(Noun: NetAdapterAdvancedProperty) Network Direct Technology must be '4' (RoCEv2) on Mellanox adapters" {
+                                    (($actNetAdapterState.netAdapterAdvancedProperty | Where-Object Name -eq $thisRDMAEnabledAdapter.Name) | Where-Object RegistryKeyword -eq '*NetworkDirectTechnology').RegistryValue | Should Be 4
+                                }
+                            }
+                        }
+    
+                        'Broadcom' {
+                            #Test for NetworkDirectTechnology - Adapter must specify RoCEv2
+                            It "[SUT: $nodeName]-[Adapter: $($thisRDMAEnabledAdapter.Name)]-(Noun: NetAdapterAdvancedProperty) Network Direct Technology must be '4' (RoCEv2) on Broadcom adapters" {
+                                (($actNetAdapterState.netAdapterAdvancedProperty | Where-Object Name -eq $thisRDMAEnabledAdapter.Name) | Where-Object RegistryKeyword -eq '*NetworkDirectTechnology').RegistryValue | Should Be 4
+                            }
+                        }
+    
+                        '*' {
+                            # Tests for all IHVs
+                        }
+    
+                        'Default' {
+                            It 'Hardware Vendor for Adapter not Identified' { $false | Should be $true }
+                        }
+                    }
                 }
             }
         }
@@ -677,6 +783,37 @@ Describe "[Modal Unit]" -Tag Modal {
 
                 It "[SUT: $nodeName]-[SMB Adapter: $($thisRDMAEnabledAdapter.VMNetworkAdapter)]-[Noun: SMBServerNetworkInterface] SMB Client must report RDMA Capable" {
                     (($SMBServerNetworkInterface | Where-Object InterfaceIndex -eq $NetAdapter.IfIndex) | Select-Object -first 1).RdmaCapable | Should be $true
+                }
+            }
+
+            $VMHostLiveMigration = Get-VMHost -CimSession $nodeName -ErrorAction SilentlyContinue
+            $SMBBandwidthLimit   = Get-SmbBandwidthLimit -Category LiveMigration -CimSession $nodeName -ErrorAction SilentlyContinue
+
+            If ($VMHostLiveMigration.VirtualMachineMigrationPerformanceOption -eq 'SMB') {
+                $AdapterLinkSpeed = ($actNetAdapterState.NetAdapter | Where-Object Name -eq $thisRDMAEnabledAdapter.Name).ReceiveLinkSpeed
+
+                $configData.NonNodeData.NetQos | Foreach-Object {
+                    $thisPolicy = $_
+    
+                    if ($thisPolicy.ContainsKey('NetDirectPortMatchCondition')) {
+                        Switch ($AdapterLinkSpeed) {
+                            # SMB Bandwidth Limit is being calculated MB and being compared to adapter speed which is in Gbps converted to MiBps
+
+                            {$_ -le 10000000000} {
+                                It "Should have an adapter speed of...fix this" {
+                                    $SMBBandwidthLimit.BytesPerSecond / 1MB | Should be (((($thisPolicy.BandwidthPercentage / 100) * .6) * $AdapterLinkSpeed) / 8) / 1000000
+                                }
+                            }
+        
+                            {$_ -gt 10000000000} {
+                                It "Should have an Live Migration limit of 750 MBps" {
+                                    $SMBBandwidthLimit.BytesPerSecond / 1MB | Should be 750
+                                }
+                            }
+                                    
+                            default { It 'Link speed was not identified and so optimal live migration limit could not be determined' { $false | Should be $true } }
+                        }
+                    }
                 }
             }
         }

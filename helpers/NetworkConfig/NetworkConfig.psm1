@@ -85,12 +85,16 @@ Configuration NetworkConfig {
                     RegistryValue = $thisRDMAEnabledAdapter.JumboPacket
                 }
 
-                ###Configure - EncapOverhead
-                NetAdapterAdvancedProperty "$($thisRDMAEnabledAdapter.Name)-EncapOverhead" {
-                    NetworkAdapterName = $thisRDMAEnabledAdapter.Name
-                    RegistryKeyword = '*EncapOverhead'
-                    RegistryValue = $thisRDMAEnabledAdapter.EncapOverhead
+                <# NetworkDSC does not currently deploy *EncapOverhead
+                If ($thisRDMAEnabledAdapter.EncapOverhead) {
+                    ###Configure - EncapOverhead
+                    NetAdapterAdvancedProperty "$($thisRDMAEnabledAdapter.Name)-EncapOverhead" {
+                        NetworkAdapterName = $thisRDMAEnabledAdapter.Name
+                        RegistryKeyword = '*EncapOverhead'
+                        RegistryValue = $thisRDMAEnabledAdapter.EncapOverhead
+                    }
                 }
+                #>
 
                 ###Configure - Disable PacketDirect
                 NetAdapterAdvancedProperty "$($thisRDMAEnabledAdapter.Name)-PacketDirect" {
@@ -219,12 +223,16 @@ Configuration NetworkConfig {
                         RegistryValue = $thisRDMAEnabledAdapter.JumboPacket
                     }
 
+                    <# NetworkDSC does not currently deploy *EncapOverhead
                     ###Configure - EncapOverhead
-                    NetAdapterAdvancedProperty "$($thisRDMAEnabledAdapter.Name)-EncapOverhead" {
-                        NetworkAdapterName = $thisRDMAEnabledAdapter.Name
-                        RegistryKeyword = '*EncapOverhead'
-                        RegistryValue = $thisRDMAEnabledAdapter.EncapOverhead
+                    If ($thisRDMAEnabledAdapter.EncapOverhead) {
+                        NetAdapterAdvancedProperty "$($thisRDMAEnabledAdapter.Name)-EncapOverhead" {
+                            NetworkAdapterName = $thisRDMAEnabledAdapter.Name
+                            RegistryKeyword = '*EncapOverhead'
+                            RegistryValue = $thisRDMAEnabledAdapter.EncapOverhead
+                        }
                     }
+                    #>
 
                     ###Configure - JumboPacket Size for vNIC
                     NetAdapterAdvancedProperty "$($thisRDMAEnabledAdapter.VMNetworkAdapter)-JumboPacket" {

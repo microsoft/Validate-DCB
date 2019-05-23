@@ -890,14 +890,16 @@ Describe "[Modal Unit]" -Tag Modal {
                             # SMB Bandwidth Limit is being calculated MB and being compared to adapter speed which is in Gbps converted to MiBps
 
                             {$_ -le 10000000000} {
-                                It "Should have an adapter speed of...fix this" {
-                                    $SMBBandwidthLimit.BytesPerSecond / 1MB | Should be (((($thisPolicy.BandwidthPercentage / 100) * .6) * $AdapterLinkSpeed) / 8) / 1000000
+                                $expectedLimitMB = (((($thisPolicy.BandwidthPercentage / 100) * .6) * $AdapterLinkSpeed) / 8) / 1000000
+                                It "Should have a Live Migration limit of less than $expectedLimit MBps" {
+                                    $SMBBandwidthLimit.BytesPerSecond / 1MB | Should BeLessThan $expectedLimitMB + 1
                                 }
                             }
         
                             {$_ -gt 10000000000} {
+                                $expectedLimitMB = (((($thisPolicy.BandwidthPercentage / 100) * .6) * $AdapterLinkSpeed) / 8) / 1000000
                                 It "Should have an Live Migration limit of 750 MBps" {
-                                    $SMBBandwidthLimit.BytesPerSecond / 1MB | Should be 750
+                                    $SMBBandwidthLimit.BytesPerSecond / 1MB | Should BeLessThan $expectedLimitMB + 1
                                 }
                             }
                                     

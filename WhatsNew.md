@@ -15,7 +15,8 @@
   - SMB Multichannel
   - Disabling SMB Signing
   - Disabling SMB Encryption
-  - Verifying SMB Server and Client Network Interfaces are RDMA capable 
+  - Verifying SMB Server and Client Network Interfaces are RDMA capable
+  - Verified SMB Live Migration limits are configured appropriately
 - Added SDN tests for EncapOverhead
 - Added adapter checks to verify appropriate adapter bindings
 

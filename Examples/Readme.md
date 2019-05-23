@@ -31,13 +31,14 @@ To specify the *NDKm2-examples.DCB.config* example file
 
 The [Example Configurations](#Example-Configurations) may not meet your exact configuration so we provide some additional samples of commonly seen customer scenarios.  The samples in the ****\examples\additional samples**** folder show you have to create a configuration file for more complex scenarios.  This folder contains the following examples:
 
-|     FileName       | Description |
-| -----------------  | ----------- |
-| Cluster-Single.ps1 | Configuration with a single cluster  |
-| Cluster-Multi.ps1  | Configuration with multiple clusters |
-| UniqueConfigs.ps1  | Configuration with nodes containing unique configurations |
+|     FileName         | Description |
+| -----------------    | ----------- |
+| Cluster-Single.ps1   | Configuration with a single cluster  |
+| Cluster-Multi.ps1    | Configuration with multiple clusters |
+| Deploy.ps1           | Configuration with deployment parameters
+| UniqueConfigs.ps1    | Configuration with nodes containing unique configurations |
 | MultipleVMSwitch.ps1 | Configuration containing multiple VMSwitches       |
-| ComboModes.ps1 | Configuration with Native RDMA and Host Virtual NIC RDMA |
+| ComboModes.ps1       | Configuration with Native RDMA and Host Virtual NIC RDMA |
 
 ## Custom Configuration
 
@@ -47,7 +48,7 @@ This section outlines the requirements and possibilities in the configuration fi
 
 ### $ConfigData
 
-During runtime, a global variable named $ConfigData carries the data from the config file.  This variable has two sub-keys:
+During runtime, a global variable named $ConfigData carries the data from the config file.  This variable has two possible sub-keys:
 
 - ****AllNodes**** contains details specific to one or more nodes e.g. NodeNames, RDMA Adapters, VMSwitch configuration, etc.
 - ****NonNodeData**** contains data that applies to all nodes
@@ -74,7 +75,7 @@ Here is an example NetQos configuration.  As you can see each policy has it’s 
 
 <img src="..\helpers\pics\NonNodeData.png">
 
-The first defined policy is named ****ClusterHB**** which uses the ****Cluster template****, is assigned ****Priority 5****, a ****Bandwidth Reservation**** of ****1%**** of the adapter's bandwidth, and uses the ****ETS Algorithm****.
+The first defined policy is named ****Cluster**** which uses the ****Cluster template****, is assigned ****Priority 5****, a ****Bandwidth Reservation**** of ****1%**** of the adapter's bandwidth, and uses the ****ETS Algorithm****.
 
 The second policy is named ****SMB****, defines the ****NetDirectPortMatchCondition**** (instead of the template) for port ****445****, a ****priority**** of ****3****, a ****bandwidth reservation**** of ****60%**** of the adapter's bandwidth, and uses the ****ETS Algorithm.****
 
@@ -83,6 +84,15 @@ This configuration will check for a configuration on the node like this:
 <img src="..\helpers\pics\Get-NetQosPolicy.png" >
 
 <img src="..\helpers\pics\Get-NetQosTrafficClass.png" >
+
+#### NonNodeData.AzureAutomation
+
+Azure Automation Account information is defined under the NonNodeData section.  This subkey is required if specifying the -deploy parameter at runtime.  If the AzureAutomation key is specified, the following subkeys are required:
+
+- ****ResourceGroupName**** Specifies the name of the Azure Resource Group that contains the Automation Account for deployment
+- ****AutomationAccountName**** Specifies the name of the Automation Account found in the specified resource group for deployment.
+
+In addition, the **Role** is required under the AllNodes key.  For information please see: [AllNodes.Role](#AllNodes.Role)
 
 ### AllNodes
 
@@ -100,6 +110,12 @@ However you generate your list of nodes, they must be comma separated so they ca
 
 &emsp;&emsp;<img src="..\helpers\pics\ForEach-Object.png" >
 
+#### AllNodes.Role
+
+If intending to deploy the configuration file to the SUTs prior to validation, you must provide a the 'Role' parameter (the [AzureAutomation](#NonNodeData.AzureAutomation) key must also be specified).  This is an arbitrary string value that is used for associating nodes with a configuration.  The configuration in Azure Automation will be named 'NetworkConfig.**RoleValue**' and therefore this must meet the requirements of an Azure Automation State configuration name.  There are no additional requirements for this value.
+
+Any node that will have the same configuration, may contain the same role.  For example, all nodes in the same cluster should share the same Role.  Or, if multiple clusters will be configured the same (including all settings in the configuration file) you can use the same role.
+
 #### AllNodes.RDMAEnabledAdapters
 
 Adapters entered in this section are in Native RDMA mode (not attached to a vSwitch) – This section is optional, however there must be at least one adapter defined between this section and [AllNodes.VMSwitch.RDMAEnabledAdapters](#AllNodes.VMSwitch.RDMAEnabledAdapters) defined later.
@@ -115,6 +131,8 @@ The following options are currently supported:
 - ****VLANID**** - (Required) The VLAN assigned to the adapter.  Use `Get-NetAdapterAdvancedProperty -RegistryKeyword VLANID` to determine the assigned VLAN
 
 - ****JumboPacket**** - (Optional) The jumbo frame size expected on the adapter.  Use the following command to determine the assigned jumbo frame size `Get-NetAdapterAdvancedProperty -RegistryKeyword *JumboPacket`
+- 
+- ****EncapOverhead**** - (Optional) The encap overhead specified on the physical adapter.  Use the following command to determine the EncapOverhead size `Get-NetAdapterAdvancedProperty -RegistryKeyword *EncapOverhead`
 
 This configuration will check for a configuration on the node like this:
 
@@ -167,7 +185,7 @@ The following options are currently supported:
     - ****Type:**** [System.String]
     - ****Possible Entries:**** 'HyperVPort' or 'Dynamic'
     - ****Description:**** Defines the load balancing algorithm for the VMSwitch
-    - ****Note:**** Use `Get-VMSwitchTeam | Select *LoadBalancing*` to determine the algorithm
+    - ****Note:**** Use `Get-VMSwitch | Select *LoadBalancing*` to determine the algorithm
 
 &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<img src="..\helpers\pics\Get-VMSwitchLoadBalancing.png" >
 
@@ -190,6 +208,8 @@ The following options are currently supported:
 - ****VLANID**** - (Required) The VLAN assigned to the adapter.  Use `Get-NetAdapterAdvancedProperty -RegistryKeyword VLANID` to determine the assigned VLAN
 
 - ****JumboPacket**** - (Optional) The jumbo frame size expected on the adapter.  Use the following command to determine the assigned jumbo frame size `Get-NetAdapterAdvancedProperty -RegistryKeyword *JumboPacket`
+
+- ****EncapOverhead**** - (Optional) The encap overhead specified on the physical adapter.  Use the following command to determine the EncapOverhead size `Get-NetAdapterAdvancedProperty -RegistryKeyword *EncapOverhead`
 
 RDMA Adapters in this mode require a host vNIC.  To avoid ambiguity for the virtual NICs names, we chose to use the ****VMNetworkAdapter**** parameter.
 

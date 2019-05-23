@@ -22,9 +22,9 @@ $Nodes | ForEach-Object {
 
 $NonNodeData = @{
     NetQoS = @(
-        @{ Name = 'ClusterHB'; Template = 'Cluster'              ; PriorityValue8021Action = 5 ; BandwidthPercentage = 1  ; Algorithm = 'ETS' }
-        @{ Name = 'SMB'      ; NetDirectPortMatchCondition = 445 ; PriorityValue8021Action = 3 ; BandwidthPercentage = 60 ; Algorithm = 'ETS' }
-        @{ Name = 'DEFAULT'  ; Template = 'Default'              ; PriorityValue8021Action = 0 ; BandwidthPercentage = 39 ; Algorithm = 'ETS' }
+        @{ Name = 'Cluster' ; Template = 'Cluster'              ; PriorityValue8021Action = 7 ; BandwidthPercentage = 1  ; Algorithm = 'ETS' }
+        @{ Name = 'SMB'     ; NetDirectPortMatchCondition = 445 ; PriorityValue8021Action = 3 ; BandwidthPercentage = 60 ; Algorithm = 'ETS' }
+        @{ Name = 'DEFAULT' ; Template = 'Default'              ; PriorityValue8021Action = 0 ; BandwidthPercentage = 39 ; Algorithm = 'ETS' }
     )
 }
 

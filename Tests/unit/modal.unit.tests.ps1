@@ -221,6 +221,51 @@ Describe "[Modal Unit]" -Tag Modal {
                                 (($actNetAdapterState.netAdapterAdvancedProperty | Where-Object Name -eq $thisRDMAEnabledAdapter.Name) | Where-Object RegistryKeyword -eq '*NetworkDirectTechnology').RegistryValue | Should Be 4
                             }
                         }
+
+                        $thisInterfaceDescription = ($actNetAdapterState.netAdapter | Where-Object Name -eq $thisRDMAEnabledAdapter.Name).InterfaceDescription
+                            $lastBoot = Get-WinEvent -ComputerName $nodeName -LogName System -MaxEvents 1 -FilterXPath "*[System[Provider[@Name='eventlog'] and (Level=4 or Level=0) and (EventID=6005)]]"
+                            
+                            Try {
+                                # To get all events for testing (not just last boot) remove the TimeCreated in the FilterHashtable
+                                $FWEvent = Get-WinEvent -ComputerName $nodeName -FilterHashTable @{LogName="System"; TimeCreated=$lastboot.TimeCreated; ID = 263; ProviderName = 'mlx5'} -ErrorAction SilentlyContinue
+                                $thisFWEvent = $FWEvent | Where-Object Message -like "$thisInterfaceDescription Firmware version*"
+                                $XMLFWEvent = [xml]$thisFWEvent[0].ToXml()
+    
+                                $FWIndexStart = (0..($XMLFWEvent.Event.EventData.Data.Count - 1) | Where-Object { $XMLFWEvent.Event.EventData.Data[$_] -eq $thisInterfaceDescription }) + 1
+                                $FWIndexEnd   = $XMLFWEvent.Event.EventData.Data.Count - 2
+                                $FWIndexMid   = ($FWIndexStart..($FWIndexEnd)).Count / 2
+                                
+                                $actFWVersion = $null
+                                $recFWVersion = $null
+    
+                                $XMLFWEvent.Event.EventData.Data[$FWIndexStart..($FWIndexStart + $FWIndexMid - 1)] | ForEach-Object {
+                                    $actFWVersion += $_ + "."
+                                }
+    
+                                $XMLFWEvent.Event.EventData.Data[($FWIndexStart + $FWIndexMid)..$FWIndexEnd] | ForEach-Object {
+                                    $recFWVersion += $_ + "."
+                                }
+    
+                                # Regex replace for last character (extra period)
+                                $actualFWVersion = [string]::Concat($actFWVersion) -replace ".$"
+                                $recommendedFWVersion = [string]::Concat($recFWVersion) -replace ".$"
+    
+                                Remove-Variable -Name actFWVersion, recFWVersion
+    
+                                $interfaceIndex = (0..($XMLFWEvent.Event.EventData.Data.Count - 1) | Where-Object { $XMLFWEvent.Event.EventData.Data[$_] -eq $thisInterfaceDescription })
+                                
+                                if ($XMLFWEvent.Event.EventData.Data[$interfaceIndex]) {
+                                    It "[SUT: $nodeName]-[Adapter: $($thisRDMAEnabledAdapter.Name)]-[Log: System; EventID: 263] Should have the recommended firmware version for this driver" {
+                                        $actualFWVersion | Should be $recommendedFWVersion
+                                    }
+                                }
+                            }
+                            Catch {
+                                # If you entered here, then there are no events within the last boot time
+                                It "[SUT: $nodeName]-[Adapter: $($thisRDMAEnabledAdapter.Name)]-[Log: System; EventID: 263] Should not report a driver/firmware mismatch warning (MLX5 Event: 263)" {
+                                    $true | Should be $true
+                                }
+                            }
                     }
 
                     'Broadcom' {
@@ -309,6 +354,51 @@ Describe "[Modal Unit]" -Tag Modal {
                                 #Test for NetworkDirectTechnology - Adapter must specify RoCEv2
                                 It "[SUT: $nodeName]-[Adapter: $($thisRDMAEnabledAdapter.Name)]-(Noun: NetAdapterAdvancedProperty) Network Direct Technology must be '4' (RoCEv2) on Mellanox adapters" {
                                     (($actNetAdapterState.netAdapterAdvancedProperty | Where-Object Name -eq $thisRDMAEnabledAdapter.Name) | Where-Object RegistryKeyword -eq '*NetworkDirectTechnology').RegistryValue | Should Be 4
+                                }
+                            }
+
+                            $thisInterfaceDescription = ($actNetAdapterState.netAdapter | Where-Object Name -eq $thisRDMAEnabledAdapter.Name).InterfaceDescription
+                            $lastBoot = Get-WinEvent -ComputerName $nodeName -LogName System -MaxEvents 1 -FilterXPath "*[System[Provider[@Name='eventlog'] and (Level=4 or Level=0) and (EventID=6005)]]"
+                            
+                            Try {
+                                # To get all events for testing (not just last boot) remove the TimeCreated in the FilterHashtable
+                                $FWEvent = Get-WinEvent -ComputerName $nodeName -FilterHashTable @{LogName="System"; TimeCreated=$lastboot.TimeCreated; ID = 263; ProviderName = 'mlx5'} -ErrorAction SilentlyContinue
+                                $thisFWEvent = $FWEvent | Where-Object Message -like "$thisInterfaceDescription Firmware version*"
+                                $XMLFWEvent = [xml]$thisFWEvent[0].ToXml()
+    
+                                $FWIndexStart = (0..($XMLFWEvent.Event.EventData.Data.Count - 1) | Where-Object { $XMLFWEvent.Event.EventData.Data[$_] -eq $thisInterfaceDescription }) + 1
+                                $FWIndexEnd   = $XMLFWEvent.Event.EventData.Data.Count - 2
+                                $FWIndexMid   = ($FWIndexStart..($FWIndexEnd)).Count / 2
+                                
+                                $actFWVersion = $null
+                                $recFWVersion = $null
+    
+                                $XMLFWEvent.Event.EventData.Data[$FWIndexStart..($FWIndexStart + $FWIndexMid - 1)] | ForEach-Object {
+                                    $actFWVersion += $_ + "."
+                                }
+    
+                                $XMLFWEvent.Event.EventData.Data[($FWIndexStart + $FWIndexMid)..$FWIndexEnd] | ForEach-Object {
+                                    $recFWVersion += $_ + "."
+                                }
+    
+                                # Regex replace for last character (extra period)
+                                $actualFWVersion = [string]::Concat($actFWVersion) -replace ".$"
+                                $recommendedFWVersion = [string]::Concat($recFWVersion) -replace ".$"
+    
+                                Remove-Variable -Name actFWVersion, recFWVersion
+    
+                                $interfaceIndex = (0..($XMLFWEvent.Event.EventData.Data.Count - 1) | Where-Object { $XMLFWEvent.Event.EventData.Data[$_] -eq $thisInterfaceDescription })
+                                
+                                if ($XMLFWEvent.Event.EventData.Data[$interfaceIndex]) {
+                                    It "[SUT: $nodeName]-[Adapter: $($thisRDMAEnabledAdapter.Name)]-[Log: System; EventID: 263] Should have the recommended firmware version for this driver" {
+                                        $actualFWVersion | Should be $recommendedFWVersion
+                                    }
+                                }
+                            }
+                            Catch {
+                                # If you entered here, then there are no events within the last boot time
+                                It "[SUT: $nodeName]-[Adapter: $($thisRDMAEnabledAdapter.Name)]-[Log: System; EventID: 263] Should not report a driver/firmware mismatch warning (MLX5 Event: 263)" {
+                                    $true | Should be $true
                                 }
                             }
                         }

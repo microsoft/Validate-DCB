@@ -112,16 +112,40 @@ $startTime = Get-Date -format:'yyyyMMdd-HHmmss'
 Remove-Variable -Name configData -ErrorAction SilentlyContinue
 New-Item -Name 'Results' -Path $here -ItemType Directory -Force
 
+$modCounter = 0
 If ($global:deploy -eq $true -or $LaunchUI -eq $true) {
-    Import-Module "$here\helpers\NetworkConfig\NetworkConfig.psd1" -Force
-    Import-Module "$here\helpers\UI\vDCBUI.psm1" -Force
+    $deployReqModules = Import-PowerShellDataFile -Path "$here\helpers\NetworkConfig\NetworkConfig.psd1"
+
+    ($deployReqModules).RequiredModules.GetEnumerator() | ForEach-Object {
+        $module = Get-Module $_.ModuleName -ListAvailable -ErrorAction SilentlyContinue
+
+        If (!($module)) {
+            Write-Error -Message "The test host requires the module $($_.ModuleName) to continue.  Please use Install-Module $($_.ModuleName) or move the module to this system"
+            $modCounter ++
+        }        
+        
+        if ($_.ContainsKey('ModuleVersion')) {
+            if (!($module.version -ge $_.ModuleVersion)) {
+                Write-Error -Message "The test host requires the module $($_.ModuleName) be at least version $($_.ModuleVersion) to continue"
+                $modCounter ++
+            }
+        }
+    }
+    
+    If ($modCounter -eq 0) {
+        Import-Module "$here\helpers\NetworkConfig\NetworkConfig.psd1" -Force
+        Import-Module "$here\helpers\UI\vDCBUI.psm1" -Force
+    }
+    Else {
+        Write-Error -Message "One or more of the required modules was not available on the system.  "
+    }
 }
 
 #region Getting helpers & data...
 If ($LaunchUI) {
     $CheckModule = Get-Module -Name NetworkConfig, vDCBUI
     
-    If ($CheckModule.Count -ne 2) { break; 'NetworkConfig or vDCBUI Module was not available for import' }
+    If ($CheckModule.Count -ne 2) { 'NetworkConfig or vDCBUI Module was not available for import'; break }
 
     Write-Output 'Launching Configuration and Deployment UI'
     vDCBUI

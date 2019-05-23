@@ -1,9 +1,10 @@
-# What's New in v2
+# What's New in v2.1
 
 ## New Features
 
 - GUI for creating the configuration!
-  - Requires new param (LaunchUI) in the config file
+  - LaunchUI is in the default parameter set
+  - Alternatively use -LaunchUI
 - Added Deployment Option
   - Requires new params (deploy) in the config file (or selection in the UI)
   - Added new example file .\Examples\Deploy.ps1
@@ -14,14 +15,17 @@
   - SMB Multichannel
   - Disabling SMB Signing
   - Disabling SMB Encryption
-  - Verifying SMB Server and Client Network Interfaces are RDMA capable
+  - Verifying SMB Server and Client Network Interfaces are RDMA capable 
+- Added SDN tests for EncapOverhead
+- Added adapter checks to verify appropriate adapter bindings
 
 - Added test to verify IEEE Priority tags are maintain for vNIC traffic
 - Added test deployment verification for Azure Automation requirements
+- Added test to validate recommended FW is used with Mellanox drivers on Win-OF2 adapters (CX4 and higher)
 
-- Incremented Recommended driver for Mellanox WinOF-2 adapters
-- Modified example configurations to set cluster heartbeat policy to priority 7
-
+- Incremented Recommended driver for Mellanox and Chelsio adapters
+- Modified example configurations to set cluster heartbeat policy to priority 7- 
+ 
 ## Structural Changes
 
 - Separated driver requirements into their own file

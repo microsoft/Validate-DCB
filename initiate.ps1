@@ -162,7 +162,7 @@ $configData += Import-PowerShellDataFile -Path .\helpers\drivers\drivers.psd1
 Switch ($TestScope) {
     'Global' {
         $testFile = Join-Path -Path $here -ChildPath "tests\unit\global.unit.tests.ps1"
-        $GlobalResults = Invoke-Pester -Script $testFile -Tag 'Global' -OutputFile "$here\Results\$startTime-Global-unit.xml" -OutputFormat NUnitXml -PassThru -EnableExit
+        $GlobalResults = Invoke-Pester -Script $testFile -Tag 'Global' -OutputFile "$here\Results\$startTime-Global-unit.xml" -OutputFormat NUnitXml -PassThru
         $GlobalResults | Select-Object -Property TagFilter, Time, TotalCount, PassedCount, FailedCount, SkippedCount, PendingCount | Format-Table -AutoSize
     }
 
@@ -170,13 +170,13 @@ Switch ($TestScope) {
         If ($global:deploy) { Publish-Automation }
 
         $testFile = Join-Path -Path $here -ChildPath "tests\unit\modal.unit.tests.ps1"
-        $ModalResults = Invoke-Pester -Script $testFile -Tag 'Modal' -OutputFile "$here\Results\$startTime-Modal-unit.xml" -OutputFormat NUnitXml -PassThru -EnableExit
+        $ModalResults = Invoke-Pester -Script $testFile -Tag 'Modal' -OutputFile "$here\Results\$startTime-Modal-unit.xml" -OutputFormat NUnitXml -PassThru
         $ModalResults | Select-Object -Property TagFilter, Time, TotalCount, PassedCount, FailedCount, SkippedCount, PendingCount | Format-Table -AutoSize
     }
 
     Default {
         $testFile = Join-Path -Path $here -ChildPath "tests\unit\global.unit.tests.ps1"
-        $GlobalResults = Invoke-Pester -Script $testFile -Tag 'Global' -OutputFile "$here\Results\$startTime-Global-unit.xml" -OutputFormat NUnitXml -PassThru -EnableExit
+        $GlobalResults = Invoke-Pester -Script $testFile -Tag 'Global' -OutputFile "$here\Results\$startTime-Global-unit.xml" -OutputFormat NUnitXml -PassThru
         $GlobalResults | Select-Object -Property TagFilter, Time, TotalCount, PassedCount, FailedCount, SkippedCount, PendingCount | Format-Table -AutoSize
         
         If ($global:deploy) { Publish-Automation }
@@ -187,7 +187,7 @@ Switch ($TestScope) {
         }
 
         $testFile = Join-Path -Path $here -ChildPath "tests\unit\modal.unit.tests.ps1"
-        $ModalResults = Invoke-Pester -Script $testFile -Tag 'Modal' -OutputFile "$here\Results\$startTime-Modal-unit.xml" -OutputFormat NUnitXml -PassThru -EnableExit
+        $ModalResults = Invoke-Pester -Script $testFile -Tag 'Modal' -OutputFile "$here\Results\$startTime-Modal-unit.xml" -OutputFormat NUnitXml -PassThru
         $ModalResults | Select-Object -Property TagFilter, Time, TotalCount, PassedCount, FailedCount, SkippedCount, PendingCount | Format-Table -AutoSize
     }
 }

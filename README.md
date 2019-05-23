@@ -1,18 +1,18 @@
 ##### :star: More by the Microsoft Core Networking team can be found using the [MSFTNet](https://github.com/topics/msftnet) topic
 
-##### What's New in v2
+##### What's New in v2.1
 
 For more information, please see [What's New](WhatsNew.md)
 
 ##### Getting Started
 
 1) [Learn the Tool](#Description)
-2) [Customize your Config](Examples)
-3) [Initiate Testing](#Initiate-Testing)
+3) [Customize your Config](Examples)
+4) [Initiate Testing](#Initiate-Testing)
 
 # Description
 
-Validate-DCB is a unit test, PowerShell-based tool that allows you to:
+Validate-DCB v2.1 is a PowerShell-based unit test tool that allows you to:
 
 &emsp;&emsp;
 :heavy_check_mark: Validate the expected configuration on one to N number of systems or clusters
@@ -28,8 +28,12 @@ Additional benefits include:
 &emsp;&emsp;
 :heavy_check_mark: Answer ****"What Changed?"**** when faced with an operational issue (see [Test Results](#Test-Results))
 
+&emsp;&emsp;
+:heavy_check_mark: [New with version 2] Deploy the configuration to nodes
+
 > :information_source: ****Note:****
-> This tool does not modify your system. As such, you can re-validate the configuration as many times as desired.
+> This tool does not modify your system unless you specify the -Deploy command. 
+> As such, you can re-validate the configuration as many times as desired.
 
 # Overview
 
@@ -45,17 +49,17 @@ This tool aims to validate the DCB configuration on the Windows nodes by taking 
 
 # Scenarios
 
-Validate-DCB will provide configuration feedback for one or more nodes or clusters across a variety of scenarios including:
+Validate-DCB will provide configuration validation for one or more nodes or clusters across a variety of scenarios including:
 
-&emsp;&emsp; :arrow_right: **Native RDMA Adapters (NDK Mode 1)**
+&emsp;&emsp; :arrow_right: **Native RDMA Adapters (Mode 1)**
 
-&emsp;&emsp; :arrow_right: **Host vNIC RDMA (NDK Mode 2)** with vNICs in the parent partition
+&emsp;&emsp; :arrow_right: **Host vNIC RDMA (Mode 2)** with vNICs in the parent partition
 
 &emsp;&emsp; :arrow_right: **Combination scenarios** with both Native RDMA and Host Virtual NICs
 
 &emsp;&emsp; :arrow_right: **Multiple virtual switches** with RDMA enabled adapters
 
-> :warning: As previously mentioned, this tool will not configure your systems.  Therefore, please make sure you have configured your systems to the best of your ability.  For step-by-step instructions, please see the [Converged NIC Guide](https://aka.ms/ConvergedRDMA).
+> :warning: For step-by-step configuration instructions, please see the [Converged NIC Guide](https://aka.ms/ConvergedRDMA).  Alternatively, you can use the deployment options in version 2
 
 # Test Overview
 
@@ -210,7 +214,7 @@ Extract the files in this repo to a folder on a system (TestHost) with connectiv
 
 ## Configuration File
 
-Regardless of the scenario, you need a configuration file to define the expected configuration on your systems.  You can use one of the example configurations or create your own.  We recommend you create your own as your setup is likely different than one of our stock configurations.  For more information, please see: [Customize your Config](Examples)
+Regardless of the scenario, you need a configuration file to define the expected configuration on your systems.  You can use one of the example configurations or create your own.  With Validate-DCB v2.1 we recommend using the -LaunchUI cmdlet (default) to create the configuration for you.  For more information on customizing your own file, please see: [Customize your Config](Examples)
 
 ## Running the Initiate
 
@@ -224,6 +228,7 @@ Here are a few tips on the parameters of the initiate.
 | Parameter | Description |
 |-----------|-------------|
 | TestScope  | Determines the describe block to be run. You can use this to only run certain describe blocks. For example: <br><br> Use ****Global**** if you just want to setup a test host or validate your systems are ready to be tested. <br><br> Use ****Modal**** if you have already know you have all the prerequisites met.|
+| LaunchUI    | Use this parameter to launch a user interface that helps create a configuration file.
 | ExampleConfig | Use this to select one of the pre-defined configuration files that will test a system in Mode 1 or Mode 2. For more information on the example configuration guides, please see [Examples](Examples).<br><br>For details about the configuration for these modes, please review the [Converged NIC Guide](https://aka.ms/ConvergedRDMA)|
 | ConfigFilePath    | Use this parameter to specify the path to a custom configuration file.
 | ContinueOnFailure | If a test fails in one of the Describe blocks, Validate-DCB exits prior to moving to the next Describe block allowing you to correct the issue. Use this to attempt all tests even if a test failure is detected. |

@@ -131,6 +131,8 @@ The following options are currently supported:
 - ****VLANID**** - (Required) The VLAN assigned to the adapter.  Use `Get-NetAdapterAdvancedProperty -RegistryKeyword VLANID` to determine the assigned VLAN
 
 - ****JumboPacket**** - (Optional) The jumbo frame size expected on the adapter.  Use the following command to determine the assigned jumbo frame size `Get-NetAdapterAdvancedProperty -RegistryKeyword *JumboPacket`
+- 
+- ****EncapOverhead**** - (Optional) The encap overhead specified on the physical adapter.  Use the following command to determine the EncapOverhead size `Get-NetAdapterAdvancedProperty -RegistryKeyword *EncapOverhead`
 
 This configuration will check for a configuration on the node like this:
 
@@ -206,6 +208,8 @@ The following options are currently supported:
 - ****VLANID**** - (Required) The VLAN assigned to the adapter.  Use `Get-NetAdapterAdvancedProperty -RegistryKeyword VLANID` to determine the assigned VLAN
 
 - ****JumboPacket**** - (Optional) The jumbo frame size expected on the adapter.  Use the following command to determine the assigned jumbo frame size `Get-NetAdapterAdvancedProperty -RegistryKeyword *JumboPacket`
+
+- ****EncapOverhead**** - (Optional) The encap overhead specified on the physical adapter.  Use the following command to determine the EncapOverhead size `Get-NetAdapterAdvancedProperty -RegistryKeyword *EncapOverhead`
 
 RDMA Adapters in this mode require a host vNIC.  To avoid ambiguity for the virtual NICs names, we chose to use the ****VMNetworkAdapter**** parameter.
 

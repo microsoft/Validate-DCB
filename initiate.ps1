@@ -109,7 +109,6 @@ If (-not (Get-Module -Name Pester -ListAvailable)) {
 
 $here      = Split-Path -Parent $MyInvocation.MyCommand.Path
 $startTime = Get-Date -format:'yyyyMMdd-HHmmss'
-Remove-Variable -Name configData -ErrorAction SilentlyContinue
 New-Item -Name 'Results' -Path $here -ItemType Directory -Force
 
 $modCounter = 0
@@ -120,13 +119,13 @@ If ($global:deploy -eq $true -or $LaunchUI -eq $true) {
         $module = Get-Module $_.ModuleName -ListAvailable -ErrorAction SilentlyContinue
 
         If (!($module)) {
-            Write-Error -Message "The test host requires the module $($_.ModuleName) to continue.  Please use Install-Module $($_.ModuleName) or move the module to this system"
+            Write-Output "The test host requires the module $($_.ModuleName) to continue.  Please use Install-Module $($_.ModuleName) or move the module to this system."
             $modCounter ++
         }        
         
         if ($_.ContainsKey('ModuleVersion')) {
             if (!($module.version -ge $_.ModuleVersion)) {
-                Write-Error -Message "The test host requires the module $($_.ModuleName) be at least version $($_.ModuleVersion) to continue"
+                Write-Output "The test host requires the module $($_.ModuleName) be at least version $($_.ModuleVersion) to continue`n"
                 $modCounter ++
             }
         }
@@ -137,7 +136,8 @@ If ($global:deploy -eq $true -or $LaunchUI -eq $true) {
         Import-Module "$here\helpers\UI\vDCBUI.psm1" -Force
     }
     Else {
-        Write-Error -Message "One or more of the required modules was not available on the system.  "
+        Write-Error -Message "One or more of the required modules was not available on the system."
+        Break
     }
 }
 
@@ -173,6 +173,7 @@ Else {
     Throw "Catastrophic Failure :: Configuration File was not found at $ConfigFile"
 }
 
+Remove-Variable -Name configData -ErrorAction SilentlyContinue
 Import-Module "$here\helpers\helpers.psd1" -Force
 $configData += Import-PowerShellDataFile -Path .\helpers\drivers\drivers.psd1
 #endregion

@@ -102,6 +102,7 @@ Clear-Host
 
 If ($PSCmdlet.ParameterSetName -ne 'Create Config') { $LaunchUI = $false }
 
+# TODO: Once converted to module, just add pester to required modules
 If (-not (Get-Module -Name Pester -ListAvailable)) { 
     Write-Output 'Pester is an inbox PowerShell Module included in Windows 10, Windows Server 2016, and later'
     Throw 'Catastrophic Failure :: PowerShell Module Pester was not found'
@@ -111,49 +112,38 @@ $here      = Split-Path -Parent $MyInvocation.MyCommand.Path
 $startTime = Get-Date -format:'yyyyMMdd-HHmmss'
 New-Item -Name 'Results' -Path $here -ItemType Directory -Force
 
-$modCounter = 0
 If ($global:deploy -eq $true -or $LaunchUI -eq $true) {
-    $deployReqModules = Import-PowerShellDataFile -Path "$here\helpers\NetworkConfig\NetworkConfig.psd1"
 
-    ($deployReqModules).RequiredModules.GetEnumerator() | ForEach-Object {
-        $module = Get-Module $_.ModuleName -ListAvailable -ErrorAction SilentlyContinue
-
-        If (!($module)) {
-            Write-Output "The test host requires the module $($_.ModuleName) to continue.  Please use Install-Module $($_.ModuleName) or move the module to this system."
-            $modCounter ++
-        }        
-        
-        if ($_.ContainsKey('ModuleVersion')) {
-            if (!($module.version -ge $_.ModuleVersion)) {
-                Write-Output "The test host requires the module $($_.ModuleName) be at least version $($_.ModuleVersion) to continue`n"
-                $modCounter ++
-            }
-        }
-    }
+    $testFile = Join-Path -Path $here -ChildPath "tests\unit\global.unit.tests.ps1"
+    $launch_deploy = Invoke-Pester -Script $testFile -Tag 'Launch_Deploy' -PassThru
+    $launch_deploy | Select-Object -Property TagFilter, Time, TotalCount, PassedCount, FailedCount, SkippedCount, PendingCount | Format-Table -AutoSize
     
-    If ($modCounter -eq 0) {
-        Import-Module "$here\helpers\NetworkConfig\NetworkConfig.psd1" -Force
-        Import-Module "$here\helpers\UI\vDCBUI.psm1" -Force
-    }
-    Else {
+    If ($launch_deploy.FailedCount -ne 0) {
         Write-Error -Message "One or more of the required modules was not available on the system."
         Break
+    }
+    Else {
+        Import-Module "$here\helpers\NetworkConfig\NetworkConfig.psd1" -Force
+        Import-Module "$here\helpers\UI\vDCBUI.psm1" -Force
     }
 }
 
 #region Getting helpers & data...
 If ($LaunchUI) {
-    $CheckModule = Get-Module -Name NetworkConfig, vDCBUI
-    
-    If ($CheckModule.Count -ne 2) { 'NetworkConfig or vDCBUI Module was not available for import'; break }
-
     Write-Output 'Launching Configuration and Deployment UI'
     vDCBUI
 
     $ConfigFile = $global:ConfigPath
 
     Write-Output "Configuration from the UI will be used"
-    Write-Output "The configuration is located at $ConfigFile"
+
+    If ($configFile -eq $null) { 
+        Write-Error "Configuration file was not successfully saved"
+        break
+    } 
+    Else {
+        Write-Output "The configuration is located at $ConfigFile"
+    }
 }
 ElseIf ($PSBoundParameters.ContainsKey('ExampleConfig')) {
     $ConfigFile = $(Join-Path $Here -ChildPath "Examples\$ExampleConfig-examples.DCB.config.ps1")

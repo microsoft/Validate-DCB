@@ -108,7 +108,7 @@ function Validate-DCB {
         Throw 'Catastrophic Failure :: PowerShell Module Pester was not found'
     }
 
-    $here      = Split-Path -Parent $MyInvocation.MyCommand.Path
+    $here      = Split-Path -Parent (Get-Module -Name Validate-DCB).Path
     $startTime = Get-Date -format:'yyyyMMdd-HHmmss'
     New-Item -Name 'Results' -Path $here -ItemType Directory -Force
 

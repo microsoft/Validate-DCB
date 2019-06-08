@@ -1,6 +1,5 @@
-[![Build status](https://ci.appveyor.com/api/projects/status/ew1fsvkvnk3vi33i?svg=true)](https://ci.appveyor.com/project/MSFTCoreNet/validate-dcb)
-
-[![downloads](https://img.shields.io/powershellgallery/dt/Get-NetView.svg?label=downloads)](https://www.powershellgallery.com/packages/Get-NetView)
+[![Build status](https://ci.appveyor.com/api/projects/status/ew1fsvkvnk3vi33i?svg=true)](https://ci.appveyor.com/project/MSFTCoreNet/Validate-DCB)
+[![downloads](https://img.shields.io/powershellgallery/dt/Get-NetView.svg?label=downloads)](https://www.powershellgallery.com/packages/Validate-DCB)
 
 ## :star: More by the Microsoft Core Networking team
 

@@ -11,4 +11,3 @@
 
 - Separated module prerequisites into its own Global unit test inside global.unit.tests.ps1
   - This will be run at the beginning of the initiate when the Launch or Deploy parameters are specified
-

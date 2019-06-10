@@ -52,16 +52,16 @@ function Validate-DCB {
         By default, Global and Modal (currently all) describe blocks are run.
 
     .EXAMPLE
-        .\Initiate.ps1 -ExampleConfig NDKm2
+        Validate-DCB
 
     .EXAMPLE
-        .\Initiate.ps1 -ConfigFilePath c:\temp\ClusterA.ps1
+        Validate-DCB -ExampleConfig NDKm2
 
     .EXAMPLE
-        .\Initiate.ps1 -TestScope Global
+        Validate-DCB -ConfigFilePath c:\temp\ClusterA.ps1
 
     .EXAMPLE
-        .\Initiate.ps1 -TestScope Modal
+        Validate-DCB -ExampleConfig NDKm1 -TestScope Modal
     
     .NOTES
         Author: Windows Core Networking team @ Microsoft

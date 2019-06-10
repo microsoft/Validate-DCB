@@ -29,10 +29,19 @@ ForEach ($Module in $PowerShellModules) {
     Import-Module $Module
 }
 
+<#
+    Feature Installation
+#>
+
+$serverFeatureList = 'RSAT-Clustering-Powershell', 'Hyper-V'
+
 $BuildSystem = Get-CimInstance -ClassName 'Win32_OperatingSystem'
 
 Switch -Wildcard ($BuildSystem.Caption) {
     '*Windows 10*' {
+        Write-Output "Not Implemented"
+        Write-Output "Not Implemented"
+        Write-Output "Not Implemented"
         Write-Output 'Build System is Windows 10'
         # Get FailoverCluster Capability Name
         $capabilityName = (Get-WindowsCapability -Online | Where-Object Name -like *RSAT*FailoverCluster.Management*).Name
@@ -41,8 +50,6 @@ Switch -Wildcard ($BuildSystem.Caption) {
 
     Default {
         Write-Output 'Build System is Windows 2016/2019'
-        Install-WindowsFeature -Name RSAT-Clustering-Powershell
-
-        Get-WindowsFeature -Name RSAT-Clustering-Powershell
+        Install-WindowsFeature -Name $serverFeatureList -IncludeManagementTools
     }
 }

@@ -28,6 +28,9 @@ deploy_script:
 
 version: '{build}'
 
+image:
+- Visual Studio 2017
+
 # Environment variables for PowerShell Gallery (NuGetAPIKey) and GitHub (GitHubKey) API key for publishing updates
 #    - The "secure:" value is the Appveyor encryption of the key
 #    - GitHub update occurs to ensure that the module version is incremented based on the build number

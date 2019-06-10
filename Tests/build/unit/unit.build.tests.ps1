@@ -1,8 +1,14 @@
-$DataFile   = Import-PowerShellDataFile .\$($env:repoName).psd1 -ErrorAction SilentlyContinue
-$TestModule = Test-ModuleManifest       .\$($env:repoName).psd1 -ErrorAction SilentlyContinue
+$NetAdapter = Get-netAdapter
+Write-Output "NetAdapter Count: $($NetAdapter.Count)"
+foreach ($Adapter in $NetAdapter) {
+    Write-Output "NetAdapter Name: $($NetAdapter.Name)"
+}
 
 Describe "$($env:repoName)-Manifest" {
-    Context Validation {
+    $DataFile   = Import-PowerShellDataFile .\$($env:repoName).psd1 -ErrorAction SilentlyContinue
+    $TestModule = Test-ModuleManifest       .\$($env:repoName).psd1 -ErrorAction SilentlyContinue
+
+    Context Manifest-Validation {
         It "[Import-PowerShellDataFile] - $($env:repoName).psd1 is a valid PowerShell Data File" {
             $DataFile | Should Not BeNullOrEmpty
         }
@@ -18,4 +24,10 @@ Describe "$($env:repoName)-Manifest" {
             $command | Should not BeNullOrEmpty
         }
     }
+
+    <#
+    Context Validate-GlobalExamples {
+        Validate-DCB -ExampleConfig NDKm1 -TestScope Global
+    }
+    #>
 }

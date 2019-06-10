@@ -12,13 +12,13 @@
 RootModule = 'Validate-DCB.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.0.0.1'
+ModuleVersion = '20190609.2.1.1'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
 
 # ID used to uniquely identify this module
-GUID = '2da8f8dd-9d1d-4747-8bf2-7a5326aadbd7'
+GUID = 'aad51a88-4b67-4c35-b840-0be9b0c914d2'
 
 # Author of this module
 Author = 'Dan Cuomo'
@@ -51,7 +51,9 @@ Description = 'Validate-DCB is a tool used to simplify the collection of network
 # ProcessorArchitecture = ''
 
 # Modules that must be imported into the global environment prior to importing this module
-# RequiredModules = @()
+RequiredModules = @(
+    @{ModuleName = 'Get-NetView'; ModuleVersion = '2019.6.7.8'; }
+)
 
 # Assemblies that must be loaded prior to importing this module
 # RequiredAssemblies = @()

@@ -1,5 +1,5 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/ew1fsvkvnk3vi33i?svg=true)](https://ci.appveyor.com/project/MSFTCoreNet/Validate-DCB)
-[![downloads](https://img.shields.io/powershellgallery/dt/Get-NetView.svg?label=downloads)](https://www.powershellgallery.com/packages/Validate-DCB)
+[![downloads](https://img.shields.io/powershellgallery/dt/Validate-DCB.svg?label=downloads)](https://www.powershellgallery.com/packages/Validate-DCB)
 
 ## :star: More by the Microsoft Core Networking team
 
@@ -238,3 +238,17 @@ Here are a few tips on the parameters of the initiate.
 | ConfigFilePath    | Use this parameter to specify the path to a custom configuration file.
 | ContinueOnFailure | If a test fails in one of the Describe blocks, Validate-DCB exits prior to moving to the next Describe block allowing you to correct the issue. Use this to attempt all tests even if a test failure is detected. |
 | Deploy | Use this parameter to deploy the configuration to all specified nodes prior to validating the configuration |
+
+# Contributing
+
+This project welcomes contributions and suggestions.  Most contributions require you to agree to a
+Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
+the rights to use your contribution. For details, visit https://cla.microsoft.com.
+
+When you submit a pull request, a CLA-bot will automatically determine whether you need to provide
+a CLA and decorate the PR appropriately (e.g., label, comment). Simply follow the instructions
+provided by the bot. You will only need to do this once across all repos using our CLA.
+
+This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
+For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
+contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.

@@ -33,12 +33,16 @@ $BuildSystem = Get-CimInstance -ClassName 'Win32_OperatingSystem'
 
 Switch -Wildcard ($BuildSystem.Caption) {
     '*Windows 10*' {
+        Write-Output 'Build System is Windows 10'
         # Get FailoverCluster Capability Name
         $capabilityName = (Get-WindowsCapability -Online | Where-Object Name -like *RSAT*FailoverCluster.Management*).Name
         Add-WindowsCapability -Name $capabilityName -Online
     }
 
     'Default' {
+        Write-Output 'Build System is Windows 2016/2019'
         Install-WindowsFeature -Name RSAT-Clustering-Powershell
+
+        Get-WindowsFeature -Name RSAT-Clustering-Powershell
     }
 }

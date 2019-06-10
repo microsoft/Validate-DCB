@@ -16,15 +16,15 @@ init:
 
 # Install script prior to running tests
 install:
-  - ps: . .\tests\setup\install.ps1
+  - ps: . .\tests\build\setup\install.ps1
 
 # Initiate tests
 test_script:
-  - ps: . .\tests\setup\initiate-tests.ps1
+  - ps: . .\tests\build\setup\initiate-tests.ps1
 
 # finalize build
 deploy_script:
-  - ps: . .\tests\setup\deploy.ps1
+  - ps: . .\tests\build\setup\deploy.ps1
 
 version: '{build}'
 

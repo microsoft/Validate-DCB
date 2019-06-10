@@ -39,7 +39,7 @@ Switch -Wildcard ($BuildSystem.Caption) {
         Add-WindowsCapability -Name $capabilityName -Online
     }
 
-    'Default' {
+    Default {
         Write-Output 'Build System is Windows 2016/2019'
         Install-WindowsFeature -Name RSAT-Clustering-Powershell
 

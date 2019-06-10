@@ -2,18 +2,6 @@
 # Pester               : https://github.com/pester/Pester/wiki
 # Pester Code Coverage : https://info.sapien.com/index.php/scripting/scripting-modules/testing-pester-code-coverage
 
-$NetAdapter = Get-NetAdapter
-Write-Output "NetAdapter Count: $($NetAdapter.Count)"
-foreach ($Adapter in $NetAdapter) {
-    Write-Output "NetAdapter Name: $($NetAdapter.Name)"
-}
-
-Write-Output 'Tester - Tester - Tester'
-Write-Output 'Tester - Tester - Tester'
-Write-Output 'Tester - Tester - Tester'
-
-Get-NetAdapter
-
 New-Item -Path .\tests -Name results -ItemType Directory -Force
 
 $testResultPath = '.\tests\build\results\TestResults.xml'

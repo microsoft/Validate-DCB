@@ -1,8 +1,14 @@
-$NetAdapter = Get-netAdapter
+$NetAdapter = Get-NetAdapter
 Write-Output "NetAdapter Count: $($NetAdapter.Count)"
 foreach ($Adapter in $NetAdapter) {
     Write-Output "NetAdapter Name: $($NetAdapter.Name)"
 }
+
+Write-Output 'Tester - Tester - Tester'
+Write-Output 'Tester - Tester - Tester'
+Write-Output 'Tester - Tester - Tester'
+
+Get-NetAdapter
 
 Describe "$($env:repoName)-Manifest" {
     $DataFile   = Import-PowerShellDataFile .\$($env:repoName).psd1 -ErrorAction SilentlyContinue

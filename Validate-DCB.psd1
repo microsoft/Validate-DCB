@@ -51,9 +51,7 @@ Description = 'Validate-DCB is a tool used to simplify the collection of network
 # ProcessorArchitecture = ''
 
 # Modules that must be imported into the global environment prior to importing this module
-RequiredModules = @(
-    @{ModuleName = 'Get-NetView'; ModuleVersion = '2019.6.7.8'; }
-)
+# RequiredModules = @()
 
 # Assemblies that must be loaded prior to importing this module
 # RequiredAssemblies = @()

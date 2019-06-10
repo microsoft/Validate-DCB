@@ -28,3 +28,17 @@ ForEach ($Module in $PowerShellModules) {
     
     Import-Module $Module
 }
+
+$BuildSystem = Get-CimInstance -ClassName 'Win32_OperatingSystem'
+
+Switch -Wildcard ($BuildSystem.Caption) {
+    '*Windows 10*' {
+        # Get FailoverCluster Capability Name
+        $capabilityName = (Get-WindowsCapability -Online | Where-Object Name -like *RSAT*FailoverCluster.Management*).Name
+        Add-WindowsCapability -Name $capabilityName -Online
+    }
+
+    'Default' {
+        Install-WindowsFeature -Name RSAT-Clustering-Powershell
+    }
+}

@@ -51,5 +51,7 @@ Switch -Wildcard ($BuildSystem.Caption) {
     Default {
         Write-Output 'Build System is Windows 2016/2019'
         Install-WindowsFeature -Name $serverFeatureList -IncludeManagementTools
+
+        Get-WindowsFeature | ? InstallState -eq 'Installed'
     }
 }

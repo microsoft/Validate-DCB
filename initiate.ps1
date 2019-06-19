@@ -95,7 +95,10 @@ param (
 
     [Parameter(ParameterSetName='DefaultConfig')]
     [Parameter(ParameterSetName='CustomConfig')]
-    [switch] $Deploy = $false
+    [switch] $Deploy = $false,
+
+    [Parameter(Mandatory=$false)]
+    [string] $reportPath
 )
 
 Clear-Host
@@ -170,22 +173,31 @@ $configData += Import-PowerShellDataFile -Path .\helpers\drivers\drivers.psd1
 
 Switch ($TestScope) {
     'Global' {
+        if ($PSBoundParameters.ContainsKey('reportPath')) { $outputFile = $reportPath }
+        Else { $outputFile = "$here\Results\$startTime-Global-unit.xml" }
+
         $testFile = Join-Path -Path $here -ChildPath "tests\unit\global.unit.tests.ps1"
-        $GlobalResults = Invoke-Pester -Script $testFile -Tag 'Global' -OutputFile "$here\Results\$startTime-Global-unit.xml" -OutputFormat NUnitXml -PassThru
+        $GlobalResults = Invoke-Pester -Script $testFile -Tag 'Global' -OutputFile $outputFile -OutputFormat NUnitXml -PassThru
         $GlobalResults | Select-Object -Property TagFilter, Time, TotalCount, PassedCount, FailedCount, SkippedCount, PendingCount | Format-Table -AutoSize
     }
 
     'Modal' {
         If ($global:deploy) { Publish-Automation }
 
+        if ($PSBoundParameters.ContainsKey('reportPath')) { $outputFile = $reportPath }
+        Else { $outputFile = "$here\Results\$startTime-Modal-unit.xml" }
+
         $testFile = Join-Path -Path $here -ChildPath "tests\unit\modal.unit.tests.ps1"
-        $ModalResults = Invoke-Pester -Script $testFile -Tag 'Modal' -OutputFile "$here\Results\$startTime-Modal-unit.xml" -OutputFormat NUnitXml -PassThru
+        $ModalResults = Invoke-Pester -Script $testFile -Tag 'Modal' -OutputFile $outputFile -OutputFormat NUnitXml -PassThru
         $ModalResults | Select-Object -Property TagFilter, Time, TotalCount, PassedCount, FailedCount, SkippedCount, PendingCount | Format-Table -AutoSize
     }
 
     Default {
+        if ($PSBoundParameters.ContainsKey('reportPath')) { $outputFile = $reportPath }
+        Else { $outputFile = "$here\Results\$startTime-Global-unit.xml" }
+
         $testFile = Join-Path -Path $here -ChildPath "tests\unit\global.unit.tests.ps1"
-        $GlobalResults = Invoke-Pester -Script $testFile -Tag 'Global' -OutputFile "$here\Results\$startTime-Global-unit.xml" -OutputFormat NUnitXml -PassThru
+        $GlobalResults = Invoke-Pester -Script $testFile -Tag 'Global' -OutputFile $outputFile -OutputFormat NUnitXml -PassThru
         $GlobalResults | Select-Object -Property TagFilter, Time, TotalCount, PassedCount, FailedCount, SkippedCount, PendingCount | Format-Table -AutoSize
         
         If ($global:deploy) { Publish-Automation }
@@ -195,8 +207,11 @@ Switch ($TestScope) {
             Break
         }
 
+        if ($PSBoundParameters.ContainsKey('reportPath')) { $outputFile = $reportPath }
+        Else { $outputFile = "$here\Results\$startTime-Modal-unit.xml" }
+
         $testFile = Join-Path -Path $here -ChildPath "tests\unit\modal.unit.tests.ps1"
-        $ModalResults = Invoke-Pester -Script $testFile -Tag 'Modal' -OutputFile "$here\Results\$startTime-Modal-unit.xml" -OutputFormat NUnitXml -PassThru
+        $ModalResults = Invoke-Pester -Script $testFile -Tag 'Modal' -OutputFile $outputFile -OutputFormat NUnitXml -PassThru
         $ModalResults | Select-Object -Property TagFilter, Time, TotalCount, PassedCount, FailedCount, SkippedCount, PendingCount | Format-Table -AutoSize
     }
 }

@@ -50,22 +50,6 @@
             It "[Global Unit]-[TestHost: ${env:ComputerName}] NetworkConfig command must be a Configuration" {
                 $fnNetworkConfig.CommandType | Should be 'Configuration'
             }
-
-            $deployReqModules = Import-PowerShellDataFile -Path "$here\helpers\NetworkConfig\NetworkConfig.psd1"
-
-            ($deployReqModules).RequiredModules.GetEnumerator() | ForEach-Object {
-                $module = Get-Module $_.ModuleName -ListAvailable -ErrorAction SilentlyContinue
-        
-                It "[Global Unit]-[TestHost: ${env:ComputerName}] Must have the module [$($_.ModuleName)] available" {
-                    $module | Should not BeNullOrEmpty
-                }
-        
-                if ($_.ContainsKey('ModuleVersion')) {
-                    It "[Global Unit]-[TestHost: ${env:ComputerName}] Module [$($_.ModuleName)] must be at least version [$($_.ModuleVersion)]" {
-                        $module.version -ge $_.ModuleVersion | Should be $true
-                    }
-                }
-            }
         }
 
         ### Verify PowerShell cmdlets are available on the TestHost
@@ -483,6 +467,63 @@
             It "[Global Unit]-[Noun: AzureRmAutomationAccount] Azure Automation Account [$($configData.NonNodeData.AzureAutomation.AutomationAccountName)] should be found in the Resource Group" {
                 $AzureRMAutomationAccount | Should Not BeNullOrEmpty
             }
+        }
+    }
+}
+
+Describe "[Global Unit]" -Tag Launch_Deploy {
+    Context "[Global Unit]-[Test Host: $($env:COMPUTERNAME)]-Launch and Deploy prerequisites" {
+        $reqModules = Import-PowerShellDataFile -Path "$here\helpers\NetworkConfig\NetworkConfig.psd1"        
+        
+        ($reqModules).RequiredModules.GetEnumerator() | ForEach-Object {
+            Remove-Variable module -ErrorAction SilentlyContinue
+
+            $module = Get-Module $_.ModuleName -ListAvailable -ErrorAction SilentlyContinue
+
+            It "[Global Unit]-[TestHost: ${env:ComputerName}] Must have the module [$($_.ModuleName)] available" {
+                $module.Name | Should Not BeNullOrEmpty
+            }
+            
+            if ($_.ContainsKey('ModuleVersion')) {
+                It "[Global Unit]-[TestHost: ${env:ComputerName}] Must be at least version $($_.ModuleVersion)" {
+                    $module.version -ge $_.ModuleVersion | Should be $true
+                }
+            }
+        }
+
+        ### Verify PowerShell cmdlets are available on the TestHost
+        $reqCmdlets  = @('Get-ClusterNode')
+
+        $reqCmdlets | ForEach-Object {
+            It "[Global Unit]-[TestHost: ${env:ComputerName}] must have the cmdlet [$_] available" {
+                $cmd = Get-Command $_ -ErrorAction SilentlyContinue
+                $cmd | Should not BeNullOrEmpty
+            }
+        }
+
+        $reqDSCResources = @('DCBNetAdapterQos', 'DCBNetQosDcbxSetting', 'DCBNetQosFlowControl',
+                             'DCBNetQosPolicy', 'DCBNetQosTrafficClass', 'VMNetworkAdapterIsolation',
+                             'VMNetworkAdapterSettings', 'VMNetworkAdapterTeamMapping', 'WindowsFeature',
+                             'NetAdapterAdvancedProperty', 'NetAdapterRDMA', 'xVMSwitch',
+                             'xVMNetworkAdapter', 'NetAdapterRsc' )
+
+        $reqDSCResources | ForEach-Object {
+            It "[Global Unit]-[TestHost: ${env:ComputerName}] must have the DSC Resource [$_] available" {
+                $cmd = Get-DSCResource $_ -ErrorAction SilentlyContinue
+                $cmd | Should not BeNullOrEmpty
+            }
+        }
+
+        $module = Import-Module -Name  "$here\helpers\NetworkConfig\NetworkConfig.psd1" -PassThru -Force -ErrorAction SilentlyContinue
+
+        It "[Global Unit]-[TestHost: ${env:ComputerName}] must import the NetworkConfig module successfully" {
+            $module | Should Not BeNullOrEmpty
+        }
+
+        $module = Import-Module -Name  "$here\helpers\UI\vDCBUI.psm1" -PassThru -Force -ErrorAction SilentlyContinue
+
+        It "[Global Unit]-[TestHost: ${env:ComputerName}] must import the vDCBUI module successfully" {
+            $module | Should Not BeNullOrEmpty
         }
     }
 }

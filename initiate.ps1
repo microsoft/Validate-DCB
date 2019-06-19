@@ -13,6 +13,10 @@
     
     This tool does not modify your system. As such, you can re-validate the configuration as many times as desired.
 
+.PARAMETER LaunchUI
+Use to launch a user interface to help create a configuration file.  Use the following values to specify one of the example files.
+Optionally allows you to deploy the configuration using Azure Automation at the end.
+
 .PARAMETER ExampleConfig
     Use to specify one of the example configuration files.  Use the following values to specify one of the example files
     |  Value  |                  Location                | 
@@ -98,16 +102,7 @@ Clear-Host
 
 If ($PSCmdlet.ParameterSetName -ne 'Create Config') { $LaunchUI = $false }
 
-#TODO: Update test helpers to check for VLAN Isolation and not VMnetworkAdapterVLAn
-
-#TODO: Add verification for 
-<#
-Port: Only TCP 443 is required for outbound internet access.
-Global URL: *.azure-automation.net
-Global URL of US Gov Virginia: *.azure-automation.us
-Agent service: https://<workspaceId>.agentsvc.azure-automation.net
-#>
-
+# TODO: Once converted to module, just add pester to required modules
 If (-not (Get-Module -Name Pester -ListAvailable)) { 
     Write-Output 'Pester is an inbox PowerShell Module included in Windows 10, Windows Server 2016, and later'
     Throw 'Catastrophic Failure :: PowerShell Module Pester was not found'
@@ -115,27 +110,40 @@ If (-not (Get-Module -Name Pester -ListAvailable)) {
 
 $here      = Split-Path -Parent $MyInvocation.MyCommand.Path
 $startTime = Get-Date -format:'yyyyMMdd-HHmmss'
-Remove-Variable -Name configData -ErrorAction SilentlyContinue
 New-Item -Name 'Results' -Path $here -ItemType Directory -Force
 
 If ($global:deploy -eq $true -or $LaunchUI -eq $true) {
-    Import-Module "$here\helpers\NetworkConfig\NetworkConfig.psd1" -Force
-    Import-Module "$here\helpers\UI\vDCBUI.psm1" -Force
+
+    $testFile = Join-Path -Path $here -ChildPath "tests\unit\global.unit.tests.ps1"
+    $launch_deploy = Invoke-Pester -Script $testFile -Tag 'Launch_Deploy' -PassThru
+    $launch_deploy | Select-Object -Property TagFilter, Time, TotalCount, PassedCount, FailedCount, SkippedCount, PendingCount | Format-Table -AutoSize
+    
+    If ($launch_deploy.FailedCount -ne 0) {
+        Write-Error -Message "One or more of the required modules was not available on the system."
+        Break
+    }
+    Else {
+        Import-Module "$here\helpers\NetworkConfig\NetworkConfig.psd1" -Force
+        Import-Module "$here\helpers\UI\vDCBUI.psm1" -Force
+    }
 }
 
 #region Getting helpers & data...
 If ($LaunchUI) {
-    $CheckModule = Get-Module -Name NetworkConfig, vDCBUI
-    
-    If ($CheckModule.Count -ne 2) { break; 'NetworkConfig or vDCBUI Module was not available for import' }
-
     Write-Output 'Launching Configuration and Deployment UI'
     vDCBUI
 
     $ConfigFile = $global:ConfigPath
 
     Write-Output "Configuration from the UI will be used"
-    Write-Output "The configuration is located at $ConfigFile"
+
+    If ($configFile -eq $null) { 
+        Write-Error "Configuration file was not successfully saved"
+        break
+    } 
+    Else {
+        Write-Output "The configuration is located at $ConfigFile"
+    }
 }
 ElseIf ($PSBoundParameters.ContainsKey('ExampleConfig')) {
     $ConfigFile = $(Join-Path $Here -ChildPath "Examples\$ExampleConfig-examples.DCB.config.ps1")
@@ -155,6 +163,7 @@ Else {
     Throw "Catastrophic Failure :: Configuration File was not found at $ConfigFile"
 }
 
+Remove-Variable -Name configData -ErrorAction SilentlyContinue
 Import-Module "$here\helpers\helpers.psd1" -Force
 $configData += Import-PowerShellDataFile -Path .\helpers\drivers\drivers.psd1
 #endregion

@@ -1,5 +1,3 @@
-New-Alias -Name 'Validate-DCB' -Value 'Assert-DCBValidation'
-
 function Assert-DCBValidation {
     <#
     .SYNOPSIS
@@ -217,3 +215,5 @@ function Assert-DCBValidation {
         }
     }
 }
+
+New-Alias -Name 'Validate-DCB' -Value 'Assert-DCBValidation'

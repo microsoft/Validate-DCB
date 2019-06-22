@@ -1,4 +1,6 @@
-function Validate-DCB {
+New-Alias -Name 'Validate-DCB' -Value 'Assert-DCBValidation'
+
+function Assert-DCBValidation {
     <#
     .SYNOPSIS
         Validate-DCB validates RDMA and DCB best practice configuration to assist in troubleshooting or verifying configuration

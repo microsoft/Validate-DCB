@@ -12,7 +12,7 @@
 RootModule = 'Validate-DCB.psm1'
 
 # Version number of this module.
-ModuleVersion = '20190609.2.1.1'
+ModuleVersion = '20190622.2.2.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -30,7 +30,7 @@ CompanyName = 'Microsoft'
 Copyright = '(c) 2019 Inc. All rights reserved.'
 
 # Description of the functionality provided by this module
-Description = 'Validate-DCB is a tool used to simplify the collection of network configuration information for diagnosis of networking issues on Windows'
+Description = 'Validate-DCB is a module that validates the RDMA and Data Center Bridging (DCB) configuration best practices on Windows. DCB is a suite of standards used to provide hardware based bandwidth reservations and flow control.  This is not required for iWARP RDMA traffic, however it is mandatory for RoCE RDMA traffic.'
 
 # Minimum version of the Windows PowerShell engine required by this module
 # PowerShellVersion = ''
@@ -69,7 +69,7 @@ Description = 'Validate-DCB is a tool used to simplify the collection of network
 # NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = 'Validate-DCB'
+FunctionsToExport = 'Assert-DCBValidation'
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()
@@ -78,7 +78,7 @@ CmdletsToExport = @()
 VariablesToExport = '*'
 
 # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
-AliasesToExport = @()
+AliasesToExport = @('Validate-DCB')
 
 # DSC resources to export from this module
 # DscResourcesToExport = @()

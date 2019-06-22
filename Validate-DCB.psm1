@@ -3,10 +3,13 @@ New-Alias -Name 'Validate-DCB' -Value 'Assert-DCBValidation'
 function Assert-DCBValidation {
     <#
     .SYNOPSIS
-        Validate-DCB validates RDMA and DCB best practice configuration to assist in troubleshooting or verifying configuration
+        Validate-DCB is a module that validates the RDMA and Data Center Bridging (DCB) configuration best practices on Windows.
+        DCB is a suite of standards used to provide hardware based bandwidth reservations and flow control.  This is not required for iWARP RDMA traffic, however it is mandatory for RoCE RDMA traffic.
 
     .DESCRIPTION
-        Validate-DCB allows you to:
+    Note: Validate-DCB is now an alias for Assert-DCBValidation to avoid a warning when importing the module using an unapproved verb
+        
+    Validate-DCB allows you to:
         - Validate the expected configuration on one to N number of systems or clusters
         - Validate the configuration meets best practices
 

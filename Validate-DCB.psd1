@@ -51,7 +51,14 @@ Description = 'Validate-DCB is a module that validates the RDMA and Data Center 
 # ProcessorArchitecture = ''
 
 # Modules that must be imported into the global environment prior to importing this module
-# RequiredModules = @()
+RequiredModules = @(
+        @{ ModuleName = 'NetworkingDSC'     ; ModuleVersion = '6.3.0.0' }
+        @{ ModuleName = 'xHyper-V'          ; ModuleVersion = '3.16.0.0' }
+        @{ ModuleName = 'VMNetworkAdapter'  ; ModuleVersion = '0.4' }
+        @{ ModuleName = 'DataCenterBridging'; ModuleVersion = '0.4' }
+        @{ ModuleName = 'FailoverClusters'  ; ModuleVersion = '2.0.0.0' }
+        @{ ModuleName = 'PSDesiredStateConfiguration'; ModuleVersion = '1.1' }
+)
 
 # Assemblies that must be loaded prior to importing this module
 # RequiredAssemblies = @()
@@ -129,4 +136,3 @@ PrivateData = @{
 # DefaultCommandPrefix = ''
 
 }
-

@@ -1,6 +1,11 @@
-# What's New in v2.1
+# What's New in v2.2
 
 ## New Features
+
+- This feature branch is intended to
+  - Move Validate-DCB into a PowerShell Gallery capable module
+  - Integrate with the cluster health service
+- Adding Build and Downloads badges
 
 - GUI for creating the configuration!
   - LaunchUI is in the default parameter set
@@ -25,9 +30,11 @@
 - Added test to validate recommended FW is used with Mellanox drivers on Win-OF2 adapters (CX4 and higher)
 
 - Incremented Recommended driver for Mellanox and Chelsio adapters
-- Modified example configurations to set cluster heartbeat policy to priority 7- 
- 
+- Modified example configurations to set cluster heartbeat policy to priority 7
+
 ## Structural Changes
 
+- Separated module prerequisites into its own Global unit test inside global.unit.tests.ps1
+  - This will be run at the beginning of the initiate when the Launch or Deploy parameters are specified
 - Separated driver requirements into their own file
 - Separate Global and Modal test files for easier review of test code

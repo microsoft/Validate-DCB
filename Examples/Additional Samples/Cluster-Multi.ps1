@@ -7,7 +7,7 @@ $Nodes = Get-DCBClusterNodes -Clusters 'S2DCluster01', 'S2DCluster02'
 $Nodes | ForEach-Object {
 	$AllNodes   += @{
         NodeName = $_
-        
+
         RDMAEnabledAdapters = @(
             @{ Name = 'RoCE-01' ; VLANID = '101' ; JumboPacket = 9000 }
             @{ Name = 'RoCE-02' ; VLANID = '101' ; JumboPacket = 9000 }

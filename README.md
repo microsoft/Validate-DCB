@@ -1,6 +1,11 @@
-##### :star: More by the Microsoft Core Networking team can be found using the [MSFTNet](https://github.com/topics/msftnet) topic
+[![Build status](https://ci.appveyor.com/api/projects/status/ew1fsvkvnk3vi33i?svg=true)](https://ci.appveyor.com/project/MSFTCoreNet/Validate-DCB)
+[![downloads](https://img.shields.io/powershellgallery/dt/Validate-DCB.svg?label=downloads)](https://www.powershellgallery.com/packages/Validate-DCB)
 
-##### What's New in v2.1
+## :star: More by the Microsoft Core Networking team
+
+Find more from the Core Networking team using the [MSFTNet](https://github.com/topics/msftnet) topic
+
+##### What's New in v2.2
 
 For more information, please see [What's New](WhatsNew.md)
 
@@ -32,7 +37,7 @@ Additional benefits include:
 :heavy_check_mark: [New with version 2] Deploy the configuration to nodes
 
 > :information_source: ****Note:****
-> This tool does not modify your system unless you specify the -Deploy command. 
+> This tool does not modify your system unless you specify the -Deploy command.
 > As such, you can re-validate the configuration as many times as desired.
 
 # Overview
@@ -45,7 +50,7 @@ RDMA over Converged Ethernet (RoCE) requires Data Center Bridging (DCB) technolo
 
 This tool aims to validate the DCB configuration on the Windows nodes by taking an expected configuration as input and unit tests each Windows system.
 
-> :heavy_exclamation_mark: ****Important****: The validation of the network fabric is out-of-scope for this tool 
+> :heavy_exclamation_mark: ****Important****: The validation of the network fabric is out-of-scope for this tool
 
 # Scenarios
 
@@ -125,7 +130,7 @@ In this example, the current context is used for testing an adapter that is expe
 > :white_check_mark: ****Note:**** During runtime, a variable named $ConfigData contains the information from the config file.  With a debugger attached, you can walk the variable like this:
 >> ```PowerShell
 >>    [DBG]: PS C:\> $ConfigData.AllNodes.VMSwitch.RDMAEnabledAdapters
->> ``` 
+>> ```
 
 ### Passing Tests
 If your system passes a test you will see green text similar to this:
@@ -151,7 +156,7 @@ You can verify this using the PowerShell noun identified in the test (in the exa
 
 &emsp;
 
-### Failing Tests 
+### Failing Tests
 
 If your system is incorrectly configured, the test will provide an error message on-screen.
 
@@ -161,7 +166,7 @@ Failing tests give information to identify the misconfiguration.  In the failing
 
 ![](helpers/pics/FailingTest.png)
 
-As you can see above, the ****Enabled**** property corresponding to the: 
+As you can see above, the ****Enabled**** property corresponding to the:
 
 &emsp;&emsp;<img src="helpers/pics/ComponentID.png" width="475">
 

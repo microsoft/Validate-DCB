@@ -1,4 +1,4 @@
-git clone -q https://github.com/PowerShell/DscResource.Tests
+git.exe clone -q https://github.com/PowerShell/DscResource.Tests
 
 Import-Module -Name "$env:APPVEYOR_BUILD_FOLDER\DscResource.Tests\AppVeyor.psm1"
 Invoke-AppveyorInstallTask
@@ -33,29 +33,27 @@ ForEach ($Module in $PowerShellModules) {
     Import-Module $Module
 }
 
-<#
-    Feature Installation
-#>
+# Feature Installation
 
-$serverFeatureList = 'RSAT-Clustering-Powershell', 'Hyper-V'
+$serverFeatureList = 'Hyper-V'
 
 $BuildSystem = Get-CimInstance -ClassName 'Win32_OperatingSystem'
 
 Switch -Wildcard ($BuildSystem.Caption) {
     '*Windows 10*' {
-        Write-Output "Not Implemented"
-        Write-Output "Not Implemented"
+        Write-Output 'Build System is Windows 10'
         Write-Output "Not Implemented"
         Write-Output 'Build System is Windows 10'
+        Write-Output "Not Implemented"
+        Write-Output 'Build System is Windows 10'
+
         # Get FailoverCluster Capability Name
         $capabilityName = (Get-WindowsCapability -Online | Where-Object Name -like *RSAT*FailoverCluster.Management*).Name
         Add-WindowsCapability -Name $capabilityName -Online
     }
 
     Default {
-        Write-Output 'Build System is Windows 2016/2019'
+        Write-Output "Build System is $($BuildSystem.Caption)"
         Install-WindowsFeature -Name $serverFeatureList -IncludeManagementTools
-
-        Get-WindowsFeature | ? InstallState -eq 'Installed' | ft -AutoSize
     }
 }

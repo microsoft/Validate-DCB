@@ -35,13 +35,12 @@ image:
 #    - The "secure:" value is the Appveyor encryption of the key
 #    - GitHub update occurs to ensure that the module version is incremented based on the build number
 
+#CoreNetBuilder
 environment:
   NuGetApiKey:
-    secure: 8zTIgzkh0lIeJ+PZRLSS047LFbQqLbbm2YDdqwgTs4ctfGKtZAKQNDyEtn2geNtq
+    secure: Kz5VZnHxQlD/mHk0dlvpxTN1isiwW9A5fWhRdL7a1vcGwbVHFyj/x9wrIkqpAkcf
   GitHubKey:
-    secure: BTbC1Dgv/DE7g/n+/emm4FiSiRTjsRYnsqRUiF2NEhuwHvKkS35zCRsFm27g8OR4
-  CODECOV_TOKEN:
-    secure: hSsf4xeuX4TrtB0u6R+3ogaz1GQhfRV0yQmzlisNPBUub9ErR47NSlIg3GpfCucpEFZ8P06pCcAN0h2XBDPe5cnBXkRSYboBuP1blEtv7dc=
+    secure: qpQkQoAMAquwRIDJtJT9rD8JZTVlNxAfOFqUgrsbCJy6C8AY0jFHMGap18SxmH+F
 
 # Disable automatic builds; Without this, the following error shows up:
 # "Specify a project or solution file. The directory does not contain a project or solution file."

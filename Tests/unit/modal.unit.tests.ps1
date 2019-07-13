@@ -143,9 +143,9 @@ Describe "[Modal Unit]" -Tag Modal {
 
         $netAdapterAdvancedProperty = @()
         $netAdapterAdvancedProperty += Get-NetAdapterAdvancedProperty -CimSession $nodeName -Name $AllRDMAEnabledAdapters.Name -ErrorAction SilentlyContinue
-        
+
         $actNetAdapterState.netAdapterAdvancedProperty = $netAdapterAdvancedProperty
-    
+
         Remove-Variable -Name netAdapterAdvancedProperty
 
         #Note: $thisDriver will be empty if using a driver that is not recognized
@@ -158,17 +158,17 @@ Describe "[Modal Unit]" -Tag Modal {
                 It "[SUT: $nodeName]-[RDMAEnabledAdapter: $($thisRDMAEnabledAdapter.Name)]-[Noun: NetAdapterAdvancedProperty] should be NetworkDirect (RDMA) capable" {
                     $actNetAdapterState.netAdapterAdvancedProperty | Where-Object{$_.Name -eq $thisRDMAEnabledAdapter.Name -and $_.RegistryKeyword -eq '*NetworkDirect'} | Should Not BeNullOrEmpty
                 }
-                
+
                 ### Verify Interface is RDMA Enabled
                 It "[SUT: $nodeName]-[RDMAEnabledAdapter: $($thisRDMAEnabledAdapter.Name)]-[Noun: NetAdapterAdvancedProperty] should have NetworkDirect (RDMA) Enabled" {
                     ($actNetAdapterState.netAdapterAdvancedProperty | Where-Object{$_.Name -eq $thisRDMAEnabledAdapter.Name -and $_.RegistryKeyword -eq '*NetworkDirect'}).DisplayValue | Should Be 'Enabled'
                 }
-            
+
                 ### Verify Interface has a VLAN assigned - These NICs are native adapters (no VMSwitch attached)
                 It "[SUT: $nodeName]-[RDMAEnabledAdapter: $($thisRDMAEnabledAdapter.Name)]-[Noun: NetAdapterAdvancedProperty] should have VLAN $($thisRDMAEnabledAdapter.VLANID) assigned" {
                     ($actNetAdapterState.netAdapterAdvancedProperty | Where-Object{$_.Name -eq $thisRDMAEnabledAdapter.Name -and $_.RegistryKeyword -eq 'VLANID'}).RegistryValue | Should Be $thisRDMAEnabledAdapter.VLANID
                 }
-            
+
                 ### Verify if JumboPackets are specified in the config file that they are set properly on the interfaces
                 If ($thisRDMAEnabledAdapter.JumboPacket) {
                     It "[SUT: $nodeName]-[RDMAEnabledAdapter: $($thisRDMAEnabledAdapter.Name)]-[Noun: NetAdapterAdvancedProperty] should have Jumbo Packet set to [$($thisRDMAEnabledAdapter.JumboPacket)]" {
@@ -190,7 +190,7 @@ Describe "[Modal Unit]" -Tag Modal {
                         }
                     }
 
-                    'Cavium'   { 
+                    'Cavium'   {
                         #Test for NetworkDirectTechnology - As they support multiple options, we test that the system specifies iWARP or RoCEv2
                         It "[SUT: $nodeName]-[Adapter: $($thisRDMAEnabledAdapter.Name)]-(Noun: NetAdapterAdvancedProperty) Network Direct Technology must be '1'(iWARP) or '4' (RoCEv2) on Marvell/Cavium adapters" {
                             $NetworkDirectTechnologyValue = (($actNetAdapterState.netAdapterAdvancedProperty | Where-Object Name -eq $thisRDMAEnabledAdapter.Name) | Where-Object RegistryKeyword -eq '*NetworkDirectTechnology').RegistryValue
@@ -210,7 +210,7 @@ Describe "[Modal Unit]" -Tag Modal {
                             It "[SUT: $nodeName]-[Adapter: $($thisRDMAEnabledAdapter.Name)]-(Noun: NetAdapterAdvancedProperty) Miniport IPv4 RSC should be disabled" {
                                 (($actNetAdapterState.netAdapterAdvancedProperty | Where-Object Name -eq $thisRDMAEnabledAdapter.Name) | Where-Object RegistryKeyword -eq '*RscIPv4').RegistryValue | Should Be 0
                             }
-    
+
                             It "[SUT: $nodeName]-[Adapter: $($thisRDMAEnabledAdapter.Name)]-(Noun: NetAdapterAdvancedProperty) Miniport IPv6 RSC should be disabled" {
                                 (($actNetAdapterState.netAdapterAdvancedProperty | Where-Object Name -eq $thisRDMAEnabledAdapter.Name) | Where-Object RegistryKeyword -eq '*RscIPv6').RegistryValue | Should Be 0
                             }
@@ -224,7 +224,7 @@ Describe "[Modal Unit]" -Tag Modal {
 
                         $thisInterfaceDescription = ($actNetAdapterState.netAdapter | Where-Object Name -eq $thisRDMAEnabledAdapter.Name).InterfaceDescription
                         $lastBoot = Get-WinEvent -ComputerName $nodeName -LogName System -MaxEvents 1 -FilterXPath "*[System[Provider[@Name='eventlog'] and (Level=4 or Level=0) and (EventID=6005)]]"
-                            
+
                         Try {
                             # To get all events for testing (not just last boot) remove the TimeCreated in the FilterHashtable
                             $FWEvent = Get-WinEvent -ComputerName $nodeName -FilterHashTable @{LogName="System"; TimeCreated=$lastboot.TimeCreated; ID = 263; ProviderName = 'mlx5'} -ErrorAction SilentlyContinue
@@ -234,7 +234,7 @@ Describe "[Modal Unit]" -Tag Modal {
                             $FWIndexStart = (0..($XMLFWEvent.Event.EventData.Data.Count - 1) | Where-Object { $XMLFWEvent.Event.EventData.Data[$_] -eq $thisInterfaceDescription }) + 1
                             $FWIndexEnd   = $XMLFWEvent.Event.EventData.Data.Count - 2
                             $FWIndexMid   = ($FWIndexStart..($FWIndexEnd)).Count / 2
-                            
+
                             $actFWVersion = $null
                             $recFWVersion = $null
 
@@ -253,7 +253,7 @@ Describe "[Modal Unit]" -Tag Modal {
                             Remove-Variable -Name actFWVersion, recFWVersion
 
                             $interfaceIndex = (0..($XMLFWEvent.Event.EventData.Data.Count - 1) | Where-Object { $XMLFWEvent.Event.EventData.Data[$_] -eq $thisInterfaceDescription })
-                            
+
                             if ($XMLFWEvent.Event.EventData.Data[$interfaceIndex]) {
                                 It "[SUT: $nodeName]-[Adapter: $($thisRDMAEnabledAdapter.Name)]-[Log: System; EventID: 263] Should have the recommended firmware version for this driver" {
                                     $actualFWVersion | Should be $recommendedFWVersion
@@ -293,17 +293,17 @@ Describe "[Modal Unit]" -Tag Modal {
                     It "[SUT: $nodeName]-[VMSwitch: $($thisCfgVMSwitch.Name)]-[RDMAEnabledAdapter: $($thisRDMAEnabledAdapter.Name)]-[Noun: NetAdapterAdvancedProperty] should be NetworkDirect (RDMA) capable" {
                         $actNetAdapterState.netAdapterAdvancedProperty | Where-Object{$_.Name -eq $thisRDMAEnabledAdapter.Name -and $_.RegistryKeyword -eq '*NetworkDirect'} | Should Not BeNullOrEmpty
                     }
-                    
+
                     ### Verify Interface is RDMA Enabled
                     It "[SUT: $nodeName]-[VMSwitch: $($thisCfgVMSwitch.Name)]-[RDMAEnabledAdapter: $($thisRDMAEnabledAdapter.Name)]-[Noun: NetAdapterAdvancedProperty] should have NetworkDirect (RDMA) Enabled" {
                         ($actNetAdapterState.netAdapterAdvancedProperty | Where-Object{$_.Name -eq $thisRDMAEnabledAdapter.Name -and $_.RegistryKeyword -eq '*NetworkDirect'}).DisplayValue | Should Be 'Enabled'
                     }
-                
+
                     ### Verify Interface has a VLAN of 0 - These NICs are attached to a VMSwitch attached, so vNICs will have the VLANID
                     It "[SUT: $nodeName]-[VMSwitch: $($thisCfgVMSwitch.Name)]-[RDMAEnabledAdapter: $($thisRDMAEnabledAdapter.Name)]-[Noun: NetAdapterAdvancedProperty] should have VLAN '0' assigned" {
                         ($actNetAdapterState.netAdapterAdvancedProperty | Where-Object{$_.Name -eq $thisRDMAEnabledAdapter.Name -and $_.RegistryKeyword -eq 'VLANID'}).RegistryValue | Should Be 0
                     }
-                
+
                     ### Verify if JumboPackets are specified in the config file that they are set properly on the interfaces
                     If ($thisRDMAEnabledAdapter.JumboPacket) {
                         It "[SUT: $nodeName]-[VMSwitch: $($thisCfgVMSwitch.Name)]-[RDMAEnabledAdapter: $($thisRDMAEnabledAdapter.Name)]-[Noun: NetAdapterAdvancedProperty] should have Jumbo Packet set to [$($thisRDMAEnabledAdapter.JumboPacket)]" {
@@ -324,28 +324,28 @@ Describe "[Modal Unit]" -Tag Modal {
                                 (($actNetAdapterState.netAdapterAdvancedProperty | Where-Object Name -eq $thisRDMAEnabledAdapter.Name) | Where-Object RegistryKeyword -eq '*NetworkDirectTechnology').RegistryValue | Should Be 1
                             }
                         }
-    
-                        'Cavium'   { 
+
+                        'Cavium'   {
                             #Test for NetworkDirectTechnology - As they support multiple options, we test that the system specifies iWARP or RoCEv2
                             It "[SUT: $nodeName]-[Adapter: $($thisRDMAEnabledAdapter.Name)]-(Noun: NetAdapterAdvancedProperty) Network Direct Technology must be '1'(iWARP) or '4' (RoCEv2) on Marvell/Cavium adapters" {
                                 $NetworkDirectTechnologyValue = (($actNetAdapterState.netAdapterAdvancedProperty | Where-Object Name -eq $thisRDMAEnabledAdapter.Name) | Where-Object RegistryKeyword -eq '*NetworkDirectTechnology').RegistryValue
                                 $NetworkDirectTechnologyValue -eq 1 -or $NetworkDirectTechnologyValue -eq 4 | Should be $true
                             }
                         }
-    
+
                         'Intel'    {
                             #Test for NetworkDirectTechnology - Adapter must specify iWARP
                             It "[SUT: $nodeName]-[Adapter: $($thisRDMAEnabledAdapter.Name)]-(Noun: NetAdapterAdvancedProperty) Network Direct Technology must be '1' (iWARP) on Intel adapters" {
                                 (($actNetAdapterState.netAdapterAdvancedProperty | Where-Object Name -eq $thisRDMAEnabledAdapter.Name) | Where-Object RegistryKeyword -eq '*NetworkDirectTechnology').RegistryValue | Should Be 1
                             }
                         }
-    
+
                         'Mellanox' {
                             if ($driverName[$driverName.Count - 1] -like 'mlx4*') {
                                 It "[SUT: $nodeName]-[Adapter: $($thisRDMAEnabledAdapter.Name)]-(Noun: NetAdapterAdvancedProperty) Miniport IPv4 RSC should be disabled" {
                                     (($actNetAdapterState.netAdapterAdvancedProperty | Where-Object Name -eq $thisRDMAEnabledAdapter.Name) | Where-Object RegistryKeyword -eq '*RscIPv4').RegistryValue | Should Be 0
                                 }
-        
+
                                 It "[SUT: $nodeName]-[Adapter: $($thisRDMAEnabledAdapter.Name)]-(Noun: NetAdapterAdvancedProperty) Miniport IPv6 RSC should be disabled" {
                                     (($actNetAdapterState.netAdapterAdvancedProperty | Where-Object Name -eq $thisRDMAEnabledAdapter.Name) | Where-Object RegistryKeyword -eq '*RscIPv6').RegistryValue | Should Be 0
                                 }
@@ -359,36 +359,36 @@ Describe "[Modal Unit]" -Tag Modal {
 
                             $thisInterfaceDescription = ($actNetAdapterState.netAdapter | Where-Object Name -eq $thisRDMAEnabledAdapter.Name).InterfaceDescription
                             $lastBoot = Get-WinEvent -ComputerName $nodeName -LogName System -MaxEvents 1 -FilterXPath "*[System[Provider[@Name='eventlog'] and (Level=4 or Level=0) and (EventID=6005)]]"
-                            
+
                             Try {
                                 # To get all events for testing (not just last boot) remove the TimeCreated in the FilterHashtable
                                 $FWEvent = Get-WinEvent -ComputerName $nodeName -FilterHashTable @{LogName="System"; TimeCreated=$lastboot.TimeCreated; ID = 263; ProviderName = 'mlx5'} -ErrorAction SilentlyContinue
                                 $thisFWEvent = $FWEvent | Where-Object Message -like "$thisInterfaceDescription Firmware version*"
                                 $XMLFWEvent = [xml]$thisFWEvent[0].ToXml()
-    
+
                                 $FWIndexStart = (0..($XMLFWEvent.Event.EventData.Data.Count - 1) | Where-Object { $XMLFWEvent.Event.EventData.Data[$_] -eq $thisInterfaceDescription }) + 1
                                 $FWIndexEnd   = $XMLFWEvent.Event.EventData.Data.Count - 2
                                 $FWIndexMid   = ($FWIndexStart..($FWIndexEnd)).Count / 2
-                                
+
                                 $actFWVersion = $null
                                 $recFWVersion = $null
-    
+
                                 $XMLFWEvent.Event.EventData.Data[$FWIndexStart..($FWIndexStart + $FWIndexMid - 1)] | ForEach-Object {
                                     $actFWVersion += $_ + "."
                                 }
-    
+
                                 $XMLFWEvent.Event.EventData.Data[($FWIndexStart + $FWIndexMid)..$FWIndexEnd] | ForEach-Object {
                                     $recFWVersion += $_ + "."
                                 }
-    
+
                                 # Regex replace for last character (extra period)
                                 $actualFWVersion = [string]::Concat($actFWVersion) -replace ".$"
                                 $recommendedFWVersion = [string]::Concat($recFWVersion) -replace ".$"
-    
+
                                 Remove-Variable -Name actFWVersion, recFWVersion
-    
+
                                 $interfaceIndex = (0..($XMLFWEvent.Event.EventData.Data.Count - 1) | Where-Object { $XMLFWEvent.Event.EventData.Data[$_] -eq $thisInterfaceDescription })
-                                
+
                                 if ($XMLFWEvent.Event.EventData.Data[$interfaceIndex]) {
                                     It "[SUT: $nodeName]-[Adapter: $($thisRDMAEnabledAdapter.Name)]-[Log: System; EventID: 263] Should have the recommended firmware version for this driver" {
                                         $actualFWVersion | Should be $recommendedFWVersion
@@ -402,18 +402,18 @@ Describe "[Modal Unit]" -Tag Modal {
                                 }
                             }
                         }
-    
+
                         'Broadcom' {
                             #Test for NetworkDirectTechnology - Adapter must specify RoCEv2
                             It "[SUT: $nodeName]-[Adapter: $($thisRDMAEnabledAdapter.Name)]-(Noun: NetAdapterAdvancedProperty) Network Direct Technology must be '4' (RoCEv2) on Broadcom adapters" {
                                 (($actNetAdapterState.netAdapterAdvancedProperty | Where-Object Name -eq $thisRDMAEnabledAdapter.Name) | Where-Object RegistryKeyword -eq '*NetworkDirectTechnology').RegistryValue | Should Be 4
                             }
                         }
-    
+
                         '*' {
                             # Tests for all IHVs
                         }
-    
+
                         'Default' {
                             It 'Hardware Vendor for Adapter not Identified' { $false | Should be $true }
                         }
@@ -421,12 +421,12 @@ Describe "[Modal Unit]" -Tag Modal {
                 }
             }
         }
-        
+
         # No Disabled Adapters need to be specified, so only run this if there are disabled adapters
         if ($cfgRDMADisabledAdapters.Name -or $cfgVMSwitch.RDMADisabledAdapters.Name) {
             $DisabledNetAdapterAdvancedProperty = @()
             $DisabledNetAdapterAdvancedProperty += Get-NetAdapterAdvancedProperty -CimSession $nodeName -Name $cfgRDMADisabledAdapters.Name, $cfgVMSwitch.RDMADisabledAdapters.Name -ErrorAction SilentlyContinue
-            
+
             $actNetAdapterState.DisabledNetAdapterAdvancedProperty = $DisabledNetAdapterAdvancedProperty
 
             Remove-Variable DisabledNetAdapterAdvancedProperty
@@ -439,7 +439,7 @@ Describe "[Modal Unit]" -Tag Modal {
                         ($actNetAdapterState.DisabledNetAdapterAdvancedProperty | Where-Object{$_.Name -eq $thisRDMADisabledAdapter.Name -and $_.RegistryKeyword -eq '*NetworkDirect'}).DisplayValue | Should Not Be 'Enabled'
                     }
                 }
-    
+
                 foreach ($thisRDMADisabledAdapter in $cfgVMSwitch.RDMADisabledAdapters.Name) {
                     ### Verify RDMA is disabled or not capable on this adapter
                     It "[SUT: $nodeName]-[VMSwitch.RDMADisabledAdapter: $($thisRDMAEnabledAdapter)]-[Noun: NetAdapterAdvancedProperty] should have NetworkDirect (RDMA) Disabled" {
@@ -455,27 +455,27 @@ Describe "[Modal Unit]" -Tag Modal {
                 }
             }
         }
-    
+
         Context "[Modal Unit]-[NetQos]-[SUT: $nodeName]-NetQos Settings" {
             $NetQosPolicy       = Get-NetQosPolicy       -CimSession $nodeName -ErrorAction SilentlyContinue
             $NetAdapterQos      = Get-NetAdapterQos      -CimSession $nodeName -ErrorAction SilentlyContinue
             $NetQosFlowControl  = Get-NetQosFlowControl  -CimSession $nodeName -ErrorAction SilentlyContinue
             $NetQosTrafficClass = Get-NetQosTrafficClass -CimSession $nodeName -ErrorAction SilentlyContinue
-    
+
             $NetQosDcbxSettingInterfaces = @()
             $AllRDMAEnabledAdapters.Name | ForEach-Object {
                 $NetQosDcbxSettingInterfaces  += Get-NetQosDcbxSetting -InterfaceAlias $_ -CimSession $nodeName -ErrorAction SilentlyContinue
             }
-            
+
             $actNetQoSState = @{}
             $actNetQoSState.NetQoSPolicy       = $NetQosPolicy
             $actNetQoSState.NetAdapterQos      = $NetAdapterQos
             $actNetQoSState.NetQoSFlowControl  = $NetQosFlowControl
             $actNetQoSState.NetQosTrafficClass = $NetQosTrafficClass
             $actNetQoSState.NetQosDcbxSettingInterfaces = $NetQosDcbxSettingInterfaces
-    
+
             Remove-Variable -Name NetQosPolicy, NetAdapterQos, NetQosFlowControl, NetQosTrafficClass, NetQosDcbxSettingInterfaces
-    
+
             foreach ($thisPolicy in $configData.NonNodeData.NetQoS) {
                 ### Verify this NetQos Policy exists
                 It "[SUT: $nodeName]-[NetQos: $($thisPolicy.Name)]-[Noun: NetQosPolicy] should have a NetQos policy named ($($thisPolicy.Name)) assigned" {
@@ -513,12 +513,12 @@ Describe "[Modal Unit]" -Tag Modal {
                     It "[SUT: $nodeName]-[NetQos: $($thisPolicy.Name)]-[Noun: NetQosTrafficClass] Should have a traffic class named '[$($thisPolicy.Name)]'" {
                         $actNetQoSState.NetQosTrafficClass.Name -contains "[$($thisPolicy.Name)]" | Should Be $true
                     }
-    
+
                     ### Verify this traffic class is the expected BandwidthPercentage
                     It "[SUT: $nodeName]-[NetQos: $($thisPolicy.Name)]-[Noun: NetQosTrafficClass] The traffic class named '[$($thisPolicy.Name)]' should have a bandwidth percentage of ($($thisPolicy.BandwidthPercentage))" {
                         ($actNetQoSState.NetQosTrafficClass | Where-Object Name -Like '*default*').BandwidthPercentage | Should Be $thisPolicy.BandwidthPercentage
                     }
-    
+
                     ### Verify this traffic class is the expected Algorithm
                     It "[SUT: $nodeName]-[NetQos: $($thisPolicy.Name)]-[Noun: NetQosTrafficClass] The traffic class named '[$($thisPolicy.Name)]' should have an algorithm of ($($thisPolicy.Algorithm))" {
                         ($actNetQoSState.NetQosTrafficClass | Where-Object Name -Like '*default*').Algorithm | Should Be $thisPolicy.Algorithm
@@ -529,17 +529,17 @@ Describe "[Modal Unit]" -Tag Modal {
                     It "[SUT: $nodeName]-[NetQos: $($thisPolicy.Name)]-[Noun: NetQosTrafficClass] Should have a traffic class named ($($thisPolicy.Name))" {
                         $actNetQoSState.NetQosTrafficClass.Name -contains "$($thisPolicy.Name)" | Should Be $true
                     }
-    
-                    ### Verify This traffic class is the expected priority  
+
+                    ### Verify This traffic class is the expected priority
                     It "[SUT: $nodeName]-[NetQos: $($thisPolicy.Name)]-[Noun: NetQosTrafficClass] The traffic class named ($($thisPolicy.Name)) should be priority ($($thisPolicy.PriorityValue8021Action))" {
                         ($actNetQoSState.NetQosTrafficClass | Where-Object Name -eq "$($thisPolicy.Name)").Priority | Should Be $thisPolicy.PriorityValue8021Action
                     }
-    
+
                     ### Verify this traffic class is the expected BandwidthPercentage
                     It "[SUT: $nodeName]-[NetQos: $($thisPolicy.Name)]-[Noun: NetQosTrafficClass] The traffic class named ($($thisPolicy.Name)) should have a bandwidth percentage of ($($thisPolicy.BandwidthPercentage))" {
                         ($actNetQoSState.NetQosTrafficClass | Where-Object Name -eq $thisPolicy.Name).BandwidthPercentage | Should Be $thisPolicy.BandwidthPercentage
                     }
-    
+
                     ### Verify this traffic class is the expected Algorithm
                     It "[SUT: $nodeName]-[NetQos: $($thisPolicy.Name)]-[Noun: NetQosTrafficClass] The traffic class named ($($thisPolicy.Name)) should have a algorithm of ($($thisPolicy.Algorithm))" {
                         ($actNetQoSState.NetQosTrafficClass | Where-Object Name -eq $thisPolicy.Name).Algorithm | Should Be $thisPolicy.Algorithm
@@ -552,7 +552,7 @@ Describe "[Modal Unit]" -Tag Modal {
                 It "[SUT: $nodeName]-[RDMAEnabledAdapters: $($thisRDMAEnabledAdapter.Name)]-[Noun: NetAdapterQos] should be enabled" {
                     ($actNetQoSState.NetAdapterQos | Where-Object Name -eq $thisRDMAEnabledAdapter.Name).Enabled | Should Be $true
                 }
-    
+
                 ### Verify this adapter's DCBX setting is not Willing
                 It "[SUT: $nodeName]-[RDMAEnabledAdapters: $($thisRDMAEnabledAdapter.Name)]-[Noun: NetQosDcbxSetting] interfaces DCBX 'Willing' option should be false" {
                     ($actNetQoSState.NetQosDcbxSettingInterfaces | Where-Object InterfaceAlias -like $thisRDMAEnabledAdapter.Name).Willing | Should Be 'false'
@@ -567,7 +567,7 @@ Describe "[Modal Unit]" -Tag Modal {
             $actvmSwitch = @{}
             $actvmSwitch.vmSwitch     = $vmSwitch
             $actvmSwitch.vmSwitchTeam = $vmSwitchTeam
-            
+
             If ($thisCfgVMSwitch.IovEnabled) {
                 $NetAdapterSRIOV = @()
 
@@ -615,7 +615,7 @@ Describe "[Modal Unit]" -Tag Modal {
                         It "[SUT: $nodeName]-[VMSwitch: $($thisCfgVMSwitch.Name)]-[Noun: VMSwitch] vSwitch contains ($($thisCfgVMSwitch.RDMAEnabledAdapters.Count)) adapters" {
                             ($actvmSwitch.vmSwitch | Where-Object Name -eq $thisCfgVMSwitch.Name).NetAdapterInterfaceDescriptions.Count | Should Be $thisCfgVMSwitch.RDMAEnabledAdapters.Count
                         }
-                        
+
                         ### Verify LBFO Multiplexor is not used
                         It "[SUT: $nodeName]-[VMSwitch: $($thisCfgVMSwitch.Name)]-[Noun: VMSwitch] vSwitch should not use LBFO Teaming" {
                             ($actvmSwitch.vmSwitch | Where-Object Name -eq $thisCfgVMSwitch.Name).NetAdapterInterfaceDescription | Should Not Be 'Microsoft Network Adapter Multiplexor Driver'
@@ -625,11 +625,11 @@ Describe "[Modal Unit]" -Tag Modal {
                         It "[SUT: $nodeName]-[VMSwitch: $($thisCfgVMSwitch.Name)]-[Noun: VMSwitch] vSwitch should be a teamed interface" {
                             ($actvmSwitch.vmSwitch | Where-Object Name -eq $thisCfgVMSwitch.Name).NetAdapterInterfaceDescription | Should Be 'Teamed-Interface'
                         }
-                        
+
                         foreach ($thisRDMAEnabledAdapter in $thisCfgVMSwitch.RDMAEnabledAdapters) {
                             ### Verify the expected phyiscal adapters are part of the team
                             It "[SUT: $nodeName]-[VMSwitch: $($thisCfgVMSwitch.Name)]-[RDMAEnabledAdapter: $($thisRDMAEnabledAdapter.Name)]-[Noun: VMSwitchTeam] Interface should be a member of the SET team" {
-                                ($actvmSwitch.vmSwitchTeam | Where-Object Name -eq $thisCfgVMSwitch.Name).NetAdapterInterfaceDescription -contains 
+                                ($actvmSwitch.vmSwitchTeam | Where-Object Name -eq $thisCfgVMSwitch.Name).NetAdapterInterfaceDescription -contains
                                 ($actNetAdapterState.NetAdapter | Where-Object Name -eq $thisRDMAEnabledAdapter.Name).InterfaceDescription | Should be $true
                             }
                         }
@@ -666,7 +666,7 @@ Describe "[Modal Unit]" -Tag Modal {
                             ($actvmSwitch.vmSwitch | Where-Object Name -eq $thisCfgVMSwitch.Name).PacketDirectEnabled | Should Be $false
                         }
                     }
-    
+
                     ### Verify no catastrophic failures in the VMSwitch testing...
                     default { It "Could not determine the EmbeddedTeamingEnabled configuration" { $false | Should be $true }}
                 }
@@ -697,7 +697,7 @@ Describe "[Modal Unit]" -Tag Modal {
                         It "[SUT: $nodeName]-[VMSwitch: $($thisCfgVMSwitch.Name)]-[Noun: VMSwitch] The VMSwitch should support SR-IOV" {
                             ($actvmSwitch.vmSwitch | Where-Object Name -eq $thisCfgVMSwitch.Name).IovSupport | Should Be $true
                         }
-                        
+
                         ### Verify the VMSwitch has SR-IOV Enabled
                         It "[SUT: $nodeName]-[VMSwitch: $($thisCfgVMSwitch.Name)]-[Noun: VMSwitch] The VMSwitch should have SR-IOV enabled" {
                             ($actvmSwitch.vmSwitch | Where-Object Name -eq $thisCfgVMSwitch.Name).IovEnabled | Should Be $true
@@ -722,7 +722,7 @@ Describe "[Modal Unit]" -Tag Modal {
 
                 $VMNetworkAdapter            = Get-VMNetworkAdapter            -Name $thisRDMAEnabledAdapter.VMNetworkAdapter -ManagementOS -CimSession $nodeName -ErrorAction SilentlyContinue
                 $VMNetworkAdapterTeamMapping = Get-VMNetworkAdapterTeamMapping -Name $thisRDMAEnabledAdapter.VMNetworkAdapter -ManagementOS -CimSession $nodeName -ErrorAction SilentlyContinue
-            
+
                 $NetAdapter = @()
                 $NetAdapterRDMA = @()
                 $netAdapterAdvancedProperty = @()
@@ -740,7 +740,7 @@ Describe "[Modal Unit]" -Tag Modal {
                 $actvmSwitch.VMNetworkAdapterTeamMapping = $VMNetworkAdapterTeamMapping
 
                 Remove-Variable -Name NetAdapter, NetAdapterRDMA, NetAdapterAdvancedProperty, VMNetworkAdapter, VMNetworkAdapterTeamMapping -ErrorAction SilentlyContinue
-            
+
                 Context "[Modal Unit]-[VMSwitch: $($thisCfgVMSwitch.Name)]-[VMNetworkAdapter: $($thisRDMAEnabledAdapter.VMNetworkAdapter)]-[SUT: $nodeName]-Virtual NICs NetAdapter and NetAdapterAdvancedProperty Settings" {
                     ### Verify the virtual NIC's NetAdapter Name is the same as the VMNetworkAdapter name
                     It "[SUT: $nodeName]-[VMSwitch: $($thisCfgVMSwitch.Name)]-[RDMAEnabledAdapter: $($thisRDMAEnabledAdapter.Name)]-[VMNetworkAdapter: $($thisRDMAEnabledAdapter.VMNetworkAdapter)]-[Noun: NetAdapter, VMNetworkAdapter] NetAdapter Name for the virtual NIC is named the same as the VMNetworkAdapter name" {
@@ -884,7 +884,7 @@ Describe "[Modal Unit]" -Tag Modal {
 
                 $configData.NonNodeData.NetQos | Foreach-Object {
                     $thisPolicy = $_
-    
+
                     if ($thisPolicy.ContainsKey('NetDirectPortMatchCondition')) {
                         Switch ($AdapterLinkSpeed) {
                             # SMB Bandwidth Limit is being calculated MB and being compared to adapter speed which is in Gbps converted to MiBps
@@ -895,14 +895,14 @@ Describe "[Modal Unit]" -Tag Modal {
                                     $SMBBandwidthLimit.BytesPerSecond / 1MB | Should BeLessThan $expectedLimitMB + 1
                                 }
                             }
-        
+
                             {$_ -gt 10000000000} {
                                 $expectedLimitMB = (((($thisPolicy.BandwidthPercentage / 100) * .6) * $AdapterLinkSpeed) / 8) / 1000000
                                 It "Should have an Live Migration limit of 750 MBps" {
                                     $SMBBandwidthLimit.BytesPerSecond / 1MB | Should BeLessThan $expectedLimitMB + 1
                                 }
                             }
-                                    
+
                             default { It 'Link speed was not identified and so optimal live migration limit could not be determined' { $false | Should be $true } }
                         }
                     }
@@ -912,4 +912,4 @@ Describe "[Modal Unit]" -Tag Modal {
     }
 }
 
-#TODO: Update test helpers to check for VLAN Isolation and not VMnetworkAdapterVLAn
+#TODO: Update test helpers to check for VLAN Isolation and not VMnetworkAdapterVlan

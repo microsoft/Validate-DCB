@@ -22,10 +22,14 @@ ForEach ($Provider in $PackageProviders) {
 
 # Install the PowerShell Modules
 ForEach ($Module in $PowerShellModules) {
+    if ($Module -eq 'FailoverClusters') {
+        Install-WindowsFeature -Name 'RSAT-Clustering-Mgmt', 'RSAT-Clustering-PowerShell'
+    }
+
     If (!(Get-Module -ListAvailable $Module -ErrorAction SilentlyContinue)) {
         Install-Module $Module -Scope CurrentUser -Force -Repository PSGallery
     }
-    
+
     Import-Module $Module
 }
 
@@ -52,6 +56,6 @@ Switch -Wildcard ($BuildSystem.Caption) {
         Write-Output 'Build System is Windows 2016/2019'
         Install-WindowsFeature -Name $serverFeatureList -IncludeManagementTools
 
-        Get-WindowsFeature | ? InstallState -eq 'Installed' | ft -AutoSize        
+        Get-WindowsFeature | ? InstallState -eq 'Installed' | ft -AutoSize
     }
 }

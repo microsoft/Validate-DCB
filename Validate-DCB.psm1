@@ -173,9 +173,7 @@ function Assert-DCBValidation {
     }
 
     If (Test-Path $ConfigFile) { & $ConfigFile }
-    Else {
-        Throw "Catastrophic Failure :: Configuration File was not found at $ConfigFile"
-    }
+    Else { Throw "Catastrophic Failure :: Configuration File was not found at $ConfigFile" }
 
     Remove-Variable -Name configData -ErrorAction SilentlyContinue
     Import-Module "$here\helpers\helpers.psd1" -Force

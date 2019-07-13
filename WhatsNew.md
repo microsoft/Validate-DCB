@@ -25,8 +25,8 @@
 - Added test to validate recommended FW is used with Mellanox drivers on Win-OF2 adapters (CX4 and higher)
 
 - Incremented Recommended driver for Mellanox and Chelsio adapters
-- Modified example configurations to set cluster heartbeat policy to priority 7- 
- 
+- Modified example configurations to set cluster heartbeat policy to priority 7
+
 ## Structural Changes
 
 - Separated driver requirements into their own file

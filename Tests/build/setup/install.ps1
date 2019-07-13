@@ -50,7 +50,7 @@ ForEach ($Module in $PowerShellModules) {
         }
     }
     else {
-        Install-Module $Module -Scope CurrentUser -Force -Repository PSGallery -AllowClobber $true
+        Install-Module $Module -Scope CurrentUser -Force -Repository PSGallery -AllowClobber
     }
 
     Import-Module $Module

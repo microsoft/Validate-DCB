@@ -7,6 +7,7 @@ Invoke-AppveyorInstallTask
 
 $ModuleManifest = Test-ModuleManifest .\$($env:RepoName).psd1 -ErrorAction SilentlyContinue
 $repoRequiredModules = $ModuleManifest.RequiredModules.Name
+$repoRequiredModules += $ModuleManifest.PrivateData.PSData.ExternalModuleDependencies
 
 if ($repoRequiredModules) { $PowerShellModules += $repoRequiredModules }
 
@@ -20,40 +21,37 @@ ForEach ($Provider in $PackageProviders) {
     }
 }#>
 
-# Install the PowerShell Modules
-ForEach ($Module in $PowerShellModules) {
-    if ($Module -eq 'FailoverClusters') {
-        Install-WindowsFeature -Name 'RSAT-Clustering-Mgmt', 'RSAT-Clustering-PowerShell'
-    }
-
-    If (!(Get-Module -ListAvailable $Module -ErrorAction SilentlyContinue)) {
-        Install-Module $Module -Scope CurrentUser -Force -Repository PSGallery
-    }
-
-    Import-Module $Module
-}
-
 # Feature Installation
 
-$serverFeatureList = 'Hyper-V'
+$serverFeatureList = @('Hyper-V')
+
+if ($PowerShellModules -contains 'FailoverClusters') {
+    $serverFeatureList += 'RSAT-Clustering-Mgmt', 'RSAT-Clustering-PowerShell'
+}
 
 $BuildSystem = Get-CimInstance -ClassName 'Win32_OperatingSystem'
 
-Switch -Wildcard ($BuildSystem.Caption) {
-    '*Windows 10*' {
-        Write-Output 'Build System is Windows 10'
-        Write-Output "Not Implemented"
-        Write-Output 'Build System is Windows 10'
-        Write-Output "Not Implemented"
-        Write-Output 'Build System is Windows 10'
+ForEach ($Module in $PowerShellModules) {
+    if ($Module -eq 'FailoverClusters') {
+        Switch -Wildcard ($BuildSystem.Caption) {
+            '*Windows 10*' {
+                Write-Output 'Build System is Windows 10'
+                Write-Output "Not Implemented"
 
-        # Get FailoverCluster Capability Name
-        $capabilityName = (Get-WindowsCapability -Online | Where-Object Name -like *RSAT*FailoverCluster.Management*).Name
-        Add-WindowsCapability -Name $capabilityName -Online
+                # Get FailoverCluster Capability Name and Install on W10 Builds
+                $capabilityName = (Get-WindowsCapability -Online | Where-Object Name -like *RSAT*FailoverCluster.Management*).Name
+                Add-WindowsCapability -Name $capabilityName -Online
+            }
+
+            Default {
+                Write-Output "Build System is $($BuildSystem.Caption)"
+                Install-WindowsFeature -Name $serverFeatureList -IncludeManagementTools | Out-Null
+            }
+        }
+    }
+    else {
+        Install-Module $Module -Scope CurrentUser -Force -Repository PSGallery -AllowClobber
     }
 
-    Default {
-        Write-Output "Build System is $($BuildSystem.Caption)"
-        Install-WindowsFeature -Name $serverFeatureList -IncludeManagementTools
-    }
+    Import-Module $Module
 }

@@ -80,25 +80,25 @@ function Assert-DCBValidation {
     [CmdletBinding(DefaultParameterSetName = 'Create Config')]
 
     param (
-        [Parameter(ParameterSetName='DefaultConfig')]
+        [Parameter(ParameterSetName = 'DefaultConfig')]
         [ValidateSet('NDKm1', 'NDKm2')]
         [string] $ExampleConfig,
 
-        [Parameter(ParameterSetName='CustomConfig')]
+        [Parameter(ParameterSetName = 'CustomConfig')]
         [string] $ConfigFilePath,
 
-        [Parameter(ParameterSetName='Create Config')]
+        [Parameter(ParameterSetName = 'Create Config')]
         [switch] $LaunchUI = $true, 
 
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [switch] $ContinueOnFailure = $false,
 
-        [Parameter(Mandatory=$false)]
-        [ValidateSet('All','Global', 'Modal')]
+        [Parameter(Mandatory = $false)]
+        [ValidateSet('All', 'Global', 'Modal')]
         [string] $TestScope = 'All' ,
 
-        [Parameter(ParameterSetName='DefaultConfig')]
-        [Parameter(ParameterSetName='CustomConfig')]
+        [Parameter(ParameterSetName = 'DefaultConfig')]
+        [Parameter(ParameterSetName = 'CustomConfig')]
         [switch] $Deploy = $false
     )
 
@@ -111,7 +111,7 @@ function Assert-DCBValidation {
         Throw 'Catastrophic Failure :: PowerShell Module Pester was not found'
     }
 
-    $here      = Split-Path -Parent (Get-Module -Name Validate-DCB).Path
+    $here = Split-Path -Parent (Get-Module -Name Validate-DCB).Path
     $startTime = Get-Date -format:'yyyyMMdd-HHmmss'
     New-Item -Name 'Results' -Path $here -ItemType Directory -Force
 
@@ -161,13 +161,13 @@ function Assert-DCBValidation {
     }
     ElseIf ($PSBoundParameters.ContainsKey('ExampleConfig')) {
         $ConfigFile = $(Join-Path $Here -ChildPath "Examples\$ExampleConfig-examples.DCB.config.ps1")
-        $fullPath   = (Get-ChildItem -Path $configFile).FullName
+        $fullPath = (Get-ChildItem -Path $configFile).FullName
 
         Write-Output "Example Configuration Mode ($ExampleConfig) was specified"
         Write-Output "The default configuration located at $fullPath will be used"
     } 
     ElseIf ($PSBoundParameters.ContainsKey('ConfigFilePath')) {
-        $fullPath   = (Get-ChildItem -Path $ConfigFilePath).FullName
+        $fullPath = (Get-ChildItem -Path $ConfigFilePath).FullName
         Write-Output "The Config File at $fullPath will be used"
         $ConfigFile = $ConfigFilePath
     }

@@ -13,6 +13,7 @@ clone_folder: c:\projects\Validate-DCB
 init:
   - ps: $Env:repoName = $($env:APPVEYOR_REPO_NAME.Split('/')[1])
   - ps: Update-AppveyorBuild -Version "$(Get-Date -format yyyyMMdd).2.$env:appveyor_build_number"
+  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 # Install script prior to running tests
 install:
@@ -41,6 +42,7 @@ environment:
     secure: Kz5VZnHxQlD/mHk0dlvpxTN1isiwW9A5fWhRdL7a1vcGwbVHFyj/x9wrIkqpAkcf
   GitHubKey:
     secure: qpQkQoAMAquwRIDJtJT9rD8JZTVlNxAfOFqUgrsbCJy6C8AY0jFHMGap18SxmH+F
+  APPVEYOR_RDP_PASSWORD: oXKrVJrra9KgEB9BQjihjg==
 
 # Disable automatic builds; Without this, the following error shows up:
 # "Specify a project or solution file. The directory does not contain a project or solution file."
@@ -57,3 +59,6 @@ skip_commits:
 # There's no need to alter the build number for a Pull Request (PR) since they don't modify anything
 pull_requests:
   do_not_increment_build_number: true
+
+on_finish:
+  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))

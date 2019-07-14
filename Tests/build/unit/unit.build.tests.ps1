@@ -19,6 +19,18 @@ Describe "$($env:repoName)-Manifest" {
         }
     }
 
+    Context ExportedContent {
+        $testCommand = Get-Command Validate-DCB
+
+        It 'Should be an Alias' {
+            (Get-Alias Validate-DCB).CommandType | Should Be 'Alias'
+        }
+
+        It 'Should reference Assert-DCBValidation' {
+            $testCommand.ReferencedCommand.Name | Should be 'Assert-DCBValidation'
+        }
+    }
+
     <#
     Context Validate-GlobalExamples {
         Validate-DCB -ExampleConfig NDKm1 -TestScope Global

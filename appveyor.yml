@@ -43,7 +43,7 @@ environment:
   GitHubKey:
     secure: qpQkQoAMAquwRIDJtJT9rD8JZTVlNxAfOFqUgrsbCJy6C8AY0jFHMGap18SxmH+F
   APPVEYOR_RDP_PASSWORD:
-    secure: oXKrVJrra9KgEB9BQjihjg==
+    secure: q9cNMN8o/tkzFDvDf+npkj5MOgFVGOLnJokZq/d4BUY=
 
 # Disable automatic builds; Without this, the following error shows up:
 # "Specify a project or solution file. The directory does not contain a project or solution file."

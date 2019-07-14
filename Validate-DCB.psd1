@@ -56,6 +56,7 @@
         @{ ModuleName = 'xHyper-V'          ; ModuleVersion = '3.16.0.0' }
         @{ ModuleName = 'VMNetworkAdapter'  ; ModuleVersion = '0.0.0.4' }
         @{ ModuleName = 'DataCenterBridging'; ModuleVersion = '0.0.0.4' }
+        @{ ModuleName = 'Pester'; ModuleVersion = '3.4.0' }
     )
 
     # Assemblies that must be loaded prior to importing this module

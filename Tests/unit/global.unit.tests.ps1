@@ -7,21 +7,14 @@
             $pesterModule | Should Not BeNullOrEmpty
         }
 
-        ### Verify TestHost has the 3x Version of Pester
-        If (Get-Module -Name Pester -ListAvailable -ErrorAction SilentlyContinue) {
-            It "[Global Unit]-[TestHost: ${env:ComputerName}] must have Pester 3x module" {
-                $pesterModule.Version.Major | Should Be 3
-            }
-        }
-
         $NodeOS = Get-CimInstance -ClassName 'Win32_OperatingSystem'
-        
+
         ### Verify the TestHost is sufficient version
         It "[Global Unit]-[TestHost: ${env:ComputerName}] must be Windows 10, Server 2016, or Server 2019" {
-            $caption =  ($NodeOS.Caption -like '*Windows 10*') -or 
+            $caption =  ($NodeOS.Caption -like '*Windows 10*') -or
                         ($NodeOS.Caption -like '*Windows Server 2016*') -or
-                        ($NodeOS.Caption -like '*Windows Server 2019*') 
-            
+                        ($NodeOS.Caption -like '*Windows Server 2019*')
+
             $caption | Should be $true
         }
 
@@ -71,7 +64,7 @@
 
     Context "[Global Unit]-Config File Integrity" {
         ### Verify the config file exists
-        $configFileExists = Get-ChildItem -Path $configFile -ErrorAction SilentlyContinue        
+        $configFileExists = Get-ChildItem -Path $configFile -ErrorAction SilentlyContinue
         It "[Config File] $($configFileExists.Name) must exist" {
             $configFileExists.Exists | Should Be $true
         }
@@ -143,19 +136,19 @@
 
                 ### Verify each RDMAEnabledAdapter includes the Name property from Get-NetAdapter
                 It "[Config File]-[AllNodes.RDMAEnabledAdapters]-[Node: $($thisNode.NodeName)]-[Entry: $AdapterEntry]-[Noun: NetAdapter] Must include the Name property for each entry" {
-                    $thisRDMAEnabledAdapter.Name | Should not BeNullOrEmpty 
+                    $thisRDMAEnabledAdapter.Name | Should not BeNullOrEmpty
                 }
-    
+
                 ### Verify each RDMAEnabledAdapter includes the VLANID property from Get-NetAdapterAdvancedProperty
                 It "[Config File]-[AllNodes.RDMAEnabledAdapters]-[Node: $($thisNode.NodeName)]-[Entry: $($thisRDMAEnabledAdapter.Name)]-[Noun: NetAdapterAdvancedProperty] Must include the VLANID property for each entry" {
-                    $thisRDMAEnabledAdapter.VLANID | Should not BeNullOrEmpty 
+                    $thisRDMAEnabledAdapter.VLANID | Should not BeNullOrEmpty
                 }
-    
+
                 ### Verify each RDMAEnabledAdapter's VLANID property is not '0'
                 It "[Config File]-[AllNodes.RDMAEnabledAdapters]-[Node: $($thisNode.NodeName)]-[Entry: $($thisRDMAEnabledAdapter.Name)]-[Noun: NetAdapterAdvancedProperty] VLANID property should not be non-zero" {
                     $thisRDMAEnabledAdapter.VLANID | Should Not Be '0'
                 }
-                
+
                 ### Verify RDMAEnabledAdapter Entry is not included in RDMADisabledAdapter
                 It "[Config File]-[AllNodes.RDMAEnabledAdapters]-[Node: $($thisNode.NodeName)]-[Entry: $($thisRDMAEnabledAdapter.Name)]-[Noun: NetAdapterRDMA] Should not be in both RDMAEnabledAdapters and RDMADisabledAdapters" {
                     $thisRDMAEnabledAdapter.Name -in $thisNode.RDMADisabledAdapters.Name | Should Be $false
@@ -242,17 +235,17 @@
 
                     ### Verify each VMSwitch.RDMAEnabledAdapter includes the Name property from Get-NetAdapter
                     It "[Config File]-[AllNodes.VMSwitch.RDMAEnabledAdapters]-[Node: $($thisNode.NodeName)]-[Entry: $AdapterEntry]-[Noun: NetAdapter] Must include the Name property for each entry" {
-                        $thisRDMAEnabledAdapter.Name | Should not BeNullOrEmpty 
+                        $thisRDMAEnabledAdapter.Name | Should not BeNullOrEmpty
                     }
 
                     ### Verify each VMSwitch.RDMAEnabledAdapter includes the Name property from Get-VMNetworkAdapter -ManagementOS
                     It "[Config File]-[AllNodes.VMSwitch.RDMAEnabledAdapters]-[Node: $($thisNode.NodeName)]-[Entry: $($thisRDMAEnabledAdapter.Name)]-[Noun: VMNetworkAdapter] Must include the VMNetworkAdapter property for each entry" {
-                        $thisRDMAEnabledAdapter.VMNetworkAdapter | Should not BeNullOrEmpty 
+                        $thisRDMAEnabledAdapter.VMNetworkAdapter | Should not BeNullOrEmpty
                     }
 
                     ### Verify each VMSwitch.RDMAEnabledAdapter includes the VLANID property from Get-NetAdapterAdvancedProperty
                     It "[Config File]-[AllNodes.VMSwitch.RDMAEnabledAdapters]-[Node: $($thisNode.NodeName)]-[Entry: $($thisRDMAEnabledAdapter.Name)]-[Noun: NetAdapterAdvancedProperty] Must include the VLANID property for each entry" {
-                        $thisRDMAEnabledAdapter.VLANID | Should not BeNullOrEmpty 
+                        $thisRDMAEnabledAdapter.VLANID | Should not BeNullOrEmpty
                     }
 
                     ### Verify each VMSwitch.RDMAEnabledAdapter's VLANID property is not 0
@@ -306,7 +299,7 @@
         }
 
         # Note: Templates only specify TCP settings and do not apply to RDMA
-        #       For RDMA, please use NetDirectPortMatchCondition 
+        #       For RDMA, please use NetDirectPortMatchCondition
 
         ### Verify At least one policy must specify the NetDirectPortMatchCondition
         It "[Config File]-[NonNodeData.NetQos]-[Noun: NetQosPolicy] must specify the 'NetDirectPortMatchCondition' property for exactly 1 policy" {
@@ -364,7 +357,7 @@
 
     $ConfigData.AllNodes | ForEach-Object {
         $nodeName = $_.NodeName
-        
+
         Context "[Global Unit]-[SUT: $nodeName]-Connectivity Tests" {
             ### Verify Basic Network Connectivity to each Node
             It "[Global Unit]-[SUT: $nodeName] must respond to available over the network" {
@@ -383,8 +376,8 @@
             ### Verify the SUTs are Server SKU, 2016 or Higher
             It "[Global Unit]-[SUT: $nodeName] must be Server 2016, or Server 2019" {
                 $caption =  ($NodeOS.Caption -like '*Windows Server 2016*') -or
-                            ($NodeOS.Caption -like '*Windows Server 2019*') 
-                
+                            ($NodeOS.Caption -like '*Windows Server 2019*')
+
                 $caption | Should be $true
             }
 
@@ -403,13 +396,13 @@
                 $featureState = Get-WindowsFeature -Name $using:reqFeatures -ErrorAction SilentlyContinue
 
                 return $Modules, $featureState
-            }         
+            }
 
             ### Verify that the required features exist on the SUT
             $reqFeatures | ForEach-Object {
                 It "[Global Unit]-[SUT: $nodeName] should have the Windows Feature [$_] installed" {
                     ($actFeatureState | Where-Object Name -eq $_).InstallState | Should be 'Installed'
-                } 
+                }
             }
 
             ### Verify that each required module existed on the SUT
@@ -473,8 +466,8 @@
 
 Describe "[Global Unit]" -Tag Launch_Deploy {
     Context "[Global Unit]-[Test Host: $($env:COMPUTERNAME)]-Launch and Deploy prerequisites" {
-        $reqModules = Import-PowerShellDataFile -Path "$here\helpers\NetworkConfig\NetworkConfig.psd1"        
-        
+        $reqModules = Import-PowerShellDataFile -Path "$here\helpers\NetworkConfig\NetworkConfig.psd1"
+
         ($reqModules).RequiredModules.GetEnumerator() | ForEach-Object {
             Remove-Variable module -ErrorAction SilentlyContinue
 
@@ -483,7 +476,7 @@ Describe "[Global Unit]" -Tag Launch_Deploy {
             It "[Global Unit]-[TestHost: ${env:ComputerName}] Must have the module [$($_.ModuleName)] available" {
                 $module.Name | Should Not BeNullOrEmpty
             }
-            
+
             if ($_.ContainsKey('ModuleVersion')) {
                 It "[Global Unit]-[TestHost: ${env:ComputerName}] Must be at least version $($_.ModuleVersion)" {
                     $module.version -ge $_.ModuleVersion | Should be $true

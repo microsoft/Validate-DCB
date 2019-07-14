@@ -49,6 +49,9 @@ ForEach ($Module in $PowerShellModules) {
             }
         }
     }
+    ElseIf ($Module -eq 'Pester') {
+        Install-Module $Module -Scope AllUsers -Force -Repository PSGallery -AllowClobber -SkipPublisherCheck
+    }
     else {
         Install-Module $Module -Scope AllUsers -Force -Repository PSGallery -AllowClobber
     }

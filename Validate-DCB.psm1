@@ -120,7 +120,7 @@ function Assert-DCBValidation {
     $startTime = Get-Date -format:'yyyyMMdd-HHmmss'
     New-Item -Name 'Results' -Path $here -ItemType Directory -Force
 
-    If ($global:deploy -eq $true -or $LaunchUI -eq $true) {
+    If ($deploy -eq $true -or $LaunchUI -eq $true) {
         Write-Output 'Deploy or LaunchUI options were selected...Verifying prerequisites'
 
         $testFile = Join-Path -Path $here -ChildPath "tests\unit\global.unit.tests.ps1"

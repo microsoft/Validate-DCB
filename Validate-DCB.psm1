@@ -221,4 +221,4 @@ function Assert-DCBValidation {
     }
 }
 
-New-Alias -Name 'Validate-DCB' -Value 'Assert-DCBValidation'
+New-Alias -Name 'Validate-DCB' -Value 'Assert-DCBValidation' -Force

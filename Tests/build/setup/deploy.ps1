@@ -2,8 +2,8 @@ git config --global credential.helper store
 
 Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:GitHubKey):x-oauth-basic@github.com`n"
 
-git config --global user.email "dcuomo@outlook.com"
-git config --global user.name "Dan Cuomo"
+git config --global user.email "NetwkBld@outlook.com"
+git config --global user.name "CoreNet Build Svc"
 git config --global core.autocrlf false
 git config --global core.safecrlf false
 
@@ -76,7 +76,7 @@ else
         throw $_
     }
 
-    # Publish the new version back to Master on GitHub 
+    # Publish the new version back to Master on GitHub
     Try
     {
         # Set up a path to the git.exe cmd, import posh-git to give us control over git, and then push changes to GitHub

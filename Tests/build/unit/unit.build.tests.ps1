@@ -19,9 +19,27 @@ Describe "$($env:repoName)-Manifest" {
         }
     }
 
-    <#
-    Context Validate-GlobalExamples {
-        Validate-DCB -ExampleConfig NDKm1 -TestScope Global
+    Context ExportedContent {
+        $testCommand = Get-Command Validate-DCB
+
+        It 'Should have an alias named Validate-DCB' {
+            (Get-Alias Validate-DCB).CommandType | Should Be 'Alias'
+        }
+
+        It 'Should reference Assert-DCBValidation' {
+            $testCommand.ReferencedCommand.Name | Should be 'Assert-DCBValidation'
+        }
+
+        It 'Should default the TestScope param to All' {
+            Get-Command Assert-DCBValidation | Should -HaveParameter TestScope -DefaultValue 'All'
+        }
+
+        It 'Should default the ContinueOnFailure param to $false' {
+            Get-Command Assert-DCBValidation | Should -HaveParameter ContinueOnFailure -DefaultValue $false
+        }
+
+        It 'Should default the LaunchUI param to $true' {
+            Get-Command Assert-DCBValidation | Should -HaveParameter LaunchUI -DefaultValue $true
+        }
     }
-    #>
 }

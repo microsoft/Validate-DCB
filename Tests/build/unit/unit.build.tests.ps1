@@ -19,6 +19,26 @@ Describe "$($env:repoName)-Manifest" {
         }
     }
 
+    Context "Required Modules" {
+        It "Should specify at least 5 modules" {
+            ($TestModule).RequiredModules.Count | Should BeGreaterThan 4
+        }
+
+        'NetworkingDSC', 'xHyper-V', 'VMNetworkAdapter', 'DataCenterBridging', 'Pester' | ForEach-Object {
+            $module = Find-Module -Name $_ -ErrorAction SilentlyContinue
+
+            It "Should contain the $_ Module" {
+                $_ -in ($TestModule).RequiredModules.Name | Should be $true
+            }
+
+            It "The $_ module should be available in the PowerShell gallery" {
+                $module | Should not BeNullOrEmpty
+            }
+
+            Remove-Variable -Name Module -ErrorAction SilentlyContinue
+        }
+    }
+
     Context ExportedContent {
         $testCommand = Get-Command Validate-DCB
 

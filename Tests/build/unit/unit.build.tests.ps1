@@ -17,6 +17,31 @@ Describe "$($env:repoName)-Manifest" {
         It "Should have the $($env:repoName) function available" {
             $command | Should not BeNullOrEmpty
         }
+
+        It "[Import-PowerShellDataFile] - Drivers.psd1 is a valid PowerShell Data File" {
+            $driversDataFile = Import-PowerShellDataFile -Path .\helpers\drivers\drivers.psd1 -ErrorAction SilentlyContinue
+            $driversDataFile | Should Not BeNullOrEmpty
+        }
+    }
+
+    Context "Required Modules" {
+        It "Should specify at least 5 modules" {
+            ($TestModule).RequiredModules.Count | Should BeGreaterThan 4
+        }
+
+        'NetworkingDSC', 'xHyper-V', 'VMNetworkAdapter', 'DataCenterBridging', 'Pester' | ForEach-Object {
+            $module = Find-Module -Name $_ -ErrorAction SilentlyContinue
+
+            It "Should contain the $_ Module" {
+                $_ -in ($TestModule).RequiredModules.Name | Should be $true
+            }
+
+            It "The $_ module should be available in the PowerShell gallery" {
+                $module | Should not BeNullOrEmpty
+            }
+
+            Remove-Variable -Name Module -ErrorAction SilentlyContinue
+        }
     }
 
     Context ExportedContent {
@@ -40,6 +65,10 @@ Describe "$($env:repoName)-Manifest" {
 
         It 'Should default the LaunchUI param to $true' {
             Get-Command Assert-DCBValidation | Should -HaveParameter LaunchUI -DefaultValue $true
+        }
+
+        It 'Should default the Deploy param to $false' {
+            Get-Command Assert-DCBValidation | Should -HaveParameter Deploy -DefaultValue $false
         }
     }
 }

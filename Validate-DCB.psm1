@@ -54,6 +54,9 @@ function Assert-DCBValidation {
         Determines the describe block to be run. You can use this to only run certain describe blocks.
         By default, Global and Modal (currently all) describe blocks are run.
 
+    .PARAMETER ReportPath
+        The string path of where to place the reports.  This should point to a folder; not a specific file.
+
     .EXAMPLE
         Validate-DCB
 
@@ -102,7 +105,7 @@ function Assert-DCBValidation {
         [switch] $Deploy = $false ,
 
         [Parameter(Mandatory=$false)]
-        [string] $reportPath
+        [string] $ReportPath
     )
 
     Clear-Host
@@ -116,7 +119,7 @@ function Assert-DCBValidation {
         Throw 'Catastrophic Failure :: PowerShell Module Pester was not found'
     }
 
-    $here = Split-Path -Parent (Get-Module -Name Validate-DCB).Path
+    $here = Split-Path -Parent (Get-Module -Name Validate-DCB -ListAvailable).Path
     $startTime = Get-Date -format:'yyyyMMdd-HHmmss'
     New-Item -Name 'Results' -Path $here -ItemType Directory -Force
 
@@ -177,7 +180,7 @@ function Assert-DCBValidation {
 
     Switch ($TestScope) {
         'Global' {
-            if ($PSBoundParameters.ContainsKey('reportPath')) { $outputFile = $reportPath }
+            if ($PSBoundParameters.ContainsKey('reportPath')) { $outputFile = "$reportPath\$startTime-Global-unit.xml" }
             Else { $outputFile = "$here\Results\$startTime-Global-unit.xml" }
 
             $testFile = Join-Path -Path $here -ChildPath "tests\unit\global.unit.tests.ps1"
@@ -188,7 +191,7 @@ function Assert-DCBValidation {
         'Modal' {
             If ($global:deploy) { Publish-Automation }
 
-            if ($PSBoundParameters.ContainsKey('reportPath')) { $outputFile = $reportPath }
+            if ($PSBoundParameters.ContainsKey('reportPath')) { $outputFile = "$reportPath\$startTime-Modal-unit.xml" }
             Else { $outputFile = "$here\Results\$startTime-Modal-unit.xml" }
 
             $testFile = Join-Path -Path $here -ChildPath "tests\unit\modal.unit.tests.ps1"
@@ -197,7 +200,7 @@ function Assert-DCBValidation {
         }
 
         Default {
-            if ($PSBoundParameters.ContainsKey('reportPath')) { $outputFile = $reportPath }
+            if ($PSBoundParameters.ContainsKey('reportPath')) { "$reportPath\$startTime-Global-unit.xml" }
             Else { $outputFile = "$here\Results\$startTime-Global-unit.xml" }
 
             $testFile = Join-Path -Path $here -ChildPath "tests\unit\global.unit.tests.ps1"
@@ -211,7 +214,7 @@ function Assert-DCBValidation {
                 Break
             }
 
-            if ($PSBoundParameters.ContainsKey('reportPath')) { $outputFile = $reportPath }
+            if ($PSBoundParameters.ContainsKey('reportPath')) { $outputFile = "$reportPath\$startTime-Modal-unit.xml" }
             Else { $outputFile = "$here\Results\$startTime-Modal-unit.xml" }
 
             $testFile = Join-Path -Path $here -ChildPath "tests\unit\modal.unit.tests.ps1"

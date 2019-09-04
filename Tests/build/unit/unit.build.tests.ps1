@@ -17,6 +17,11 @@ Describe "$($env:repoName)-Manifest" {
         It "Should have the $($env:repoName) function available" {
             $command | Should not BeNullOrEmpty
         }
+
+        It "[Import-PowerShellDataFile] - Drivers.psd1 is a valid PowerShell Data File" {
+            $driversDataFile = Import-PowerShellDataFile -Path .\helpers\drivers\drivers.psd1 -ErrorAction SilentlyContinue
+            $driversDataFile | Should Not BeNullOrEmpty
+        }
     }
 
     Context "Required Modules" {
@@ -60,6 +65,10 @@ Describe "$($env:repoName)-Manifest" {
 
         It 'Should default the LaunchUI param to $true' {
             Get-Command Assert-DCBValidation | Should -HaveParameter LaunchUI -DefaultValue $true
+        }
+
+        It 'Should default the Deploy param to $false' {
+            Get-Command Assert-DCBValidation | Should -HaveParameter LaunchUI -DefaultValue $false
         }
     }
 }

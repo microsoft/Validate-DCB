@@ -68,7 +68,7 @@ Describe "$($env:repoName)-Manifest" {
         }
 
         It 'Should default the Deploy param to $false' {
-            Get-Command Assert-DCBValidation | Should -HaveParameter LaunchUI -DefaultValue $false
+            Get-Command Assert-DCBValidation | Should -HaveParameter Deploy -DefaultValue $false
         }
     }
 }

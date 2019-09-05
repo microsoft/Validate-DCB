@@ -1,5 +1,9 @@
 ﻿Describe "[Global Unit]" -Tag Global {
     Context "[Global Unit]-[Test Host: $($env:COMPUTERNAME)]-System Requirements" {
+        It "[Global Unit]-[TestHost: ${env:ComputerName}] must be the minimum required version of Validate-DCB" {
+            (Get-Module Validate-DCB -ListAvailable).Version.Major | Should BeGreaterThan '20190715'
+        }
+
         $pesterModule = (Get-Module -Name Pester -ListAvailable -ErrorAction SilentlyContinue)
 
         ### Verify TestHost has Pester Module

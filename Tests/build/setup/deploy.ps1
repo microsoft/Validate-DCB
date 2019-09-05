@@ -7,16 +7,6 @@ git config --global user.name "CoreNet Build Svc"
 git config --global core.autocrlf false
 git config --global core.safecrlf false
 
-        # This is where the module manifest lives
-        $manifestPath = ".\$($env:RepoName).psd1"
-
-        # Start by importing the manifest to determine the version, then add 1 to the revision
-        $manifest = Test-ModuleManifest -Path $manifestPath -ErrorAction SilentlyContinue
-        [System.Version]$version = $manifest.Version
-        Write-Output "Old Version: $version"
-        [String]$newVersion = $Env:BuildVersion
-        Write-Output "New Version: $newVersion"
-
 # Line break for readability in AppVeyor console
 Write-Host -Object ''
 

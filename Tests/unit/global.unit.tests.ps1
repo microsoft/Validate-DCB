@@ -1,7 +1,11 @@
 ﻿Describe "[Global Unit]" -Tag Global {
     Context "[Global Unit]-[Test Host: $($env:COMPUTERNAME)]-System Requirements" {
-        It "[Global Unit]-[TestHost: ${env:ComputerName}] must be the minimum required version of Validate-DCB" {
-            (Get-Module Validate-DCB -ListAvailable).Version.Major | Should BeGreaterThan '20190715'
+        It "[Global Unit]-[TestHost: ${env:ComputerName}] must be the minimum required major version of Validate-DCB" {
+            (Get-Module Validate-DCB -ListAvailable).Version.Major | Should BeGreaterThan '20190904'
+        }
+
+        It "[Global Unit]-[TestHost: ${env:ComputerName}] must be the minimum required minimum version of Validate-DCB" {
+            (Get-Module Validate-DCB -ListAvailable).Version.Minor | Should BeGreaterThan '55'
         }
 
         $pesterModule = (Get-Module -Name Pester -ListAvailable -ErrorAction SilentlyContinue)

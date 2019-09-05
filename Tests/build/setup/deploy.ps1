@@ -7,9 +7,6 @@ git config --global user.name "CoreNet Build Svc"
 git config --global core.autocrlf false
 git config --global core.safecrlf false
 
-Write-Output "$($env:RepoName)"
-GCI -Path .
-
 # Line break for readability in AppVeyor console
 Write-Host -Object ''
 

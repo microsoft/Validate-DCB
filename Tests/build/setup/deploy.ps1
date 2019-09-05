@@ -7,6 +7,15 @@ git config --global user.name "CoreNet Build Svc"
 git config --global core.autocrlf false
 git config --global core.safecrlf false
 
+        # This is where the module manifest lives
+        $manifestPath = ".\$($env:RepoName).psd1"
+
+        # Start by importing the manifest to determine the version, then add 1 to the revision
+        $manifest = Test-ModuleManifest -Path $manifestPath -ErrorAction SilentlyContinue
+        [System.Version]$version = $manifest.Version
+        Write-Output "Old Version: $version"
+        [String]$newVersion = $Env:BuildVersion
+
 # Line break for readability in AppVeyor console
 Write-Host -Object ''
 
@@ -33,7 +42,7 @@ else
         $manifest = Test-ModuleManifest -Path $manifestPath -ErrorAction SilentlyContinue
         [System.Version]$version = $manifest.Version
         Write-Output "Old Version: $version"
-        [String]$newVersion = New-Object -TypeName System.Version -ArgumentList ($version.Major, $version.Minor, $version.Build, $env:APPVEYOR_BUILD_NUMBER)
+        [String]$newVersion = $Env:BuildVersion
         Write-Output "New Version: $newVersion"
 
         # Update the manifest with the new version value and fix the weird string replace bug

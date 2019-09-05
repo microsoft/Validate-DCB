@@ -27,6 +27,7 @@ else
     Try
     {
         # This is where the module manifest lives
+        Write-Output "$($env:RepoName)"
         $manifestPath = ".\$($env:RepoName).psd1"
 
         # Start by importing the manifest to determine the version, then add 1 to the revision

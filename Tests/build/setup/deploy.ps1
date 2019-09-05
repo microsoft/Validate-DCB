@@ -15,6 +15,7 @@ git config --global core.safecrlf false
         [System.Version]$version = $manifest.Version
         Write-Output "Old Version: $version"
         [String]$newVersion = $Env:BuildVersion
+        Write-Output "New Version: $newVersion"
 
 # Line break for readability in AppVeyor console
 Write-Host -Object ''

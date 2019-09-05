@@ -11,9 +11,10 @@ clone_folder: c:\projects\Validate-DCB
 # Version will be of format: yyyyMMdd . 2 . 1 . Build Number e.g. 20190609.2.1.buildNumber
 
 init:
-  - ps: $Env:repoName = $($env:APPVEYOR_REPO_NAME.Split('/')[1])
+  - ps: $Env:repoName     = $($env:APPVEYOR_REPO_NAME.Split('/')[1])
   - ps: Update-AppveyorBuild -Version "$(Get-Date -format yyyyMMdd).2.2.$env:appveyor_build_number"
-  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+  - ps: $Env:BuildVersion = "$(Get-Date -format yyyyMMdd).2.2.$env:appveyor_build_number"
+
 
 # Install script prior to running tests
 install:

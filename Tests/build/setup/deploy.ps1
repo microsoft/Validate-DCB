@@ -2,7 +2,7 @@ git config --global credential.helper store
 
 Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:GitHubKey):x-oauth-basic@github.com`n"
 
-git config --global user.email "NetwkBld@outlook.com"
+git config --global user.email "NetwkBld@Microsoft.com"
 git config --global user.name "CoreNet Build Svc"
 git config --global core.autocrlf false
 git config --global core.safecrlf false
@@ -33,7 +33,7 @@ else
         $manifest = Test-ModuleManifest -Path $manifestPath -ErrorAction SilentlyContinue
         [System.Version]$version = $manifest.Version
         Write-Output "Old Version: $version"
-        [String]$newVersion = New-Object -TypeName System.Version -ArgumentList ($version.Major, $version.Minor, $version.Build, $env:APPVEYOR_BUILD_NUMBER)
+        [String]$newVersion = $Env:BuildVersion
         Write-Output "New Version: $newVersion"
 
         # Update the manifest with the new version value and fix the weird string replace bug

@@ -5,7 +5,7 @@
         }
 
         It "[Global Unit]-[TestHost: ${env:ComputerName}] must be the minimum required minimum version of Validate-DCB" {
-            (Get-Module Validate-DCB -ListAvailable).Version.Minor | Should BeGreaterThan '55'
+            (Get-Module Validate-DCB -ListAvailable).Version.Revision | Should BeGreaterThan '60'
         }
 
         $pesterModule = (Get-Module -Name Pester -ListAvailable -ErrorAction SilentlyContinue)

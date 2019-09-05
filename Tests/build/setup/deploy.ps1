@@ -2,10 +2,12 @@ git config --global credential.helper store
 
 Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:GitHubKey):x-oauth-basic@github.com`n"
 
-git config --global user.email "NetwkBld@outlook.com"
+git config --global user.email "NetwkBld@Microsoft.com"
 git config --global user.name "CoreNet Build Svc"
 git config --global core.autocrlf false
 git config --global core.safecrlf false
+
+Write-Output "$($env:RepoName)"
 
 # Line break for readability in AppVeyor console
 Write-Host -Object ''
@@ -27,7 +29,6 @@ else
     Try
     {
         # This is where the module manifest lives
-        Write-Output "$($env:RepoName)"
         $manifestPath = ".\$($env:RepoName).psd1"
 
         # Start by importing the manifest to determine the version, then add 1 to the revision

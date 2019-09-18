@@ -175,7 +175,8 @@ function Assert-DCBValidation {
 
     Remove-Variable -Name configData -ErrorAction SilentlyContinue
     Import-Module "$here\helpers\helpers.psd1" -Force
-    $configData += Import-PowerShellDataFile -Path .\helpers\drivers\drivers.psd1
+    $driversFilePath =  Join-Path -Path $here -ChildPath "helpers\drivers\drivers.psd1"
+    $configData += Import-PowerShellDataFile -Path $driversFilePath
     #endregion
 
     Switch ($TestScope) {

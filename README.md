@@ -209,7 +209,7 @@ To complete our example above, we need to resolve the configuration issue.  To d
 
 Validate-DCB is now published in the PowerShell gallery.  Please use ```Install-Module Validate-DCB``` from a system with internet connectivity.
 
-For disconnected systems, use ```Save-Module -Name Validate-DCB -Path c:\temp\Validate-DCB```
+For disconnected systems, use ```Save-Module -Name Validate-DCB -Path c:\temp\Validate-DCB``` then move the modules in c:\temp\Validate-DCB to your disconnected system.
 
 ## Requirements
 

@@ -73,7 +73,7 @@ Currently all tests in Validate-DCB are unit tests.  That is, they break down an
 
 Tests are broken down into two types:
 
-&emsp;&emsp; :arrow_right: ****Global**** - Tests the TestHost, Each SUT, and Configuration File for prerequisites
+&emsp;&emsp; :arrow_right: ****Global**** - Tests the TestHost, Each SUT, and Configuration File for prerequisites.  If anything fails here, Validate-DCB will not move onto the actual DCB tests.
 
 &emsp;&emsp; :arrow_right: ****Modal**** - Tests each SUT for RDMA and configuration best practices
 

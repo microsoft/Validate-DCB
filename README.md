@@ -211,7 +211,7 @@ Validate-DCB is now published in the PowerShell gallery.  Please use ```Install-
 
 For disconnected systems, use ```Save-Module -Name Validate-DCB -Path c:\temp\Validate-DCB``` then move the modules in c:\temp\Validate-DCB to your disconnected system. Here's a video from Microsoft Premier Field Engineer, Jan Mortenson.
 
-[![Alt text](http://img.youtube.com/vi/T_VzGte3KJc/0.jpg)](https://www.youtube.com/watch?v=T_VzGte3KJc)
+[![Alt text](http://img.youtube.com/vi/T_VzGte3KJc/0.jpg)](https://www.youtube.com/embed/T_VzGte3KJc)
 
 ## Requirements
 

@@ -86,7 +86,9 @@ Besides the on-screen feedback provided by the tool, results of the tests are st
 
 ### Simple report using PowerBi
 
-You can also use PowerBi to make displaying results easy.  For more information, please see [Using the Results](Results)
+You can also use PowerBi to make displaying results easy.  For more information, please see [Using the Results](Results) or see this video from Microsoft Premier Field Engineer, Jan Mortenson.
+
+[![Alt text](http://img.youtube.com/vi/FZcrdZM176Y/0.jpg)](https://www.youtube.com/embed/FZcrdZM176Y
 
 ## Interpreting Test Results
 

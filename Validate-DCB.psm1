@@ -175,7 +175,8 @@ function Assert-DCBValidation {
 
     Remove-Variable -Name configData -ErrorAction SilentlyContinue
     Import-Module "$here\helpers\helpers.psd1" -Force
-    $configData += Import-PowerShellDataFile -Path .\helpers\drivers\drivers.psd1
+    $driversFilePath =  Join-Path -Path $here -ChildPath "helpers\drivers\drivers.psd1"
+    $configData += Import-PowerShellDataFile -Path $driversFilePath
     #endregion
 
     Switch ($TestScope) {
@@ -200,7 +201,7 @@ function Assert-DCBValidation {
         }
 
         Default {
-            if ($PSBoundParameters.ContainsKey('reportPath')) { "$reportPath\$startTime-Global-unit.xml" }
+            if ($PSBoundParameters.ContainsKey('reportPath')) { $outputFile = "$reportPath\$startTime-Global-unit.xml" }
             Else { $outputFile = "$here\Results\$startTime-Global-unit.xml" }
 
             $testFile = Join-Path -Path $here -ChildPath "tests\unit\global.unit.tests.ps1"

@@ -73,7 +73,7 @@ Currently all tests in Validate-DCB are unit tests.  That is, they break down an
 
 Tests are broken down into two types:
 
-&emsp;&emsp; :arrow_right: ****Global**** - Tests the TestHost, Each SUT, and Configuration File for prerequisites
+&emsp;&emsp; :arrow_right: ****Global**** - Tests the TestHost, Each SUT, and Configuration File for prerequisites.  If anything fails here, Validate-DCB will not move onto the actual DCB tests.
 
 &emsp;&emsp; :arrow_right: ****Modal**** - Tests each SUT for RDMA and configuration best practices
 
@@ -82,7 +82,7 @@ For more information, please see [Test Details](\tests\readme.md)
 ## Test Results
 
 ### Testing with Azure DevOps and a CI/CD pipeline
-Besides the on-screen feedback provided by the tool, results of the tests are stored in NUnitXML format in the \Results folder.  These Results can be stored for historical reasons and take part in a CI/CD pipline as shown in [Building a Continuous Integration and Continuous Deployment pipeline with DSC](https://docs.microsoft.com/en-us/powershell/dsc/dsccicd)
+Besides the on-screen feedback provided by the tool, results of the tests are stored in NUnitXML format in the \Results folder.  These Results can be stored for historical reasons and take part in a CI/CD pipline as shown in [Building a Continuous Integration and Continuous Deployment pipeline with DSC](https://docs.microsoft.com/en-us/powershell/scripting/dsc/overview/authoringadvanced?view=powershell-6)
 
 ### Simple report using PowerBi
 
@@ -207,7 +207,11 @@ To complete our example above, we need to resolve the configuration issue.  To d
 
 ## Installation
 
-Extract the files in this repo to a folder on a system (TestHost) with connectivity to the system's being tested (SUT).
+Validate-DCB is now published in the PowerShell gallery.  Please use ```Install-Module Validate-DCB``` from a system with internet connectivity.
+
+For disconnected systems, use ```Save-Module -Name Validate-DCB -Path c:\temp\Validate-DCB``` then move the modules in c:\temp\Validate-DCB to your disconnected system. Here's a video from Microsoft Premier Field Engineer, Jan Mortenson.
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/T_VzGte3KJc" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 ## Requirements
 
@@ -219,16 +223,18 @@ Extract the files in this repo to a folder on a system (TestHost) with connectiv
 
 ## Configuration File
 
-Regardless of the scenario, you need a configuration file to define the expected configuration on your systems.  You can use one of the example configurations or create your own.  With Validate-DCB v2.1 we recommend using the -LaunchUI cmdlet (default) to create the configuration for you.  For more information on customizing your own file, please see: [Customize your Config](Examples)
+Regardless of the scenario, you need a configuration file to define the expected configuration on your systems. Validate-DCB then checks that each system matches the expected configuration.  With Validate-DCB v2.1 we recommend using the user interface to create the configuration for you.  To do this, run ```Validate-DCB``` without parameters. For more information on customizing your own file, please see: [Customize your Config](Examples)
 
-## Running the Initiate
+## Running Validate-DCB
 
-Once you have chosen a configuration file, you're ready to begin testing.  To begin testing, run the initiate.ps1 PowerShell script.  We recommend using Visual Studio Code as their is a rich debugging experience available.
+To begin testing, complete the wizard mentioned in the previous section or run ```Validate-DCB -ConfigFilePath <Path to your configuration file>.ps1``` if you have an existing configuration file you wish to use.
+
+Additionally, you can connect Validate-DCB with your Azure Automation account to first deploy the configuration (then validate).
 
 > :information_source: ****Note:****
-> For full parameter help use: ```Get-Help .\Initiate.ps1```
+> For full parameter help use: ```Get-Help Validate-DCB```
 
-Here are a few tips on the parameters of the initiate.
+Here are a few tips on the parameters of the parameters.
 
 | Parameter | Description |
 |-----------|-------------|

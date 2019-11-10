@@ -52,6 +52,9 @@ This tool aims to validate the DCB configuration on the Windows nodes by taking 
 
 > :heavy_exclamation_mark: ****Important****: The validation of the network fabric is out-of-scope for this tool
 
+Here's a quick introductory video from Microsoft Premier Field Engineer, Jan Mortenson.
+[![Alt text](http://img.youtube.com/vi/NXK_amScDDE/0.jpg)](https://www.youtube.com/embed/NXK_amScDDE)
+
 # Scenarios
 
 Validate-DCB will provide configuration validation for one or more nodes or clusters across a variety of scenarios including:
@@ -175,6 +178,10 @@ As you can see above, the ****Enabled**** property corresponding to the:
 By running Get-NetAdapterBinding on the SUT you can see this for yourself.
 
 ![](helpers/pics/GetNetAdapterBinding.png)
+
+Here's another video from Microsoft Premier Field Engineer, Jan Mortenson, who reviews and validates errors found with Validate-DCB
+
+[![Alt text](http://img.youtube.com/vi/cC1uACvhPBs/0.jpg)](https://www.youtube.com/embed/cC1uACvhPBs)
 
 #### Reviewing the Tests
 

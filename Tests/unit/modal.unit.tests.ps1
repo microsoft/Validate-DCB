@@ -206,7 +206,7 @@ Describe "[Modal Unit]" -Tag Modal {
                     }
 
                     'Mellanox' {
-                        if ($driverName[$driverName.Count - 1] -like 'mlx4*') {
+                        If ($driverName[$driverName.Count - 1] -like 'mlx4*') {
                             It "[SUT: $nodeName]-[Adapter: $($thisRDMAEnabledAdapter.Name)]-(Noun: NetAdapterAdvancedProperty) Miniport IPv4 RSC should be disabled" {
                                 (($actNetAdapterState.netAdapterAdvancedProperty | Where-Object Name -eq $thisRDMAEnabledAdapter.Name) | Where-Object RegistryKeyword -eq '*RscIPv4').RegistryValue | Should Be 0
                             }
@@ -254,7 +254,7 @@ Describe "[Modal Unit]" -Tag Modal {
 
                             $interfaceIndex = (0..($XMLFWEvent.Event.EventData.Data.Count - 1) | Where-Object { $XMLFWEvent.Event.EventData.Data[$_] -eq $thisInterfaceDescription })
 
-                            if ($XMLFWEvent.Event.EventData.Data[$interfaceIndex]) {
+                            If ($XMLFWEvent.Event.EventData.Data[$interfaceIndex]) {
                                 It "[SUT: $nodeName]-[Adapter: $($thisRDMAEnabledAdapter.Name)]-[Log: System; EventID: 263] Should have the recommended firmware version for this driver" {
                                     $actualFWVersion | Should be $recommendedFWVersion
                                 }
@@ -341,7 +341,7 @@ Describe "[Modal Unit]" -Tag Modal {
                         }
 
                         'Mellanox' {
-                            if ($driverName[$driverName.Count - 1] -like 'mlx4*') {
+                            If ($driverName[$driverName.Count - 1] -like 'mlx4*') {
                                 It "[SUT: $nodeName]-[Adapter: $($thisRDMAEnabledAdapter.Name)]-(Noun: NetAdapterAdvancedProperty) Miniport IPv4 RSC should be disabled" {
                                     (($actNetAdapterState.netAdapterAdvancedProperty | Where-Object Name -eq $thisRDMAEnabledAdapter.Name) | Where-Object RegistryKeyword -eq '*RscIPv4').RegistryValue | Should Be 0
                                 }
@@ -389,7 +389,7 @@ Describe "[Modal Unit]" -Tag Modal {
 
                                 $interfaceIndex = (0..($XMLFWEvent.Event.EventData.Data.Count - 1) | Where-Object { $XMLFWEvent.Event.EventData.Data[$_] -eq $thisInterfaceDescription })
 
-                                if ($XMLFWEvent.Event.EventData.Data[$interfaceIndex]) {
+                                If ($XMLFWEvent.Event.EventData.Data[$interfaceIndex]) {
                                     It "[SUT: $nodeName]-[Adapter: $($thisRDMAEnabledAdapter.Name)]-[Log: System; EventID: 263] Should have the recommended firmware version for this driver" {
                                         $actualFWVersion | Should be $recommendedFWVersion
                                     }
@@ -423,7 +423,7 @@ Describe "[Modal Unit]" -Tag Modal {
         }
 
         # No Disabled Adapters need to be specified, so only run this if there are disabled adapters
-        if ($cfgRDMADisabledAdapters.Name -or $cfgVMSwitch.RDMADisabledAdapters.Name) {
+        If ($cfgRDMADisabledAdapters.Name -or $cfgVMSwitch.RDMADisabledAdapters.Name) {
             $DisabledNetAdapterAdvancedProperty = @()
             $DisabledNetAdapterAdvancedProperty += Get-NetAdapterAdvancedProperty -CimSession $nodeName -Name $cfgRDMADisabledAdapters.Name, $cfgVMSwitch.RDMADisabledAdapters.Name -ErrorAction SilentlyContinue
 
@@ -488,7 +488,7 @@ Describe "[Modal Unit]" -Tag Modal {
                         ($actNetQoSState.NetQoSPolicy | Where-Object Name -eq $thisPolicy.Name).Template | Should Be $thisPolicy.Template
                     }
                 }
-                elseif ($thisPolicy.NetDirectPortMatchCondition) {
+                ElseIf ($thisPolicy.NetDirectPortMatchCondition) {
                     ### Verify this NetQos policy uses the specified NetDirectPortMatchCondition
                     It "[SUT: $nodeName]-[NetQos: $($thisPolicy.Name)]-[Noun: NetQosPolicy] The NetQos policy named ($($thisPolicy.Name)) should be assigned port ($($thisPolicy.NetDirectPortMatchCondition))" {
                         ($actNetQoSState.NetQoSPolicy | Where-Object Name -eq $thisPolicy.Name).NetDirectPortMatchCondition | Should Be $thisPolicy.NetDirectPortMatchCondition
@@ -880,30 +880,39 @@ Describe "[Modal Unit]" -Tag Modal {
             $SMBBandwidthLimit   = Get-SmbBandwidthLimit -Category LiveMigration -CimSession $nodeName -ErrorAction SilentlyContinue
 
             If ($VMHostLiveMigration.VirtualMachineMigrationPerformanceOption -eq 'SMB') {
-                $AdapterLinkSpeed = ($actNetAdapterState.NetAdapter | Where-Object Name -eq $thisRDMAEnabledAdapter.Name).ReceiveLinkSpeed
+                $AggregateLinkSpeed = ($actNetAdapterState.NetAdapter | Where-Object Name -in $thisCfgVMSwitch.RDMAEnabledAdapters.Name | Measure-Object -Property TransmitLinkSpeed -Sum).Sum
 
                 $configData.NonNodeData.NetQos | Foreach-Object {
                     $thisPolicy = $_
 
-                    if ($thisPolicy.ContainsKey('NetDirectPortMatchCondition')) {
-                        Switch ($AdapterLinkSpeed) {
-                            # SMB Bandwidth Limit is being calculated MB and being compared to adapter speed which is in Gbps converted to MiBps
-
-                            {$_ -le 10000000000} {
-                                $expectedLimitMB = (((($thisPolicy.BandwidthPercentage / 100) * .6) * $AdapterLinkSpeed) / 8) / 1000000
-                                It "Should have a Live Migration limit of less than $expectedLimit MBps" {
-                                    $SMBBandwidthLimit.BytesPerSecond / 1MB | Should BeLessThan $expectedLimitMB + 1
+                    If ($thisPolicy.ContainsKey('NetDirectPortMatchCondition')) {
+                        # https://techcommunity.microsoft.com/t5/Failover-Clustering/Optimizing-Hyper-V-Live-Migrations-on-an-Hyperconverged/ba-p/396609
+                        # SMB Bandwidth Limit is in units of bytes (B) base 2 while adapter link speed is in units of bits (b) base 10
+                        # SMB Bandwidth Limit is applied at the system level controlling the aggregate bandwidth of all capable adapters
+                        # QoS reservations are applied per physical adapter
+                        $minimumLimitMB  = 750
+                        $computedLimitMB = [math]::Floor(($thisPolicy.BandwidthPercentage * 6295 * $AggregateLinkSpeed) / (100 * 10000 * 8 * 1MB))
+                        Switch ($AggregateLinkSpeed) {
+                            {$_ -lt 20000000000} {
+                                It "Aggregate link speed is less than 10Mbps and may impact Live migration performance and could be disruptive to Virtual Machine states" {
+                                    $false | Should be $true
                                 }
                             }
 
-                            {$_ -gt 10000000000} {
-                                $expectedLimitMB = (((($thisPolicy.BandwidthPercentage / 100) * .6) * $AdapterLinkSpeed) / 8) / 1000000
-                                It "Should have an Live Migration limit of 750 MBps" {
-                                    $SMBBandwidthLimit.BytesPerSecond / 1MB | Should BeLessThan $expectedLimitMB + 1
+                            {$_ -ge 20000000000} {
+                                It "Should have a Live Migration limit of at least $minimumLimitMB MBps" {
+                                    ($SMBBandwidthLimit.BytesPerSecond / 1MB) | Should BeGreaterThan ($minimumLimitMB - 1)
+                                }
+                                It "Should have a Live Migration limit no greater than $computedLimitMB MBps" {
+                                    ($SMBBandwidthLimit.BytesPerSecond / 1MB) | Should BeLessThan ($computedLimitMB + 1)
                                 }
                             }
 
-                            default { It 'Link speed was not identified and so optimal live migration limit could not be determined' { $false | Should be $true } }
+                            default {
+                                It 'Link speed was not identified and so optimal live migration limit could not be determined' {
+                                    $false | Should be $true
+                                }
+                            }
                         }
                     }
                 }

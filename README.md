@@ -52,7 +52,7 @@ This tool aims to validate the DCB configuration on the Windows nodes by taking 
 
 > :heavy_exclamation_mark: ****Important****: The validation of the network fabric is out-of-scope for this tool
 
-Here's a quick introductory video from Microsoft Premier Field Engineer, Jan Mortenson.
+Here's a quick introductory video from Microsoft Premier Field Engineer, Jan Mortensen.
 [![Alt text](http://img.youtube.com/vi/NXK_amScDDE/0.jpg)](https://www.youtube.com/embed/NXK_amScDDE)
 
 # Scenarios
@@ -89,9 +89,9 @@ Besides the on-screen feedback provided by the tool, results of the tests are st
 
 ### Simple report using PowerBi
 
-You can also use PowerBi to make displaying results easy.  For more information, please see [Using the Results](Results) or see this video from Microsoft Premier Field Engineer, Jan Mortenson.
+You can also use PowerBi to make displaying results easy.  For more information, please see [Using the Results](Results) or see this video from Microsoft Premier Field Engineer, Jan Mortensen.
 
-[![Alt text](http://img.youtube.com/vi/FZcrdZM176Y/0.jpg)](https://www.youtube.com/embed/FZcrdZM176Y
+[![Alt text](http://img.youtube.com/vi/FZcrdZM176Y/0.jpg)](https://www.youtube.com/embed/FZcrdZM176Y)
 
 ## Interpreting Test Results
 
@@ -179,7 +179,7 @@ By running Get-NetAdapterBinding on the SUT you can see this for yourself.
 
 ![](helpers/pics/GetNetAdapterBinding.png)
 
-Here's another video from Microsoft Premier Field Engineer, Jan Mortenson, who reviews and validates errors found with Validate-DCB
+Here's another video from Microsoft Premier Field Engineer, Jan Mortensen, who reviews and validates errors found with Validate-DCB
 
 [![Alt text](http://img.youtube.com/vi/cC1uACvhPBs/0.jpg)](https://www.youtube.com/embed/cC1uACvhPBs)
 
@@ -218,7 +218,7 @@ To complete our example above, we need to resolve the configuration issue.  To d
 
 Validate-DCB is now published in the PowerShell gallery.  Please use ```Install-Module Validate-DCB``` from a system with internet connectivity.
 
-For disconnected systems, use ```Save-Module -Name Validate-DCB -Path c:\temp\Validate-DCB``` then move the modules in c:\temp\Validate-DCB to your disconnected system. Here's a video from Microsoft Premier Field Engineer, Jan Mortenson.
+For disconnected systems, use ```Save-Module -Name Validate-DCB -Path c:\temp\Validate-DCB``` then move the modules in c:\temp\Validate-DCB to your disconnected system. Here's a video from Microsoft Premier Field Engineer, Jan Mortensen.
 
 [![Alt text](http://img.youtube.com/vi/T_VzGte3KJc/0.jpg)](https://www.youtube.com/embed/T_VzGte3KJc)
 

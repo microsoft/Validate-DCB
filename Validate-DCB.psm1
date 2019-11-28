@@ -6,6 +6,7 @@ function Assert-DCBValidation {
 
     .DESCRIPTION
     Note: Validate-DCB is now an alias for Assert-DCBValidation to avoid a warning when importing the module using an unapproved verb
+    Note: Validate-DCB now includes a UI. The only required command needed is 'Validate-DCB'
 
     Validate-DCB allows you to:
         - Validate the expected configuration on one to N number of systems or clusters
@@ -15,9 +16,10 @@ function Assert-DCBValidation {
         - The configuration doubles as DCB documentation for the expected configuration of your systems.
         - Answer the question "What Changed?" when faced with an operational issue
 
-        This tool does not modify your system. As such, you can re-validate the configuration as many times as desired.
+        This tool does not modify your system unless you specify the deploy parameter. As such, you can re-validate the configuration as many times as desired.
 
     .PARAMETER LaunchUI
+    <<This parameter will now run by default>>
     Use to launch a user interface to help create a configuration file.  Use the following values to specify one of the example files.
     Optionally allows you to deploy the configuration using Azure Automation at the end.
 
@@ -42,6 +44,7 @@ function Assert-DCBValidation {
         Use this to attempt all tests even if a test failure is detected.
 
     .PARAMETER Deploy
+        <<not a default parameter>> 
         Deploy the configuration specified in the config file to the nodes.
         By default, Validate-DCB validates the configuration.  With this option, it will modify your system.
 
@@ -208,12 +211,12 @@ function Assert-DCBValidation {
             $GlobalResults = Invoke-Pester -Script $testFile -Tag 'Global' -OutputFile $outputFile -OutputFormat NUnitXml -PassThru
             $GlobalResults | Select-Object -Property TagFilter, Time, TotalCount, PassedCount, FailedCount, SkippedCount, PendingCount | Format-Table -AutoSize
 
-            If ($global:deploy) { Publish-Automation }
-
             If ($GlobalResults.FailedCount -ne 0) {
                 Write-Host 'Failures in Global exist.  Please resolve failures prior to moving on'
                 Break
             }
+            
+            If ($global:deploy) { Publish-Automation }
 
             If ($PSBoundParameters.ContainsKey('reportPath')) { $outputFile = "$reportPath\$startTime-Modal-unit.xml" }
             Else { $outputFile = "$here\Results\$startTime-Modal-unit.xml" }

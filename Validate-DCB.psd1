@@ -12,7 +12,7 @@
 RootModule = 'Validate-DCB.psm1'
 
 # Version number of this module.
-ModuleVersion = '20191128.2.2.79'
+ModuleVersion = '20191128.2.2.82'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()

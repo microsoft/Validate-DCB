@@ -211,6 +211,7 @@ function Assert-DCBValidation {
             $GlobalResults = Invoke-Pester -Script $testFile -Tag 'Global' -OutputFile $outputFile -OutputFormat NUnitXml -PassThru
             $GlobalResults | Select-Object -Property TagFilter, Time, TotalCount, PassedCount, FailedCount, SkippedCount, PendingCount | Format-Table -AutoSize
 
+            #Note: Do not move below publish-automation. See Issue #26
             If ($GlobalResults.FailedCount -ne 0) {
                 Write-Host 'Failures in Global exist.  Please resolve failures prior to moving on'
                 Break

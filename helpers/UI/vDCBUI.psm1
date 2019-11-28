@@ -389,9 +389,9 @@ function vDCBUI {
             [String] $message = "This field is required."
         )
 
-        if ([String]::IsNullOrEmpty($ctl.text)) {
+        If ([String]::IsNullOrEmpty($ctl.text)) {
             $ctl.Template = $form.FindResource("ErrorTemplate")
-            if ([String]::IsNullOrEmpty($ctl.Tooltip)) {
+            If ([String]::IsNullOrEmpty($ctl.Tooltip)) {
                 $ctl.tooltip = "Invalid value: this field is required.`r`nDetail: $message"
             } 
             return $true 
@@ -406,9 +406,9 @@ function vDCBUI {
     param(
         [Object] $ctl
     )    
-        if ([Regex]::Match($ctl.text, "^\d{1,4}$").Success) {
+        If ([Regex]::Match($ctl.text, "^\d{1,4}$").Success) {
             $value = [Int32]::Parse($ctl.text)
-            if ($value -le 4096 -and $value -ge 1) {
+            If ($value -le 4096 -and $value -ge 1) {
                 $ctl.Template=$global:defaulttxttemplate
                 $ctl.tooltip = ""
                 return $false
@@ -437,7 +437,7 @@ function vDCBUI {
         $Nodes | Foreach-Object {
             $thisNode = $_
             
-            if ($thisCount -eq $Nodes.Count) {
+            If ($thisCount -eq $Nodes.Count) {
                 $NodesConcat += "`'$thisNode`'"
             }
             Else {
@@ -461,7 +461,7 @@ function vDCBUI {
             }
         }
 
-        if ( $cmbLBAlgorithm.text -ne 'Hyper-V Port') { $LBAlgorithm = 'Dynamic' }
+        If ( $cmbLBAlgorithm.text -ne 'Hyper-V Port') { $LBAlgorithm = 'Dynamic' }
         else { $LBAlgorithm = 'HyperVPort' }
 
         "`$Nodes = $NodesConcat `r`n", "`$Nodes | ForEach-Object {"  | Out-File $txtConfigFilePath.text -append
@@ -547,7 +547,7 @@ function vDCBUI {
         '$NonNodeData = @{', "`tNetQoS = @(" | Out-File $txtConfigFilePath.text -append
 
         If ($chkEnableDCB.isChecked) {
-            if ($chkDCBClusterEnabled.isChecked -eq $true) {
+            If ($chkDCBClusterEnabled.isChecked -eq $true) {
                 $policies += @(
                     @{ Name = $txtDCBClusterPolicy.text ; PriorityValue8021Action = $txtDCBClusterPriority.text ; Template = $cmbClusterTemplate.text ; BandwidthPercentage = $txtDCBClusterBandwidth.text }
                 )
@@ -555,7 +555,7 @@ function vDCBUI {
                 "`t`t@{ Name = `'$($txtDCBClusterPolicy.text)`' ; PriorityValue8021Action = $($txtDCBClusterPriority.text) ; Template = `'$($cmbClusterTemplate.text)`' ; BandwidthPercentage = $($txtDCBClusterBandwidth.text) ; Algorithm = 'ETS' }" | Out-File $txtConfigFilePath.text -append
             }
 
-            if ($chkDCBSMBEnabled.isChecked -eq $true) {
+            If ($chkDCBSMBEnabled.isChecked -eq $true) {
                 $policies += @(
                     @{ Name = $txtDCBSMBPolicy.text ; PriorityValue8021Action = $txtDCBSMBPriority.text ; NetDirectPortMatchCondition = $txtDCBSMBRDMAPort.text ; BandwidthPercentage = $txtDCBSMBBandwidth.text }
                 )
@@ -563,7 +563,7 @@ function vDCBUI {
                 "`t`t@{ Name = `'$($txtDCBSMBPolicy.text)`' ; PriorityValue8021Action = $($txtDCBSMBPriority.text) ; NetDirectPortMatchCondition = $($txtDCBSMBRDMAPort.text) ; BandwidthPercentage = $($txtDCBSMBBandwidth.text) ; Algorithm = 'ETS' }" | Out-File $txtConfigFilePath.text -append
             }
 
-            if ($chkDCBDefaultEnabled.isChecked -eq $true) {
+            If ($chkDCBDefaultEnabled.isChecked -eq $true) {
                 $policies += @(
                     @{ Name = $txtDCBDefaultPolicy.text ; PriorityValue8021Action = $txtDCBDefaultPriority.text ; Template = $cmbDefaultTemplate.text ; BandwidthPercentage = $txtDCBDefaultBandwidth.text }
                 )
@@ -578,7 +578,7 @@ function vDCBUI {
 
         "`t)" | Out-File $txtConfigFilePath.text -append
 
-        if ($chkDeploy.isChecked) {
+        If ($chkDeploy.isChecked) {
             $Automation += @(
                 @{ ResourceGroupName = $txtResourceGroupName.text ; AutomationAccountName = $AutomationAccountName.text }
             )
@@ -618,22 +618,22 @@ function vDCBUI {
 
         $leaf       = $ctl.text.Split('\')[$ctl.text.Split('\').Count - 1]
         
-        if (($leaf) -and $leaf -ne $ctl.text) {
+        If (($leaf) -and $leaf -ne $ctl.text) {
             $parentPath = $ctl.text -replace $leaf, $null
         }
 
-        if ($parentPath) {
+        If ($parentPath) {
             $parentPathExists = Test-Path $parentPath
         }
     
-        if ($extension -eq 'ps1' -and $parentPathExists -eq $true) {
+        If ($extension -eq 'ps1' -and $parentPathExists -eq $true) {
             $ctl.tooltip = $message
             $ctl.Template = $global:defaulttxttemplate
             return $false
         }
         else {
             $ctl.Template = $form.FindResource("ErrorTemplate")
-            if ([String]::IsNullOrEmpty($ctl.Tooltip)) {
+            If ([String]::IsNullOrEmpty($ctl.Tooltip)) {
                 $ctl.tooltip = "Invalid value: this field is required.`r`nDetail: $message"
             } 
             return $true 
@@ -645,7 +645,7 @@ function vDCBUI {
         $ClusterNodes = @()
         $Cluster = Get-ClusterNode -Cluster $ctl.text -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
 
-        if ($ctl.text -eq (($Cluster.Cluster).Name | Select-Object -Unique)) {
+        If ($ctl.text -eq (($Cluster.Cluster).Name | Select-Object -Unique)) {
             $Cluster | Foreach-Object {
                 $global:Nodes = $_.Name
 
@@ -679,10 +679,10 @@ function vDCBUI {
             [String] $message
         )
 
-        if ($Checkbox.IsChecked -eq $true) {
+        If ($Checkbox.IsChecked -eq $true) {
             $vSwitchTxt += ValidateNotBlank $ctl
             
-            if ($vSwitchTxt) {
+            If ($vSwitchTxt) {
                 $ctl.tooltip = "This field is required.`r`nDetail: $message"
                 $ctl.Template = $form.FindResource("ErrorTemplate")
                 return $true
@@ -720,7 +720,7 @@ function vDCBUI {
             [String] $message
         )
 
-        if ($Checkbox.IsChecked -eq $true) { $ctl.isEnabled = $true }
+        If ($Checkbox.IsChecked -eq $true) { $ctl.isEnabled = $true }
         else { $ctl.isEnabled = $false }
     }
 
@@ -734,7 +734,7 @@ function vDCBUI {
         Try {
             [int] $value = $ctl.text
 
-            if ($value -ge $MinPriority -and $value -le $MaxPriority) {
+            If ($value -ge $MinPriority -and $value -le $MaxPriority) {
                 $ctl.Template = $global:defaulttxttemplate
                 return $false
             }
@@ -761,7 +761,7 @@ function vDCBUI {
         Try {
             [int] $value = $ctl.text
 
-            if ($value -lt $RangeStart -or $value -gt $RangeEnd) {
+            If ($value -lt $RangeStart -or $value -gt $RangeEnd) {
                 $ctl.tooltip = "This field must specified a value between $RangeStart and $RangeEnd"
                 $ctl.Template = $form.FindResource("ErrorTemplate")
 
@@ -927,7 +927,7 @@ function vDCBUI {
         $results += ValidateConfigFile $txtConfigFilePath "This field must contain the path and filename of the configuration file to be generated."
 
         foreach ($result in $results) {
-            if ($result) {
+            If ($result) {
                 $btnNext1.IsEnabled = $false
                 return
             }
@@ -938,7 +938,7 @@ function vDCBUI {
     $ValidatePanel3 = {
         $results = @()
 
-        if ($SystemNames.items.count -ge 1) {
+        If ($SystemNames.items.count -ge 1) {
             $txtHostorCluster.Template=$global:defaulttxttemplate
         }
         else {
@@ -946,7 +946,7 @@ function vDCBUI {
         }
 
         foreach ($result in $results) {
-            if ($result) {
+            If ($result) {
                 $btnNext1.IsEnabled = $false
                 return
             }
@@ -961,7 +961,7 @@ function vDCBUI {
         $results += ValidateChkBoxwTxt -CheckBox $chkvSwAttached -ctl $txtvSw1vNIC1Name
         $results += ValidateNotBlank $txtAdpt1
 
-        if ($chkvSwAttached.IsChecked -eq $false) {
+        If ($chkvSwAttached.IsChecked -eq $false) {
             $txtvSw1Name.IsEnabled           = $false
             $chkvSw1TeamingEnabled.IsEnabled = $false
             $chkvSw1SRIOVEnabled.IsEnabled   = $false
@@ -980,7 +980,7 @@ function vDCBUI {
             #$txtvSw1vNIC1Name.Template=$form.FindResource("ErrorTemplate")
             $results += ValidateNotBlank $txtvSw1vNIC1Name
 
-            if ($chkvSw1TeamingEnabled.IsChecked -eq $true) {
+            If ($chkvSw1TeamingEnabled.IsChecked -eq $true) {
                 <#
                 $txtAdpt2.IsEnabled = $true
                 $txtAdpt3.IsEnabled = $true
@@ -995,27 +995,27 @@ function vDCBUI {
                 $txtAdpt3VLAN.IsEnabled = $true
                 $txtAdpt4VLAN.IsEnabled = $true
     #>
-                if ($txtAdpt2.text -ne '') {
+                If ($txtAdpt2.text -ne '') {
                     $results += ValidateNotBlank $txtvSw1vNIC2Name
 
-                    if ($chkvSw1RDMAEnabled.IsChecked -eq $true -and $cmbRDMAType.text -eq 'RoCE') {
+                    If ($chkvSw1RDMAEnabled.IsChecked -eq $true -and $cmbRDMAType.text -eq 'RoCE') {
                         ValidateVLAN -ctl $txtAdpt2VLAN
                     }
                 }
 
-                if ($txtAdpt3.text -ne '') {
+                If ($txtAdpt3.text -ne '') {
                     $results += ValidateNotBlank $txtvSw1vNIC3Name
 
-                    if ($chkvSw1RDMAEnabled.IsChecked -eq $true -and $cmbRDMAType.text -eq 'RoCE') {
+                    If ($chkvSw1RDMAEnabled.IsChecked -eq $true -and $cmbRDMAType.text -eq 'RoCE') {
                         ValidateVLAN -ctl $txtAdpt3VLAN
                     }
                 }
 
-                if ($txtAdpt4.text -ne '') {
+                If ($txtAdpt4.text -ne '') {
                     $txtvSw1vNIC4Name.Template=$form.FindResource("ErrorTemplate")
                     $results += ValidateNotBlank $txtvSw1vNIC4Name
 
-                    if ($chkvSw1RDMAEnabled.IsChecked -eq $true -and $cmbRDMAType.text -eq 'RoCE') {
+                    If ($chkvSw1RDMAEnabled.IsChecked -eq $true -and $cmbRDMAType.text -eq 'RoCE') {
                         ValidateVLAN -ctl $txtAdpt4VLAN
                     }
                 }
@@ -1035,7 +1035,7 @@ function vDCBUI {
         ValidateNumberRange -ctl $txtvSw1EncapOverhead -RangeStart 0 -RangeEnd 160
 
         foreach ($result in $results) {
-            if ($result) {
+            If ($result) {
                 $btnNext1.IsEnabled = $false
                 return
             }
@@ -1049,14 +1049,14 @@ function vDCBUI {
         [uint16] $global:reservationTotal = 0
         [uint16] $global:DefaultReservation = 0
 
-        if ($chkvSw1RDMAEnabled.IsChecked) {
+        If ($chkvSw1RDMAEnabled.IsChecked) {
             $lblRDMAEnabled.Content = 'True'
         }
         Else {
             $lblRDMAEnabled.Content = 'False'
         }
 
-        if ($cmbRDMAType.isEnabled -eq $true -and $cmbRDMAType.text -eq 'RoCE') {
+        If ($cmbRDMAType.isEnabled -eq $true -and $cmbRDMAType.text -eq 'RoCE') {
             $lblDCBRequired.Content = 'True'
             $lblRDMAType.Content = 'RoCE'
 
@@ -1092,7 +1092,7 @@ function vDCBUI {
         }
 
         foreach ($result in $results) {
-            if ($result) {
+            If ($result) {
                 $btnNext1.IsEnabled = $false
                 return
             }
@@ -1104,13 +1104,13 @@ function vDCBUI {
     $ValidatePanel6 = {
         $results = @()
 
-        if ($btnNext1.Visibility -eq 'Visible') { $btnNext1.Visibility = 'Hidden' }
-        if ($btnExportAndDeploy.Visibility -eq 'Hidden') { $btnExportAndDeploy.Visibility = 'Visible' }
+        If ($btnNext1.Visibility -eq 'Visible') { $btnNext1.Visibility = 'Hidden' }
+        If ($btnExportAndDeploy.Visibility -eq 'Hidden') { $btnExportAndDeploy.Visibility = 'Visible' }
 
         $results += ValidateNotBlank   $txtConfigFilePath "This field must contain the path and filename of the configuration file to be generated."
         $results += ValidateConfigFile $txtConfigFilePath "This field must contain the path and filename of the configuration file to be generated."
         
-        if ($chkDeploy.isChecked) {
+        If ($chkDeploy.isChecked) {
             $results += ValidateNotBlank $txtAutomationAccountName "This field must contain the Azure Automation Account Name."
             $results += ValidateNotBlank $txtResourceGroupName "This field must contain the Azure Resource Group containing the Azure Automation Account Name."
             $results += ValidateNotBlank $txtAutomationRoleName "This field must contain the Azure Automation Account Name."
@@ -1119,7 +1119,7 @@ function vDCBUI {
         }
 
         foreach ($result in $results) {
-            if ($result) {
+            If ($result) {
                 $btnNext1.IsEnabled = $false
                 return
             }
@@ -1140,8 +1140,8 @@ function vDCBUI {
     function Set-Panel {
         param( $PanelIndex )
 
-        if ($panelIndex -eq 1) { $mark1.Visibility = "Visible"; $panel1.Visibility = "Visible"; } else { $mark1.Visibility = "Hidden"; $panel1.Visibility = "Hidden" }
-        if ($panelIndex -eq 2) { 
+        If ($panelIndex -eq 1) { $mark1.Visibility = "Visible"; $panel1.Visibility = "Visible"; } else { $mark1.Visibility = "Hidden"; $panel1.Visibility = "Hidden" }
+        If ($panelIndex -eq 2) { 
             #Temporary
             $global:panelIndex = 3
             Set-Panel -PanelIndex $global:panelIndex
@@ -1151,12 +1151,12 @@ function vDCBUI {
         } 
         #else { $mark2.Visibility = "Hidden"; $panel2.Visibility = "Hidden" }
 
-        if ($panelIndex -eq 3) { $mark3.Visibility = "Visible"; $panel3.Visibility = "Visible";  invoke-command $ValidatePanel3 } else { $mark3.Visibility = "Hidden"; $panel3.Visibility = "Hidden" }
-        if ($panelIndex -eq 4) { $mark4.Visibility = "Visible"; $panel4.Visibility = "Visible";  invoke-command $ValidatePanel4 } else { $mark4.Visibility = "Hidden"; $panel4.Visibility = "Hidden" }
-        if ($panelIndex -eq 5) { $mark5.Visibility = "Visible"; $panel5.Visibility = "Visible";  invoke-command $ValidatePanel5 } else { $mark5.Visibility = "Hidden"; $panel5.Visibility = "Hidden" }
-        if ($panelIndex -eq 6) { $mark6.Visibility = "Visible"; $panel6.Visibility = "Visible";  invoke-command $ValidatePanel6 } else { $mark6.Visibility = "Hidden"; $panel6.Visibility = "Hidden" }
+        If ($panelIndex -eq 3) { $mark3.Visibility = "Visible"; $panel3.Visibility = "Visible";  invoke-command $ValidatePanel3 } else { $mark3.Visibility = "Hidden"; $panel3.Visibility = "Hidden" }
+        If ($panelIndex -eq 4) { $mark4.Visibility = "Visible"; $panel4.Visibility = "Visible";  invoke-command $ValidatePanel4 } else { $mark4.Visibility = "Hidden"; $panel4.Visibility = "Hidden" }
+        If ($panelIndex -eq 5) { $mark5.Visibility = "Visible"; $panel5.Visibility = "Visible";  invoke-command $ValidatePanel5 } else { $mark5.Visibility = "Hidden"; $panel5.Visibility = "Hidden" }
+        If ($panelIndex -eq 6) { $mark6.Visibility = "Visible"; $panel6.Visibility = "Visible";  invoke-command $ValidatePanel6 } else { $mark6.Visibility = "Hidden"; $panel6.Visibility = "Hidden" }
         
-        <#if ($panelIndex -eq 9) { 
+        <#If ($panelIndex -eq 9) { 
             $mark9.Visibility = "Visible"; 
             $panel9.Visibility = "Visible"; 
             $btnNext1.Content = "Deploy"
@@ -1169,7 +1169,7 @@ function vDCBUI {
         }
         #>
 
-        #if ($panelIndex -eq 10) { $global:Deploy = $true; $form.Close() }
+        #If ($panelIndex -eq 10) { $global:Deploy = $true; $form.Close() }
     }
 
 #region Main
@@ -1204,7 +1204,7 @@ function vDCBUI {
         
         Set-Panel -PanelIndex $global:panelIndex;
                 
-        if ($global:panelIndex -eq 1) { 
+        If ($global:panelIndex -eq 1) { 
             $btnBack1.IsEnabled = $false
         }
     })
@@ -1219,7 +1219,7 @@ function vDCBUI {
 
         Set-Panel -PanelIndex $global:panelIndex;
 
-        if ($global:panelIndex -gt 1) {
+        If ($global:panelIndex -gt 1) {
             $btnBack1.IsEnabled = $true
         }
     })
@@ -1243,7 +1243,7 @@ function vDCBUI {
         ClearDefaultObjText -Ctl $txtvSw1Name
         ClearDefaultObjText -Ctl $txtvSw1vNIC1Name
 
-        if ($chkvSw1TeamingEnabled.IsChecked -eq $true) {
+        If ($chkvSw1TeamingEnabled.IsChecked -eq $true) {
             $txtAdpt2.IsEnabled = $true
             $txtAdpt3.IsEnabled = $true
             $txtAdpt4.IsEnabled = $true
@@ -1343,7 +1343,7 @@ function vDCBUI {
         $txtAdpt3VLAN.Template = $global:defaulttxttemplate
         $txtAdpt4VLAN.Template = $global:defaulttxttemplate
 
-        if ($cmbRDMAType.text -eq 'RoCE') {
+        If ($cmbRDMAType.text -eq 'RoCE') {
             $txtAdpt1VLAN.Template = $form.FindResource("ErrorTemplate")
         }
     })
@@ -1423,7 +1423,7 @@ function vDCBUI {
     $chkvSw1RDMAEnabled.Add_Checked({
         ValidateChkBoxwCombo -CheckBox $chkvSw1RDMAEnabled -ctl $cmbRDMAType
 
-        if ($cmbRDMAType.text -eq 'RoCE') {
+        If ($cmbRDMAType.text -eq 'RoCE') {
             ValidateVLAN -ctl $txtAdpt1VLAN
         }
     })
@@ -1446,23 +1446,23 @@ function vDCBUI {
     })
 
     $cmbRDMAType.Add_DropDownClosed({
-        if ($cmbRDMAType.text -eq 'RoCE') {
+        If ($cmbRDMAType.text -eq 'RoCE') {
             ValidateVLAN -ctl $txtAdpt1VLAN
         }
 
-        if ($chkvSwAttached.IsChecked -eq $true -and $cmbRDMAType.text -eq 'RoCE' -and $txtAdpt2.text -ne '') {
+        If ($chkvSwAttached.IsChecked -eq $true -and $cmbRDMAType.text -eq 'RoCE' -and $txtAdpt2.text -ne '') {
             ValidateVLAN -ctl $txtAdpt2VLAN
         }
 
-        if ($chkvSwAttached.IsChecked -eq $true -and $cmbRDMAType.text -eq 'RoCE' -and $txtAdpt3.text -ne '') {
+        If ($chkvSwAttached.IsChecked -eq $true -and $cmbRDMAType.text -eq 'RoCE' -and $txtAdpt3.text -ne '') {
             ValidateVLAN -ctl $txtAdpt3VLAN
         }
 
-        if ($chkvSwAttached.IsChecked -eq $true -and $cmbRDMAType.text -eq 'RoCE' -and $txtAdpt4.text -ne '') {
+        If ($chkvSwAttached.IsChecked -eq $true -and $cmbRDMAType.text -eq 'RoCE' -and $txtAdpt4.text -ne '') {
             ValidateVLAN -ctl $txtAdpt4VLAN
         }
 
-        if ($cmbRDMAType.text -eq 'iWARP') {
+        If ($cmbRDMAType.text -eq 'iWARP') {
             $txtAdpt1VLAN.Template = $global:defaulttxttemplate
             $txtAdpt2VLAN.Template = $global:defaulttxttemplate
             $txtAdpt3VLAN.Template = $global:defaulttxttemplate
@@ -1483,7 +1483,7 @@ function vDCBUI {
     $btnResolveHostorCluster.Add_Click({
         $resolved = ValidateHostorCluster $txtHostorCluster
 
-        if ($resolved) {
+        If ($resolved) {
             $txtHostorCluster.text = ''
         }        
         
@@ -1492,7 +1492,7 @@ function vDCBUI {
         #TODO: Add status text box that states please wait while resolving systems, or duplicate entry, etc.
 
         $resolved | ForEach-Object {
-            if (!($_.Nodename -in $SystemNames.Items.SystemName)) {
+            If (!($_.Nodename -in $SystemNames.Items.SystemName)) {
                 $SystemNames.items.Add(
                     [pscustomobject] @{
                         SystemName  = $_.NodeName

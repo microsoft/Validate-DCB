@@ -4,7 +4,7 @@
         [string] $nodeName
     )
 
-    if ($PSBoundParameters.ContainsKey('nodeName')) { 
+    If ($PSBoundParameters.ContainsKey('nodeName')) { 
         $driverName = Get-NetAdapter -Name $NetAdapterName -CimSession $nodeName | Select-Object DriverFileName
     }
     else {
@@ -69,10 +69,10 @@ Configuration DscMetaConfigs
 
     # https://docs.microsoft.com/en-us/azure/automation/automation-dsc-onboarding#physicalvirtual-windows-machines-on-premises-or-in-a-cloud-other-than-azureaws
 
-    if (!$NodeConfigurationName -or $NodeConfigurationName -eq '') { $ConfigurationNames = $null }
+    If (!$NodeConfigurationName -or $NodeConfigurationName -eq '') { $ConfigurationNames = $null }
     else { $ConfigurationNames = @($NodeConfigurationName)}
 
-    if ($ReportOnly){ $RefreshMode = 'PUSH' }
+    If ($ReportOnly){ $RefreshMode = 'PUSH' }
     else { $RefreshMode = 'PULL' }
 
     Node $ComputerName {
@@ -86,7 +86,7 @@ Configuration DscMetaConfigs
             ConfigurationModeFrequencyMins = $ConfigurationModeFrequencyMins
         }
 
-        if (!$ReportOnly) {
+        If (!$ReportOnly) {
             ConfigurationRepositoryWeb AzureAutomationStateConfiguration {
                 ServerUrl          = $RegistrationUrl
                 RegistrationKey    = $RegistrationKey
@@ -126,7 +126,7 @@ Function Publish-Automation {
 
             $moduleURI = Find-Module -Name $module -ErrorAction SilentlyContinue
 
-            if ($moduleURI) {
+            If ($moduleURI) {
                 Write-Output "-----Importing $Module into the Azure Automation account"
                 $moduleImport = Import-AzureRmAutomationModule -Name $module -ContentLinkUri "$($moduleURI.RepositorySourceLocation)/Package/$module" @AutomationAcctParams
     
@@ -155,7 +155,7 @@ Function Publish-Automation {
         }
     }
 
-    if ($failedImport) { break }
+    If ($failedImport) { break }
 
     Write-Output "Generating MOF for Azure Automation"
     NetworkConfig -OutputPath "$here\Results\MOFs" -ConfigurationData $configData | Out-Null

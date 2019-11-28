@@ -11,4 +11,4 @@ $res = Invoke-Pester -Path ".\tests\build\unit" -OutputFormat NUnitXml -OutputFi
 
 (New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path $testResultPath))
 
-if ($res.FailedCount -gt 0) { throw "$($res.FailedCount) tests failed." }
+If ($res.FailedCount -gt 0) { throw "$($res.FailedCount) tests failed." }

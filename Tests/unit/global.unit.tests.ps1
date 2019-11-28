@@ -485,7 +485,7 @@ Describe "[Global Unit]" -Tag Launch_Deploy {
                 $module.Name | Should Not BeNullOrEmpty
             }
 
-            if ($_.ContainsKey('ModuleVersion')) {
+            If ($_.ContainsKey('ModuleVersion')) {
                 It "[Global Unit]-[TestHost: ${env:ComputerName}] Must be at least version $($_.ModuleVersion)" {
                     $module.version -ge $_.ModuleVersion | Should be $true
                 }

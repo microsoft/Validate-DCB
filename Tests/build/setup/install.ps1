@@ -9,7 +9,7 @@ $ModuleManifest = Test-ModuleManifest .\$($env:RepoName).psd1 -ErrorAction Silen
 $repoRequiredModules = $ModuleManifest.RequiredModules.Name
 $repoRequiredModules += $ModuleManifest.PrivateData.PSData.ExternalModuleDependencies
 
-if ($repoRequiredModules) { $PowerShellModules += $repoRequiredModules }
+If ($repoRequiredModules) { $PowerShellModules += $repoRequiredModules }
 
 # This section is taken care of by Invoke-AppVeyorInstallTask
 <#[string[]]$PackageProviders = @('NuGet', 'PowerShellGet')
@@ -25,14 +25,14 @@ ForEach ($Provider in $PackageProviders) {
 
 $serverFeatureList = @('Hyper-V')
 
-if ($PowerShellModules -contains 'FailoverClusters') {
+If ($PowerShellModules -contains 'FailoverClusters') {
     $serverFeatureList += 'RSAT-Clustering-Mgmt', 'RSAT-Clustering-PowerShell'
 }
 
 $BuildSystem = Get-CimInstance -ClassName 'Win32_OperatingSystem'
 
 ForEach ($Module in $PowerShellModules) {
-    if ($Module -eq 'FailoverClusters') {
+    If ($Module -eq 'FailoverClusters') {
         Switch -Wildcard ($BuildSystem.Caption) {
             '*Windows 10*' {
                 Write-Output 'Build System is Windows 10'

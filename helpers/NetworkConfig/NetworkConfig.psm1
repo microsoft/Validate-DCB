@@ -1,5 +1,7 @@
 <#TODO: Add check or installation of required modules
     - IovEnabled in xVMSwitch - xVMSwitch doesn't support SR-IOV
+
+    Also add check in Global for AzureRM.Automation Module for deployment (needed to stuff config in Azure Automation)
 #> 
 
 Configuration NetworkConfig {
@@ -10,6 +12,7 @@ Configuration NetworkConfig {
         $firstNode = ($AllNodes.Where{$_.Role -eq $thisRole} | Select-Object -First 1).NodeName
 
         Node "$thisRole" {
+            #TODO: Add FailoverClustering and Hyper-V
             WindowsFeature 'Data-Center-Bridging' {
                 Name = 'Data-Center-Bridging'
                 Ensure = 'Present'
@@ -39,7 +42,7 @@ Configuration NetworkConfig {
             $configData.NonNodeData.NetQos | Foreach-Object {
                 $thisPolicy = $_
 
-                if ($thisPolicy.ContainsKey('template')) {
+                If ($thisPolicy.ContainsKey('template')) {
                     DCBNetQosPolicy $thisPolicy.Name {
                         Ensure   = 'Present'
                         Name     = $thisPolicy.Name
@@ -56,7 +59,7 @@ Configuration NetworkConfig {
                     }
                 }
 
-                if ($thisPolicy.Name -ne 'Default') {
+                If ($thisPolicy.Name -ne 'Default') {
                     DCBNetQosTrafficClass $thisPolicy.Name {
                         Ensure = 'Present'
                         Name   = $thisPolicy.Name
@@ -132,10 +135,10 @@ Configuration NetworkConfig {
             # Virtual Switch Config
             foreach ($thisVMSwitch in $VMSwitch) {
                 #region Resolving values for optional params
-                if ($thisVMSwitch.LoadBalancingAlgorithm) { $loadBalancingAlgorithm = $thisVMSwitch.LoadBalancingAlgorithm}
+                If ($thisVMSwitch.LoadBalancingAlgorithm) { $loadBalancingAlgorithm = $thisVMSwitch.LoadBalancingAlgorithm}
                 else {$loadBalancingAlgorithm = 'HyperVPort'}
 
-                if ($thisVMSwitch.IovEnabled) { $IovEnabled = $thisVMSwitch.IovEnabled}
+                If ($thisVMSwitch.IovEnabled) { $IovEnabled = $thisVMSwitch.IovEnabled}
                 else {$IovEnabled = $true}
                 #endregion
 
@@ -201,7 +204,7 @@ Configuration NetworkConfig {
                         DependsOn = "[xVMNetworkAdapter]$($thisRDMAEnabledAdapter.VMNetworkAdapter)"
                     }
 
-                    if ($IovEnabled) {
+                    If ($IovEnabled) {
                         NetAdapterAdvancedProperty "$($thisRDMAEnabledAdapter.Name)-SRIOV" {
                             NetworkAdapterName = $thisRDMAEnabledAdapter.Name
                             RegistryKeyword = '*Sriov'
@@ -286,7 +289,7 @@ Configuration NetworkConfig {
 
                 ###Configure - Disabled RDMA on v or pNIC
                 foreach ($thisRDMADisabledAdapter in $thisVMSwitch.RDMADisabledAdapters) {
-                    if ($thisRDMADisabledAdapter.VMNetworkAdapter) {
+                    If ($thisRDMADisabledAdapter.VMNetworkAdapter) {
                         ###Configure - Create RDMA Disabled Host vNICs
                         xVMNetworkAdapter $thisRDMADisabledAdapter.VMNetworkAdapter {
                             Ensure = 'Present'
@@ -311,7 +314,7 @@ Configuration NetworkConfig {
                         }
                     }
 
-                    if ($thisRDMADisabledAdapter.Name) {
+                    If ($thisRDMADisabledAdapter.Name) {
                         NetAdapterRDMA $thisRDMADisabledAdapter.Name {
                             Name = $thisRDMADisabledAdapter.Name
                             Enabled = $false

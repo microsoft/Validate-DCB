@@ -206,7 +206,7 @@ Describe "[Modal Unit]" -Tag Modal {
                     }
 
                     'Mellanox' {
-                        if ($driverName[$driverName.Count - 1] -like 'mlx4*') {
+                        If ($driverName[$driverName.Count - 1] -like 'mlx4*') {
                             It "[SUT: $nodeName]-[Adapter: $($thisRDMAEnabledAdapter.Name)]-(Noun: NetAdapterAdvancedProperty) Miniport IPv4 RSC should be disabled" {
                                 (($actNetAdapterState.netAdapterAdvancedProperty | Where-Object Name -eq $thisRDMAEnabledAdapter.Name) | Where-Object RegistryKeyword -eq '*RscIPv4').RegistryValue | Should Be 0
                             }
@@ -254,7 +254,7 @@ Describe "[Modal Unit]" -Tag Modal {
 
                             $interfaceIndex = (0..($XMLFWEvent.Event.EventData.Data.Count - 1) | Where-Object { $XMLFWEvent.Event.EventData.Data[$_] -eq $thisInterfaceDescription })
 
-                            if ($XMLFWEvent.Event.EventData.Data[$interfaceIndex]) {
+                            If ($XMLFWEvent.Event.EventData.Data[$interfaceIndex]) {
                                 It "[SUT: $nodeName]-[Adapter: $($thisRDMAEnabledAdapter.Name)]-[Log: System; EventID: 263] Should have the recommended firmware version for this driver" {
                                     $actualFWVersion | Should be $recommendedFWVersion
                                 }
@@ -341,7 +341,7 @@ Describe "[Modal Unit]" -Tag Modal {
                         }
 
                         'Mellanox' {
-                            if ($driverName[$driverName.Count - 1] -like 'mlx4*') {
+                            If ($driverName[$driverName.Count - 1] -like 'mlx4*') {
                                 It "[SUT: $nodeName]-[Adapter: $($thisRDMAEnabledAdapter.Name)]-(Noun: NetAdapterAdvancedProperty) Miniport IPv4 RSC should be disabled" {
                                     (($actNetAdapterState.netAdapterAdvancedProperty | Where-Object Name -eq $thisRDMAEnabledAdapter.Name) | Where-Object RegistryKeyword -eq '*RscIPv4').RegistryValue | Should Be 0
                                 }
@@ -389,7 +389,7 @@ Describe "[Modal Unit]" -Tag Modal {
 
                                 $interfaceIndex = (0..($XMLFWEvent.Event.EventData.Data.Count - 1) | Where-Object { $XMLFWEvent.Event.EventData.Data[$_] -eq $thisInterfaceDescription })
 
-                                if ($XMLFWEvent.Event.EventData.Data[$interfaceIndex]) {
+                                If ($XMLFWEvent.Event.EventData.Data[$interfaceIndex]) {
                                     It "[SUT: $nodeName]-[Adapter: $($thisRDMAEnabledAdapter.Name)]-[Log: System; EventID: 263] Should have the recommended firmware version for this driver" {
                                         $actualFWVersion | Should be $recommendedFWVersion
                                     }
@@ -423,7 +423,7 @@ Describe "[Modal Unit]" -Tag Modal {
         }
 
         # No Disabled Adapters need to be specified, so only run this if there are disabled adapters
-        if ($cfgRDMADisabledAdapters.Name -or $cfgVMSwitch.RDMADisabledAdapters.Name) {
+        If ($cfgRDMADisabledAdapters.Name -or $cfgVMSwitch.RDMADisabledAdapters.Name) {
             $DisabledNetAdapterAdvancedProperty = @()
             $DisabledNetAdapterAdvancedProperty += Get-NetAdapterAdvancedProperty -CimSession $nodeName -Name $cfgRDMADisabledAdapters.Name, $cfgVMSwitch.RDMADisabledAdapters.Name -ErrorAction SilentlyContinue
 
@@ -885,7 +885,7 @@ Describe "[Modal Unit]" -Tag Modal {
                 $configData.NonNodeData.NetQos | Foreach-Object {
                     $thisPolicy = $_
 
-                    if ($thisPolicy.ContainsKey('NetDirectPortMatchCondition')) {
+                    If ($thisPolicy.ContainsKey('NetDirectPortMatchCondition')) {
                         Switch ($AdapterLinkSpeed) {
                             # SMB Bandwidth Limit is being calculated MB and being compared to adapter speed which is in Gbps converted to MiBps
 

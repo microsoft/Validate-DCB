@@ -887,22 +887,14 @@ Describe "[Modal Unit]" -Tag Modal {
 
                     If ($thisPolicy.ContainsKey('NetDirectPortMatchCondition')) {
                         Switch ($AdapterLinkSpeed) {
-                            # SMB Bandwidth Limit is being calculated MB and being compared to adapter speed which is in Gbps converted to MiBps
+                            # SMB Bandwidth Limit is being calculated and being compared to adapter speed which is in Gbps converted to B/s
 
-                            {$_ -le 10000000000} {
-                                $expectedLimitMB = (((($thisPolicy.BandwidthPercentage / 100) * .6) * $AdapterLinkSpeed) / 8) / 1000000
-                                It "Should have a Live Migration limit of less than $expectedLimitMB MBps" {
-                                    $SMBBandwidthLimit.BytesPerSecond / 1MB | Should BeLessThan $expectedLimitMB + 1
+                            {$_ -gt 0} {
+                                $expectedLimit = (((($thisPolicy.BandwidthPercentage / 100) * .6) * $AdapterLinkSpeed) / 8)
+                                It "Should have a Live Migration limit of $expectedLimit bytes per second" {
+                                    $SMBBandwidthLimit.BytesPerSecond | Should Be $expectedLimit
                                 }
                             }
-
-                            {$_ -gt 10000000000} {
-                                $expectedLimitMB = (((($thisPolicy.BandwidthPercentage / 100) * .6) * $AdapterLinkSpeed) / 8) / 1000000
-                                It "Should have an Live Migration limit of 750 MBps" {
-                                    $SMBBandwidthLimit.BytesPerSecond / 1MB | Should BeLessThan $expectedLimitMB + 1
-                                }
-                            }
-
                             default { It 'Link speed was not identified and so optimal live migration limit could not be determined' { $false | Should be $true } }
                         }
                     }

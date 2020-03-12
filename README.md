@@ -85,7 +85,7 @@ For more information, please see [Test Details](\tests\readme.md)
 ## Test Results
 
 ### Testing with Azure DevOps and a CI/CD pipeline
-Besides the on-screen feedback provided by the tool, results of the tests are stored in NUnitXML format in the \Results folder.  These Results can be stored for historical reasons and take part in a CI/CD pipline as shown in [Building a Continuous Integration and Continuous Deployment pipeline with DSC](https://docs.microsoft.com/en-us/powershell/scripting/dsc/overview/authoringadvanced?view=powershell-6)
+Besides the on-screen feedback provided by the tool, results of the tests are stored in NUnitXML format in the \Results folder.  These Results can be stored for historical reasons and take part in a CI/CD pipline as shown in [Building a Continuous Integration and Continuous Deployment pipeline with DSC](https://docs.microsoft.com/en-us/powershell/scripting/dsc/tutorials/dsccicd?view=powershell-5.1)
 
 ### Simple report using PowerBi
 

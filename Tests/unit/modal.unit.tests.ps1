@@ -896,10 +896,12 @@ Describe "[Modal Unit]" -Tag Modal {
                                 }
                             }
 
+                            # Setting to a Max of 750 MBps for adapters over 10 Gbps 
+                            # https://techcommunity.microsoft.com/t5/failover-clustering/optimizing-hyper-v-live-migrations-on-an-hyperconverged/ba-p/396609
                             {$_ -gt 10000000000} {
                                 $expectedLimitMB = (((($thisPolicy.BandwidthPercentage / 100) * .6) * $AdapterLinkSpeed) / 8) / 1000000
                                 It "Should have an Live Migration limit of 750 MBps" {
-                                    $SMBBandwidthLimit.BytesPerSecond / 1MB | Should BeLessThan ($expectedLimitMB + 1)
+                                    $SMBBandwidthLimit.BytesPerSecond / 1MB | Should BeLessThan (750MB + 1)
                                 }
                             }
 

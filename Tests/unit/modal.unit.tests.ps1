@@ -901,7 +901,7 @@ Describe "[Modal Unit]" -Tag Modal {
                             {$_ -gt 10000000000} {
                                 $expectedLimitMB = (((($thisPolicy.BandwidthPercentage / 100) * .6) * $AdapterLinkSpeed) / 8) / 1000000
                                 It "Should have an Live Migration limit of 750 MBps" {
-                                    $SMBBandwidthLimit.BytesPerSecond / 1MB | Should Be (750MB)
+                                    $SMBBandwidthLimit.BytesPerSecond / 1MB | Should Be 750
                                 }
                             }
 

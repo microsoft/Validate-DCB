@@ -555,7 +555,7 @@ Describe "[Modal Unit]" -Tag Modal {
 
                 ### Verify this adapter's DCBX setting is not Willing
                 It "[SUT: $nodeName]-[RDMAEnabledAdapters: $($thisRDMAEnabledAdapter.Name)]-[Noun: NetQosDcbxSetting] interfaces DCBX 'Willing' option should be false" {
-                    ($actNetQoSState.NetQosDcbxSettingInterfaces | Where-Object InterfaceAlias -like $thisRDMAEnabledAdapter.Name).Willing | Should Be 'false'
+                    ($actNetQoSState.NetQosDcbxSettingInterfaces | Where-Object InterfaceAlias -like $thisRDMAEnabledAdapter.Name).Willing | Should -BeFalse
                 }
             }
         }

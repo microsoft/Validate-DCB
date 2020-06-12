@@ -60,6 +60,13 @@ function Assert-DCBValidation {
     .PARAMETER ReportPath
         The string path of where to place the reports.  This should point to a folder; not a specific file.
 
+    .PARAMETER ReportID
+        The string ID of the report name.  If this param is specified the report name is prefixed with this string. 
+        By default, the report will be prefixed with the startTime.
+
+        If param is specified: <ReportID>-Modal-unit.xml
+        Default: yyyyMMdd-HHmmss-Modal-unit.xml
+
     .EXAMPLE
         Validate-DCB
 
@@ -108,7 +115,10 @@ function Assert-DCBValidation {
         [switch] $Deploy = $false ,
 
         [Parameter(Mandatory=$false)]
-        [string] $ReportPath
+        [string] $ReportPath ,
+    
+        [Parameter(Mandatory=$false)]
+        [string] $ReportID
     )
 
     Clear-Host
@@ -124,6 +134,10 @@ function Assert-DCBValidation {
 
     $here = Split-Path -Parent (Get-Module -Name Validate-DCB -ListAvailable | Select-Object -First 1).Path
     $startTime = Get-Date -format:'yyyyMMdd-HHmmss'
+
+    if ($ReportID) { $runID = $ReportID }
+    Else { $runID = $startTime }
+
     New-Item -Name 'Results' -Path $here -ItemType Directory -Force
 
     If ($deploy -eq $true -or $LaunchUI -eq $true) {
@@ -184,8 +198,8 @@ function Assert-DCBValidation {
 
     Switch ($TestScope) {
         'Global' {
-            If ($PSBoundParameters.ContainsKey('reportPath')) { $outputFile = "$reportPath\$startTime-Global-unit.xml" }
-            Else { $outputFile = "$here\Results\$startTime-Global-unit.xml" }
+            If ($PSBoundParameters.ContainsKey('reportPath')) { $outputFile = "$reportPath\$runID-Global-unit.xml" }
+            Else { $outputFile = "$here\Results\$runID-Global-unit.xml" }
 
             $testFile = Join-Path -Path $here -ChildPath "tests\unit\global.unit.tests.ps1"
             $GlobalResults = Invoke-Pester -Script $testFile -Tag 'Global' -OutputFile $outputFile -OutputFormat NUnitXml -PassThru
@@ -195,8 +209,8 @@ function Assert-DCBValidation {
         'Modal' {
             If ($global:deploy) { Publish-Automation }
 
-            If ($PSBoundParameters.ContainsKey('reportPath')) { $outputFile = "$reportPath\$startTime-Modal-unit.xml" }
-            Else { $outputFile = "$here\Results\$startTime-Modal-unit.xml" }
+            If ($PSBoundParameters.ContainsKey('reportPath')) { $outputFile = "$reportPath\$runID-Modal-unit.xml" }
+            Else { $outputFile = "$here\Results\$runID-Modal-unit.xml" }
 
             $testFile = Join-Path -Path $here -ChildPath "tests\unit\modal.unit.tests.ps1"
             $ModalResults = Invoke-Pester -Script $testFile -Tag 'Modal' -OutputFile $outputFile -OutputFormat NUnitXml -PassThru
@@ -204,8 +218,8 @@ function Assert-DCBValidation {
         }
 
         Default {
-            If ($PSBoundParameters.ContainsKey('reportPath')) { $outputFile = "$reportPath\$startTime-Global-unit.xml" }
-            Else { $outputFile = "$here\Results\$startTime-Global-unit.xml" }
+            If ($PSBoundParameters.ContainsKey('reportPath')) { $outputFile = "$reportPath\$runID-Global-unit.xml" }
+            Else { $outputFile = "$here\Results\$runID-Global-unit.xml" }
 
             $testFile = Join-Path -Path $here -ChildPath "tests\unit\global.unit.tests.ps1"
             $GlobalResults = Invoke-Pester -Script $testFile -Tag 'Global' -OutputFile $outputFile -OutputFormat NUnitXml -PassThru
@@ -219,8 +233,8 @@ function Assert-DCBValidation {
             
             If ($global:deploy) { Publish-Automation }
 
-            If ($PSBoundParameters.ContainsKey('reportPath')) { $outputFile = "$reportPath\$startTime-Modal-unit.xml" }
-            Else { $outputFile = "$here\Results\$startTime-Modal-unit.xml" }
+            If ($PSBoundParameters.ContainsKey('reportPath')) { $outputFile = "$reportPath\$runID-Modal-unit.xml" }
+            Else { $outputFile = "$here\Results\$runID-Modal-unit.xml" }
 
             $testFile = Join-Path -Path $here -ChildPath "tests\unit\modal.unit.tests.ps1"
             $ModalResults = Invoke-Pester -Script $testFile -Tag 'Modal' -OutputFile $outputFile -OutputFormat NUnitXml -PassThru

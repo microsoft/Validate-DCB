@@ -315,8 +315,8 @@
         }
 
         ### Verify Cluster Bandwidth Percentage is equal to 1%
-        It "[Config File]-[NonNodeData.NetQos]-[Noun: NetQosTrafficClass] Cluster BandwidthPercentage must be 1%" {
-            ($ConfigData.NonNodeData.NetQos.GetEnumerator().Where{ $_.Template -eq 'Cluster' }).BandwidthPercentage | Should be 1
+        It "[Config File]-[NonNodeData.NetQos]-[Noun: NetQosTrafficClass] Cluster BandwidthPercentage must be 2% or less" {
+            ($ConfigData.NonNodeData.NetQos.GetEnumerator().Where{ $_.Template -eq 'Cluster' }).BandwidthPercentage | Should BeLessThan 3
         }
 
         ### Verify BandwidthPercentage totals 100

@@ -63,7 +63,7 @@ Describe "[Modal Unit]" -Tag Modal {
 
                 ### Verify interface is using a known adapter
                     #TODO: Update once certifications are complete
-                It "[SUT: $nodeName]-[RDMAEnabledAdapter: $($thisRDMAEnabledAdapter.Name)]-[Noun: NetAdapter] Must use a certified device [e.g. Cavium, Chelsio, Intel, Broadcom, Mellanox]" {
+                It "[SUT: $nodeName]-[RDMAEnabledAdapter: $($thisRDMAEnabledAdapter.Name)]-[Noun: NetAdapter] Must use a certified device [e.g. Broadcom, Chelsio, Intel, Marvell (Qlogic/Cavium), Mellanox]" {
                     $thisDriver | Should not BeNullOrEmpty
                 }
 
@@ -129,7 +129,7 @@ Describe "[Modal Unit]" -Tag Modal {
 
                     ### Verify interface is using a known adapter
                         #TODO: Update once certifications are complete
-                    It "[SUT: $nodeName]-[VMSwitch: $($thisCfgVMSwitch.Name)]-[RDMAEnabledAdapter: $($thisRDMAEnabledAdapter.Name)]-[Noun: NetAdapter] Must use a known device [e.g. Cavium, Chelsio, Intel, Broadcom, Mellanox]" {
+                    It "[SUT: $nodeName]-[VMSwitch: $($thisCfgVMSwitch.Name)]-[RDMAEnabledAdapter: $($thisRDMAEnabledAdapter.Name)]-[Noun: NetAdapter] Must use a known device [e.g. Broadcom, Chelsio, Intel, Marvell (Qlogic/Cavium), Mellanox]" {
                         $thisDriver | Should not BeNullOrEmpty
                     }
 
@@ -190,7 +190,7 @@ Describe "[Modal Unit]" -Tag Modal {
                         }
                     }
 
-                    'Cavium'   {
+                    'Marvell'   {
                         #Test for NetworkDirectTechnology - As they support multiple options, we test that the system specifies iWARP or RoCEv2
                         It "[SUT: $nodeName]-[Adapter: $($thisRDMAEnabledAdapter.Name)]-(Noun: NetAdapterAdvancedProperty) Network Direct Technology must be '1'(iWARP) or '4' (RoCEv2) on Marvell/Cavium adapters" {
                             $NetworkDirectTechnologyValue = (($actNetAdapterState.netAdapterAdvancedProperty | Where-Object Name -eq $thisRDMAEnabledAdapter.Name) | Where-Object RegistryKeyword -eq '*NetworkDirectTechnology').RegistryValue
@@ -325,7 +325,7 @@ Describe "[Modal Unit]" -Tag Modal {
                             }
                         }
 
-                        'Cavium'   {
+                        'Marvell'   {
                             #Test for NetworkDirectTechnology - As they support multiple options, we test that the system specifies iWARP or RoCEv2
                             It "[SUT: $nodeName]-[Adapter: $($thisRDMAEnabledAdapter.Name)]-(Noun: NetAdapterAdvancedProperty) Network Direct Technology must be '1'(iWARP) or '4' (RoCEv2) on Marvell/Cavium adapters" {
                                 $NetworkDirectTechnologyValue = (($actNetAdapterState.netAdapterAdvancedProperty | Where-Object Name -eq $thisRDMAEnabledAdapter.Name) | Where-Object RegistryKeyword -eq '*NetworkDirectTechnology').RegistryValue

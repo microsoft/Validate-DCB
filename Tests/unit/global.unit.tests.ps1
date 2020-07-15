@@ -399,7 +399,6 @@
             }
 
             $actModules, $actFeatureState = Invoke-Command -ComputerName $nodeName -ScriptBlock {
-                $deploy       = $using:deploy
                 $modules      = Get-Module         -Name $using:reqModules -ListAvailable -ErrorAction SilentlyContinue
                 $featureState = Get-WindowsFeature -Name $using:reqFeatures -ErrorAction SilentlyContinue
 

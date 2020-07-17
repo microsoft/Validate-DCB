@@ -398,11 +398,20 @@
                 $reqModules  += 'Hyper-V'
             }
 
-            $actModules, $actFeatureState = Invoke-Command -ComputerName $nodeName -ScriptBlock {
-                $modules      = Get-Module         -Name $using:reqModules -ListAvailable -ErrorAction SilentlyContinue
-                $featureState = Get-WindowsFeature -Name $using:reqFeatures -ErrorAction SilentlyContinue
-
-                return $Modules, $featureState
+            if ($nodeName -match $env:COMPUTERNAME)
+            {
+                $actModules = Get-Module -Name $reqModules -ListAvailable -ErrorAction SilentlyContinue
+                $actFeatureState = Get-WindowsFeature -Name $reqFeatures -ErrorAction SilentlyContinue
+                $actModuleCmdletNames = $actModules.ExportedCommands.Values.Name
+            }
+            else
+            {
+                $actModules, $actFeatureState = Invoke-Command -ComputerName $nodeName -ScriptBlock {
+                    $modules      = Get-Module         -Name $using:reqModules -ListAvailable -ErrorAction SilentlyContinue
+                    $featureState = Get-WindowsFeature -Name $using:reqFeatures -ErrorAction SilentlyContinue                    
+                    return $Modules, $featureState
+                }
+                $actModuleCmdletNames = $actModules.ExportedCommands.Values
             }
 
             ### Verify that the required features exist on the SUT
@@ -430,7 +439,7 @@
 
             $reqCmdlets | ForEach-Object {
                 It "[Global Unit]-[SUT: $nodeName] should have the cmdlet [$_] available" {
-                    $actModules.ExportedCommands.Values -contains $_ | Should be $true
+                    $actModuleCmdletNames -contains $_ | Should be $true
                 }
             }
 

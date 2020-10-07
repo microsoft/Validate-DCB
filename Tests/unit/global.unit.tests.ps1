@@ -21,7 +21,8 @@
         It "[Global Unit]-[TestHost: ${env:ComputerName}] must be Windows 10, Server 2016, or Server 2019" {
             $caption =  ($NodeOS.Caption -like '*Windows 10*') -or
                         ($NodeOS.Caption -like '*Windows Server 2016*') -or
-                        ($NodeOS.Caption -like '*Windows Server 2019*')
+                        ($NodeOS.Caption -like '*Windows Server 2019*') -or
+                        ($NodeOS.Caption -like '*Azure Stack HCI*')
 
             $caption | Should be $true
         }
@@ -384,7 +385,8 @@
             ### Verify the SUTs are Server SKU, 2016 or Higher
             It "[Global Unit]-[SUT: $nodeName] must be Server 2016, or Server 2019" {
                 $caption =  ($NodeOS.Caption -like '*Windows Server 2016*') -or
-                            ($NodeOS.Caption -like '*Windows Server 2019*')
+                            ($NodeOS.Caption -like '*Windows Server 2019*') -or
+                            ($NodeOS.Caption -like '*Azure Stack HCI*')
 
                 $caption | Should be $true
             }

@@ -18,10 +18,11 @@
         $NodeOS = Get-CimInstance -ClassName 'Win32_OperatingSystem'
 
         ### Verify the TestHost is sufficient version
-        It "[Global Unit]-[TestHost: ${env:ComputerName}] must be Windows 10, Server 2016, or Server 2019" {
+        It "[Global Unit]-[TestHost: ${env:ComputerName}] must be Windows 10, Server 2016, Server 2019, or Server 2022" {
             $caption =  ($NodeOS.Caption -like '*Windows 10*') -or
                         ($NodeOS.Caption -like '*Windows Server 2016*') -or
                         ($NodeOS.Caption -like '*Windows Server 2019*') -or
+                        ($NodeOS.Caption -like '*Windows Server 2022*') -or
                         ($NodeOS.Caption -like '*Azure Stack HCI*')
 
             $caption | Should be $true
@@ -383,9 +384,10 @@
             $NodeOS = Get-CimInstance -CimSession $nodeName -ClassName 'Win32_OperatingSystem'
 
             ### Verify the SUTs are Server SKU, 2016 or Higher
-            It "[Global Unit]-[SUT: $nodeName] must be Server 2016, or Server 2019" {
+            It "[Global Unit]-[SUT: $nodeName] must be Server 2016, Server 2019, or Server 2022" {
                 $caption =  ($NodeOS.Caption -like '*Windows Server 2016*') -or
                             ($NodeOS.Caption -like '*Windows Server 2019*') -or
+                            ($NodeOS.Caption -like '*Windows Server 2022*') -or
                             ($NodeOS.Caption -like '*Azure Stack HCI*')
 
                 $caption | Should be $true

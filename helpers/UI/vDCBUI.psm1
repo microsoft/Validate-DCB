@@ -40,7 +40,7 @@ function vDCBUI {
             </Grid>
             <Grid>
                 <Rectangle Name="mark3" Fill="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" Height="27.976" Margin="0,0,159,0" Visibility="Hidden"/>
-                <Label Content="Clustes and Nodes" Margin="10,0,0,0"/>
+                <Label Content="Clusters and Nodes" Margin="10,0,0,0"/>
             </Grid>
             <Grid>
                 <Rectangle Name="mark4" Fill="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" Height="27.976" Margin="0,0,159,0" Visibility="Hidden"/>

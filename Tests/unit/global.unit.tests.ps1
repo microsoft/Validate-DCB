@@ -18,7 +18,7 @@
         $NodeOS = Get-CimInstance -ClassName 'Win32_OperatingSystem'
 
         ### Verify the TestHost is sufficient version
-        It "[Global Unit]-[TestHost: ${env:ComputerName}] must be Windows 10, Server 2016, Server 2019, or Server 2022" {
+        It "[Global Unit]-[TestHost: ${env:ComputerName}] must be Windows 10, Server 2016, Server 2019, or Server 2022 or HCI OS" {
             $caption =  ($NodeOS.Caption -like '*Windows 10*') -or
                         ($NodeOS.Caption -like '*Windows Server 2016*') -or
                         ($NodeOS.Caption -like '*Windows Server 2019*') -or

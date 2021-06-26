@@ -491,7 +491,7 @@ Describe "[Global Unit]" -Tag Launch_Deploy {
         ($reqModules).RequiredModules.GetEnumerator() | ForEach-Object {
             Remove-Variable module -ErrorAction SilentlyContinue
 
-            $module = Get-Module $_.ModuleName -ListAvailable -ErrorAction SilentlyContinue
+            $module = Get-Module $_.ModuleName -ListAvailable -ErrorAction SilentlyContinue | Select -First 1
 
             It "[Global Unit]-[TestHost: ${env:ComputerName}] Must have the module [$($_.ModuleName)] available" {
                 $module.Name | Should Not BeNullOrEmpty

@@ -95,6 +95,8 @@ You can also use PowerBi to make displaying results easy.  For more information,
 
 ## Interpreting Test Results
 
+Validate-DCB may not work with other languagues. In this case, use the test as guidance on how to verify your configuration.
+
 ### How Test Output is Constructed
 Tests are constructed hierarchically. ****Describing**** blocks contain one or more Context blocks. ****Context**** blocks contain one or more tests.  This is Pester terminology outside the scope of this documentation.  [Pester](https://github.com/pester/Pester/wiki/Pester) is a PowerShell-based unit testing framework included inbox with Windows 10, Server 2016 and Server 2019.
 

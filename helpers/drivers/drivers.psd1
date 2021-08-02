@@ -12,3 +12,4 @@
         @{ IHV = 'Mellanox' ; DriverFileName = 'mlx5.sys'      ; MinimumDriverVersion = '2.60.21096.0'  }  # ConnectX-4
     )
 }
+

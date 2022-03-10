@@ -69,7 +69,7 @@ Describe "[Modal Unit]" -Tag Modal {
 
                 ### Verify interface is using at least the recommended driver version
                 It "[SUT: $nodeName]-[RDMAEnabledAdapter: $($thisRDMAEnabledAdapter.Name)]-[Noun: NetAdapter] Driver must use the recommended version ($($thisDriver.MinimumDriverVersion) or later" {
-                    ($actNetAdapterState.NetAdapter | Where-Object Name -eq $thisRDMAEnabledAdapter.Name).DriverVersionString -ge $thisDriver.MinimumDriverVersion | Should be $true
+                    ([System.Version]($actNetAdapterState.NetAdapter | Where-Object Name -eq $thisRDMAEnabledAdapter.Name).DriverVersionString) -ge [System.Version]($thisDriver.MinimumDriverVersion) | Should be $true
                 }
             }
         }
@@ -135,7 +135,7 @@ Describe "[Modal Unit]" -Tag Modal {
 
                     ### Verify interface is using at least the recommended driver version
                     It "[SUT: $nodeName]-[VMSwitch: $($thisCfgVMSwitch.Name)]-[RDMAEnabledAdapter: $($thisRDMAEnabledAdapter.Name)]-[Noun: NetAdapter] Driver must use the recommended version ($($thisDriver.MinimumDriverVersion)) or later" {
-                        ($actNetAdapterState.NetAdapter | Where-Object Name -eq $thisRDMAEnabledAdapter.Name).DriverVersionString -ge $thisDriver.MinimumDriverVersion | Should be $true
+                        ([System.Version]($actNetAdapterState.NetAdapter | Where-Object Name -eq $thisRDMAEnabledAdapter.Name).DriverVersionString) -ge [System.Version]($thisDriver.MinimumDriverVersion) | Should be $true
                     }
                 }
             }
